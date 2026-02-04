@@ -1,0 +1,40 @@
+﻿{{define "title"}}Alerts - MonitorGo{{end}}
+
+{{define "content"}}
+<div class="header-left">
+    <h1>Alertes</h1>
+</div>
+
+<div class="empty-state">
+    <div class="empty-icon">ðŸ””</div>
+    <h3>Aucune alerte active</h3>
+    <p>Tout semble fonctionner normalement sur votre infrastructure.</p>
+</div>
+
+<style>
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 2rem;
+        text-align: center;
+        color: var(--text-muted);
+        background: var(--card-bg);
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        margin-top: 2rem;
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .empty-state h3 {
+        margin-bottom: 0.5rem;
+        color: var(--text-color);
+    }
+</style>
+{{end}}

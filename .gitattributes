@@ -1,0 +1,31 @@
+# Set default behavior to automatically normalize line endings to CRLF
+* text=auto eol=crlf
+
+# Explicitly declare text files you want to always be normalized and converted
+# to CRLF line endings on checkout.
+*.go text eol=crlf
+*.html text eol=crlf
+*.css text eol=crlf
+*.js text eol=crlf
+*.json text eol=crlf
+*.yaml text eol=crlf
+*.yml text eol=crlf
+*.md text eol=crlf
+*.txt text eol=crlf
+*.mod text eol=crlf
+*.sum text eol=crlf
+*.ps1 text eol=crlf
+*.bak text eol=crlf
+
+# Denote all files that are truly binary and should not be modified.
+*.exe binary
+*.db binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary

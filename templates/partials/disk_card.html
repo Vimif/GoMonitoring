@@ -1,0 +1,46 @@
+﻿{{define "disk_card"}}
+<div class="disk-card" data-mount="{{.MountPoint}}" onclick="browseDisk('{{.MountPoint}}')">
+    <div class="disk-header">
+        <div class="disk-icon">
+            {{if eq .DriveType "SSD"}}
+            <span class="icon-ssd">SSD</span>
+            {{else if eq .DriveType "HDD"}}
+            <span class="icon-hdd">HDD</span>
+            {{else}}
+            <span class="icon-disk">DISK</span>
+            {{end}}
+        </div>
+        <div class="disk-title">
+            <h3>{{.MountPoint}}</h3>
+            <span class="disk-device">{{.Device}}</span>
+        </div>
+    </div>
+
+    <div class="disk-info">
+        <span class="disk-type">{{.FSType}}</span>
+        <span class="disk-drive-type">{{.DriveType}}</span>
+    </div>
+
+    <div class="disk-usage">
+        <div class="progress-bar">
+            <div class="progress-fill {{if gt .UsedPercent 90.0}}danger{{else if gt .UsedPercent 75.0}}warning{{end}}"
+                 style="width: {{printf "%.1f" .UsedPercent}}%"></div>
+        </div>
+        <div class="disk-space">
+            <span>{{formatBytes .Used}} / {{formatBytes .Total}}</span>
+            <span class="percent">{{printf "%.1f" .UsedPercent}}%</span>
+        </div>
+    </div>
+
+    <div class="disk-details">
+        <div class="detail-item">
+            <span class="detail-label">Libre</span>
+            <span class="detail-value">{{formatBytes .Free}}</span>
+        </div>
+    </div>
+
+    <div class="disk-action">
+        <span class="browse-hint">Cliquer pour parcourir les fichiers â†’</span>
+    </div>
+</div>
+{{end}}

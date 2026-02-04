@@ -1,0 +1,36 @@
+﻿machines:
+    - id: Perso
+      name: Perso
+      host: 127.0.0.1
+      port: 22
+      user: thoma
+      password: "0147852"
+      group: Locales
+    - id: aze
+      name: azea
+      host: 192.168.22.33
+      port: 22
+      user: test
+      password: tatatata
+      group: Distantes
+    - id: tata
+      name: toto
+      host: ec2-52-47-207-151.eu-west-3.compute.amazonaws.com
+      port: 22
+      user: ec2-user
+      key_path: C:\Users\thoma\Downloads\test-key.pem
+      group: Autres
+settings:
+    refresh_interval: 30
+    ssh_timeout: 10
+    thresholds:
+        disk_min_percent: 10
+        memory_min_percent: 5
+        cpu_max_percent: 90
+users:
+    - username: admin
+      password: $2a$10$vRL9ZLbfjZ8LCfQ0WzIOj.jbYLt7v7HA2dqUFvQFiEct.Lozca8iK
+      role: admin
+    - username: test
+      password: $2a$10$sGLCej2y4lWHq1UWood42eHOmggJAtWsFU.OZ4VGH3497/0ZQ9oxq
+      role: user

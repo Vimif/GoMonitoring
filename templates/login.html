@@ -1,0 +1,50 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - MonitorGo</title>
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+    <link rel="stylesheet" href="/static/css/style.css?v=11">
+</head>
+
+<body class="login-page">
+    <div class="login-card">
+        <div class="login-header">
+            <div class="login-logo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                </svg>
+            </div>
+            <h1>Monitor<span style="color: var(--primary-color);">Go</span></h1>
+            <p>AccÃ¨s SÃ©curisÃ©</p>
+        </div>
+
+        {{if .Error}}
+        <div class="login-error">
+            {{.Error}}
+        </div>
+        {{end}}
+
+        <form method="POST" action="/login" class="login-form">
+            <div class="form-group">
+                <label for="username">Utilisateur</label>
+                <input type="text" id="username" name="username" required autofocus placeholder="Votre identifiant">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" name="password" required placeholder="Votre mot de passe">
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-login">Se connecter</button>
+        </form>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,1148 @@
+﻿{{define "title"}}Utilisateurs - MonitorGo{{end}}
+
+{{define "content"}}
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="header-left">
+        <div class="header-title">
+            <h1>Gestion des Utilisateurs</h1>
+            <p class="text-muted" style="margin-top: 0.25rem;">Administration des comptes et des accÃ¨s</p>
+        </div>
+    </div>
+    <div class="header-actions">
+        <button class="btn btn-primary btn-sm" onclick="openAddUserModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="8.5" cy="7" r="4"></circle>
+                <line x1="20" y1="8" x2="20" y2="14"></line>
+                <line x1="23" y1="11" x2="17" y2="11"></line>
+            </svg>
+            Nouvel Utilisateur
+        </button>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="stats-grid stats-grid-4" id="users-stats">
+    <div class="stat-card">
+        <div class="stat-icon" style="background: var(--primary-light); color: var(--primary-color);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+        </div>
+        <div class="stat-content">
+            <span class="stat-value" id="stat-total">-</span>
+            <span class="stat-label">Utilisateurs</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background: var(--success-light); color: var(--success-color);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+        </div>
+        <div class="stat-content">
+            <span class="stat-value" id="stat-active">-</span>
+            <span class="stat-label">Actifs</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background: var(--warning-light); color: var(--warning-color);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+        </div>
+        <div class="stat-content">
+            <span class="stat-value" id="stat-admin">-</span>
+            <span class="stat-label">Admins</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background: var(--danger-light); color: var(--danger-color);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+        </div>
+        <div class="stat-content">
+            <span class="stat-value" id="stat-locked">-</span>
+            <span class="stat-label">VerrouillÃ©s</span>
+        </div>
+    </div>
+</div>
+
+<!-- Users Table Card -->
+<div class="card" style="margin-top: 1.5rem;">
+    <div class="card-header">
+        <h3>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                style="margin-right: 0.5rem; opacity: 0.7;">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            Liste des Utilisateurs
+        </h3>
+        <!-- Filtre rapide -->
+        <div class="filter-group" style="display: flex; gap: 0.5rem;">
+            <button class="btn-filter active" data-filter="all" onclick="filterUsers('all')">Tous</button>
+            <button class="btn-filter" data-filter="active" onclick="filterUsers('active')">Actifs</button>
+            <button class="btn-filter" data-filter="admin" onclick="filterUsers('admin')">Admins</button>
+            <button class="btn-filter" data-filter="locked" onclick="filterUsers('locked')">VerrouillÃ©s</button>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table services-table" id="users-table">
+            <thead>
+                <tr>
+                    <th width="35%">Utilisateur</th>
+                    <th width="15%">RÃ´le</th>
+                    <th width="15%">Statut</th>
+                    <th width="35%" class="text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rempli par javascript -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Ajouter Utilisateur -->
+<div id="add-user-modal" class="modal" role="dialog" aria-labelledby="add-user-title" aria-modal="true">
+    <div class="modal-content modal-small">
+        <div class="modal-header">
+            <h2 id="add-user-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    style="margin-right: 0.5rem; vertical-align: middle;">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="8.5" cy="7" r="4"></circle>
+                    <line x1="20" y1="8" x2="20" y2="14"></line>
+                    <line x1="23" y1="11" x2="17" y2="11"></line>
+                </svg>
+                Nouvel utilisateur
+            </h2>
+            <button class="modal-close" onclick="closeAddUserModal()" aria-label="Fermer">Ã—</button>
+        </div>
+        <form id="add-user-form" onsubmit="submitAddUser(event)">
+            <div class="form-group">
+                <label for="new-username">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" style="margin-right: 0.25rem; vertical-align: middle;">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    Nom d'utilisateur
+                </label>
+                <input type="text" id="new-username" name="username" class="form-control" required autocomplete="off"
+                    placeholder="ex: jean.dupont">
+            </div>
+            <div class="form-group">
+                <label for="new-password">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" style="margin-right: 0.25rem; vertical-align: middle;">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                    Mot de passe
+                </label>
+                <input type="password" id="new-password" name="password" class="form-control" required
+                    autocomplete="new-password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢">
+            </div>
+            <div class="form-group">
+                <label for="new-role">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" style="margin-right: 0.25rem; vertical-align: middle;">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                    RÃ´le
+                </label>
+                <select id="new-role" name="role" class="form-select">
+                    <option value="user">Utilisateur (Lecture seule)</option>
+                    <option value="admin">Administrateur</option>
+                </select>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeAddUserModal()">Annuler</button>
+                <button type="submit" class="btn btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" style="margin-right: 0.25rem;">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    CrÃ©er
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Changer Role -->
+<div id="role-modal" class="modal" role="dialog" aria-labelledby="role-modal-title" aria-modal="true">
+    <div class="modal-content modal-small">
+        <div class="modal-header">
+            <h2 id="role-modal-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem; vertical-align: middle;">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                Changer le rÃ´le
+            </h2>
+            <button class="modal-close" onclick="closeRoleModal()" aria-label="Fermer">Ã—</button>
+        </div>
+        <form id="role-form" onsubmit="submitRoleChange(event)">
+            <input type="hidden" id="role-username">
+            <div class="form-group">
+                <label>Utilisateur</label>
+                <div class="user-badge-display" id="role-username-display"></div>
+            </div>
+            <div class="form-group">
+                <label for="edit-role">Nouveau rÃ´le</label>
+                <select id="edit-role" name="role" class="form-select">
+                    <option value="user">Utilisateur</option>
+                    <option value="admin">Administrateur</option>
+                </select>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeRoleModal()">Annuler</button>
+                <button type="submit" class="btn btn-primary">Sauvegarder</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Changer Mot de Passe -->
+<div id="password-modal" class="modal" role="dialog" aria-labelledby="password-modal-title" aria-modal="true">
+    <div class="modal-content modal-small">
+        <div class="modal-header">
+            <h2 id="password-modal-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem; vertical-align: middle;">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                Changer le mot de passe
+            </h2>
+            <button class="modal-close" onclick="closePasswordModal()" aria-label="Fermer">Ã—</button>
+        </div>
+        <form id="password-form" onsubmit="submitPasswordChange(event)">
+            <input type="hidden" id="pwd-username">
+            <div class="form-group">
+                <label>Utilisateur</label>
+                <div class="user-badge-display" id="pwd-username-display"></div>
+            </div>
+            <div class="form-group">
+                <label for="new-user-password">Nouveau mot de passe</label>
+                <input type="password" id="new-user-password" name="password" class="form-control" required
+                    placeholder="Minimum 8 caractÃ¨res recommandÃ©">
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="closePasswordModal()">Annuler</button>
+                <button type="submit" class="btn btn-primary">Sauvegarder</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* Stats Grid */
+    .stats-grid-4 {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.25rem;
+    }
+
+    @media (max-width: 1200px) {
+        .stats-grid-4 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 600px) {
+        .stats-grid-4 {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .stat-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: var(--shadow-sm);
+        transition: all var(--transition-base);
+    }
+
+    .stat-card:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .stat-content {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .stat-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-color);
+        line-height: 1;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin-top: 0.25rem;
+    }
+
+    /* Filter Buttons */
+    .btn-filter {
+        padding: 0.375rem 0.875rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-full);
+        background: var(--bg-color);
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all var(--transition-base);
+    }
+
+    .btn-filter:hover {
+        background: var(--hover-bg);
+        color: var(--text-color);
+    }
+
+    .btn-filter.active {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+
+    /* Role Badges - Enhanced */
+    .role-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: var(--radius-full);
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+    }
+
+    .role-admin {
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(168, 85, 247, 0.15) 100%);
+        color: #8b5cf6;
+        border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+
+    [data-theme="dark"] .role-admin {
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%);
+        color: #a78bfa;
+    }
+
+    .role-user {
+        background: rgba(100, 116, 139, 0.1);
+        color: #64748b;
+        border: 1px solid rgba(100, 116, 139, 0.2);
+    }
+
+    [data-theme="dark"] .role-user {
+        color: #94a3b8;
+    }
+
+    /* Badge Role Container - clickable */
+    .badge-role {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.25rem;
+        border-radius: var(--radius-md);
+        transition: all var(--transition-base);
+    }
+
+    .badge-role:hover {
+        background: var(--hover-bg);
+    }
+
+    .badge-role svg {
+        opacity: 0.5;
+        transition: opacity var(--transition-base);
+    }
+
+    .badge-role:hover svg {
+        opacity: 1;
+    }
+
+    /* Table Row Improvements */
+    #users-table tbody tr {
+        transition: all var(--transition-base);
+        animation: fadeIn 0.3s ease-out forwards;
+        opacity: 0;
+    }
+
+    @keyframes fadeIn {
+        to {
+            opacity: 1;
+        }
+    }
+
+    #users-table tbody tr:hover {
+        background: var(--hover-bg);
+    }
+
+    /* Cell Content Alignment */
+    .cell-content {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    /* User Avatar Hover */
+    .user-avatar-small {
+        transition: transform var(--transition-base);
+    }
+
+    #users-table tbody tr:hover .user-avatar-small {
+        transform: scale(1.05);
+    }
+
+    /* Action Buttons Group */
+    .actions-group {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    /* User Badge Display in Modals */
+    .user-badge-display {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: var(--hover-bg);
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        color: var(--text-color);
+        margin-top: 0.5rem;
+    }
+
+    /* Password Button */
+    .btn-password:hover {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--warning-color);
+        border-color: var(--warning-color);
+    }
+
+    /* System Badge */
+    .system-badge {
+        background: var(--hover-bg) !important;
+        color: var(--text-muted) !important;
+        border: none !important;
+    }
+
+    /* Status Badges */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.25rem 0.625rem;
+        border-radius: var(--radius-full);
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .status-badge .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+    }
+
+    .status-badge .dot.green {
+        background: var(--success-color);
+    }
+
+    .status-badge .dot.red {
+        background: var(--danger-color);
+    }
+
+    .status-badge .dot.grey {
+        background: var(--text-muted);
+    }
+
+    .status-online {
+        background: var(--success-light);
+        color: var(--success-color);
+    }
+
+    .status-offline {
+        background: var(--hover-bg);
+        color: var(--text-muted);
+    }
+
+    .status-critical {
+        background: var(--danger-light);
+        color: var(--danger-color);
+    }
+
+    /* =============================================
+       UI/UX BEST PRACTICES
+       ============================================= */
+
+    /* 1. ACCESSIBILITY - Focus States */
+    .btn-filter:focus-visible,
+    .btn-action:focus-visible,
+    .btn:focus-visible {
+        outline: 2px solid var(--primary-color);
+        outline-offset: 2px;
+    }
+
+    .badge-role:focus-visible {
+        outline: 2px solid var(--primary-color);
+        outline-offset: 2px;
+        border-radius: var(--radius-md);
+    }
+
+    /* 2. TOUCH-FRIENDLY - Minimum 44px touch targets */
+    .btn-action {
+        min-width: 44px;
+        min-height: 44px;
+        width: 44px;
+        height: 44px;
+    }
+
+    .btn-filter {
+        min-height: 36px;
+        padding: 0.5rem 1rem;
+    }
+
+    /* 3. SKELETON LOADERS - Better perceived performance */
+    .skeleton {
+        background: linear-gradient(90deg,
+                var(--hover-bg) 25%,
+                var(--border-color) 50%,
+                var(--hover-bg) 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: var(--radius-md);
+    }
+
+    .skeleton-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+    }
+
+    .skeleton-text {
+        height: 16px;
+        width: 120px;
+    }
+
+    .skeleton-text-sm {
+        height: 12px;
+        width: 80px;
+    }
+
+    .skeleton-badge {
+        height: 24px;
+        width: 60px;
+        border-radius: var(--radius-full);
+    }
+
+    @keyframes shimmer {
+        0% {
+            background-position: 200% 0;
+        }
+
+        100% {
+            background-position: -200% 0;
+        }
+    }
+
+    /* 4. REDUCED MOTION - Accessibility preference */
+    @media (prefers-reduced-motion: reduce) {
+
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+
+        .skeleton {
+            animation: none;
+            background: var(--hover-bg);
+        }
+    }
+
+    /* 5. LOADING STATES */
+    .loading-spinner {
+        width: 24px;
+        height: 24px;
+        border: 3px solid var(--border-color);
+        border-top-color: var(--primary-color);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* 6. VISUAL HIERARCHY - Consistent spacing (8px grid) */
+    .table td {
+        padding: 1rem 1.25rem;
+        /* 16px / 20px */
+    }
+
+    .table th {
+        padding: 0.75rem 1.25rem;
+        /* 12px / 20px */
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+        font-weight: 600;
+    }
+
+    /* 7. FEEDBACK - Button pressed states */
+    .btn-action:active {
+        transform: scale(0.95);
+    }
+
+    .btn-filter:active {
+        transform: scale(0.98);
+    }
+
+    /* 8. EMPTY STATES - Clear visual feedback */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-muted);
+    }
+
+    .empty-state svg {
+        opacity: 0.3;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state h4 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--text-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+        font-size: 0.875rem;
+        max-width: 300px;
+        margin: 0 auto;
+    }
+
+    /* 9. TOOLTIPS - Better context */
+    .btn-action[title] {
+        position: relative;
+    }
+
+    .btn-action[title]:hover::after {
+        content: attr(title);
+        position: absolute;
+        bottom: calc(100% + 8px);
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 0.375rem 0.625rem;
+        background: var(--text-color);
+        color: var(--card-bg);
+        font-size: 0.75rem;
+        font-weight: 500;
+        border-radius: var(--radius-sm);
+        white-space: nowrap;
+        z-index: 100;
+        pointer-events: none;
+    }
+
+    .btn-action[title]:hover::before {
+        content: '';
+        position: absolute;
+        bottom: calc(100% + 4px);
+        left: 50%;
+        transform: translateX(-50%);
+        border: 4px solid transparent;
+        border-top-color: var(--text-color);
+        z-index: 100;
+    }
+
+    /* 10. CONTRAST - WCAG AA compliance */
+    .text-muted {
+        color: #64748b;
+        /* Meets 4.5:1 contrast ratio */
+    }
+
+    [data-theme="dark"] .text-muted {
+        color: #94a3b8;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .header-actions {
+            width: 100%;
+            justify-content: flex-end;
+        }
+
+        .filter-group {
+            display: none;
+        }
+
+        #users-table th:nth-child(2),
+        #users-table td:nth-child(2) {
+            display: none;
+        }
+
+        /* Stack action buttons on mobile */
+        .cell-content[style*="justify-content: flex-end"] {
+            flex-wrap: wrap;
+        }
+    }
+</style>
+
+<script>
+    // USERS MODULE V8 - ENHANCED
+    let allUsers = [];
+    let currentFilter = 'all';
+
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log("Users Module V8 - Enhanced");
+        loadUsersV8();
+    });
+
+    // Helper: Generate pastel color from string
+    function getColorForUsername(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const h = Math.abs(hash) % 360;
+        return `hsl(${h}, 70%, 45%)`;
+    }
+
+    function updateStats(users) {
+        const total = users.length;
+        const active = users.filter(u => u.is_active && !u.is_locked).length;
+        const admins = users.filter(u => u.role === 'admin').length;
+        const locked = users.filter(u => u.is_locked).length;
+
+        animateValue('stat-total', total);
+        animateValue('stat-active', active);
+        animateValue('stat-admin', admins);
+        animateValue('stat-locked', locked);
+    }
+
+    function animateValue(elementId, value) {
+        const el = document.getElementById(elementId);
+        if (!el) return;
+
+        const current = parseInt(el.textContent) || 0;
+        if (current === value) {
+            el.textContent = value;
+            return;
+        }
+
+        const duration = 400;
+        const step = (value - current) / (duration / 16);
+        let currentVal = current;
+
+        const timer = setInterval(() => {
+            currentVal += step;
+            if ((step > 0 && currentVal >= value) || (step < 0 && currentVal <= value)) {
+                el.textContent = value;
+                clearInterval(timer);
+            } else {
+                el.textContent = Math.round(currentVal);
+            }
+        }, 16);
+    }
+
+    function filterUsers(filter) {
+        currentFilter = filter;
+
+        // Update filter buttons
+        document.querySelectorAll('.btn-filter').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.filter === filter);
+        });
+
+        renderUsers(getFilteredUsers());
+    }
+
+    function getFilteredUsers() {
+        switch (currentFilter) {
+            case 'active':
+                return allUsers.filter(u => u.is_active && !u.is_locked);
+            case 'admin':
+                return allUsers.filter(u => u.role === 'admin');
+            case 'locked':
+                return allUsers.filter(u => u.is_locked);
+            default:
+                return allUsers;
+        }
+    }
+
+    function renderUsers(users) {
+        const tableBody = document.querySelector('#users-table tbody');
+        if (!tableBody) return;
+
+        if (users.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="4" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" style="opacity: 0.3; margin-bottom: 1rem;">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <line x1="17" y1="11" x2="23" y2="11"></line>
+                        </svg>
+                        <div>Aucun utilisateur trouvÃ©</div>
+                    </td>
+                </tr>`;
+            return;
+        }
+
+        tableBody.innerHTML = users.map((user, index) => {
+            let statusBadge = '';
+            if (user.is_locked) {
+                statusBadge = `<span class="status-badge status-critical"><span class="dot red"></span>VerrouillÃ©</span>`;
+            } else if (user.is_active) {
+                statusBadge = `<span class="status-badge status-online"><span class="dot green"></span>Actif</span>`;
+            } else {
+                statusBadge = `<span class="status-badge status-offline"><span class="dot grey"></span>Inactif</span>`;
+            }
+
+            const avatarColor = user.username === 'admin' ? 'var(--primary-color)' : getColorForUsername(user.username);
+            const delay = index * 50;
+
+            return `
+            <tr style="animation-delay: ${delay}ms">
+                <td>
+                    <div class="cell-content">
+                        <div class="user-avatar-small" style="width:40px;height:40px;background:${avatarColor};color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:14px;box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                            ${user.username.substring(0, 2).toUpperCase()}
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 0.125rem;">
+                            <span style="font-weight: 600; font-size: 0.95rem; color: var(--text-color);">${user.username}</span>
+                            ${user.username === 'admin' ? '<span class="status-badge status-warning system-badge" style="font-size:0.65rem; padding:2px 6px;">SYSTEM</span>' : ''}
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="cell-content badge-role" 
+                         ${user.username !== 'admin' ? `onclick="openRoleModal('${user.username}', '${user.role}')"` : ''}
+                         style="cursor: ${user.username !== 'admin' ? 'pointer' : 'default'};">
+                        <span class="role-badge role-${user.role}">${user.role === 'admin' ? 'Admin' : 'User'}</span>
+                        ${user.username !== 'admin' ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>' : ''}
+                    </div>
+                </td>
+                <td>
+                    <div class="cell-content">
+                        ${statusBadge}
+                    </div>
+                </td>
+                <td>
+                    <div class="cell-content" style="justify-content: flex-end; gap: 0.5rem;" role="group" aria-label="Actions utilisateur">
+                        ${user.is_locked ? `
+                        <button class="btn-action btn-restart" title="DÃ©verrouiller" aria-label="DÃ©verrouiller ${user.username}" onclick="unlockUser('${user.username}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>
+                        </button>` : ''}
+                        
+                        ${user.username !== 'admin' ? `
+                        <button class="btn-action ${user.is_active ? 'btn-stop' : 'btn-start'}" title="${user.is_active ? 'DÃ©sactiver' : 'Activer'}" aria-label="${user.is_active ? 'DÃ©sactiver' : 'Activer'} ${user.username}" onclick="toggleUserStatus('${user.username}', ${!user.is_active})">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+                                <line x1="12" y1="2" x2="12" y2="12"></line>
+                            </svg>
+                        </button>` : ''}
+
+                        <button class="btn-action btn-password" title="Changer mot de passe" aria-label="Changer le mot de passe de ${user.username}" onclick="openPasswordModal('${user.username}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                        </button>
+                        
+                        ${user.username !== 'admin' ? `
+                        <button class="btn-action btn-stop" title="Supprimer" aria-label="Supprimer ${user.username}" onclick="deleteUser('${user.username}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        </button>` : ''}
+                    </div>
+                </td>
+            </tr>
+            `;
+        }).join('');
+    }
+
+    async function loadUsersV8() {
+        const tableBody = document.querySelector('#users-table tbody');
+        if (!tableBody) return;
+
+        // Show skeleton loaders for better perceived performance
+        tableBody.innerHTML = Array(3).fill(0).map(() => `
+            <tr>
+                <td>
+                    <div class="cell-content">
+                        <div class="skeleton skeleton-avatar"></div>
+                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                            <div class="skeleton skeleton-text"></div>
+                            <div class="skeleton skeleton-text-sm"></div>
+                        </div>
+                    </div>
+                </td>
+                <td><div class="skeleton skeleton-badge"></div></td>
+                <td><div class="skeleton skeleton-badge"></div></td>
+                <td>
+                    <div class="cell-content" style="justify-content: flex-end; gap: 0.5rem;">
+                        <div class="skeleton" style="width: 44px; height: 44px; border-radius: var(--radius-md);"></div>
+                        <div class="skeleton" style="width: 44px; height: 44px; border-radius: var(--radius-md);"></div>
+                        <div class="skeleton" style="width: 44px; height: 44px; border-radius: var(--radius-md);"></div>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+
+        try {
+            const response = await fetch('/api/users');
+            if (!response.ok) throw new Error('Erreur chargement utilisateurs');
+            allUsers = await response.json();
+
+            updateStats(allUsers);
+            renderUsers(getFilteredUsers());
+        } catch (error) {
+            console.error(error);
+            tableBody.innerHTML = `<tr><td colspan="4" class="text-error">Erreur de chargement: ${error.message}</td></tr>`;
+        }
+    }
+
+    // Add User Modal
+    function openAddUserModal() {
+        document.getElementById('add-user-modal').classList.add('open');
+        document.getElementById('add-user-form').reset();
+        document.getElementById('new-username').focus();
+    }
+
+    function closeAddUserModal() {
+        document.getElementById('add-user-modal').classList.remove('open');
+    }
+
+    async function submitAddUser(e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData.entries());
+
+        try {
+            const response = await fetch('/api/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                const err = await response.text();
+                throw new Error(err);
+            }
+
+            closeAddUserModal();
+            loadUsersV8();
+            await dialog.alert('Utilisateur crÃ©Ã© avec succÃ¨s', { title: 'SuccÃ¨s', type: 'success' });
+        } catch (error) {
+            await dialog.alert(error.message, { title: 'Erreur', type: 'error' });
+        }
+    }
+
+    // Role Modal
+    function openRoleModal(username, currentRole) {
+        document.getElementById('role-modal').classList.add('open');
+        document.getElementById('role-username').value = username;
+        document.getElementById('role-username-display').textContent = username;
+        document.getElementById('edit-role').value = currentRole;
+    }
+
+    function closeRoleModal() {
+        document.getElementById('role-modal').classList.remove('open');
+    }
+
+    async function submitRoleChange(e) {
+        e.preventDefault();
+        const username = document.getElementById('role-username').value;
+        const role = document.getElementById('edit-role').value;
+
+        try {
+            const response = await fetch(`/api/users/${username}/role`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ role })
+            });
+
+            if (!response.ok) {
+                const err = await response.text();
+                throw new Error(err);
+            }
+
+            closeRoleModal();
+            loadUsersV8();
+        } catch (error) {
+            await dialog.alert(error.message, { title: 'Erreur', type: 'error' });
+        }
+    }
+
+    // Password Modal
+    function openPasswordModal(username) {
+        document.getElementById('password-modal').classList.add('open');
+        document.getElementById('pwd-username').value = username;
+        document.getElementById('pwd-username-display').textContent = username;
+        document.getElementById('password-form').reset();
+        document.getElementById('new-user-password').focus();
+    }
+
+    function closePasswordModal() {
+        document.getElementById('password-modal').classList.remove('open');
+    }
+
+    async function submitPasswordChange(e) {
+        e.preventDefault();
+        const username = document.getElementById('pwd-username').value;
+        const formData = new FormData(e.target);
+        const password = formData.get('password');
+
+        try {
+            const response = await fetch(`/api/users/${username}/password`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password })
+            });
+
+            if (!response.ok) {
+                const err = await response.text();
+                throw new Error(err);
+            }
+
+            closePasswordModal();
+            await dialog.alert('Mot de passe mis Ã  jour avec succÃ¨s', { title: 'SuccÃ¨s', type: 'success' });
+        } catch (error) {
+            await dialog.alert(error.message, { title: 'Erreur', type: 'error' });
+        }
+    }
+
+    // Toggle Status
+    async function toggleUserStatus(username, active) {
+        const action = active ? 'activer' : 'dÃ©sactiver';
+        const confirmed = await dialog.confirm(
+            `Voulez-vous vraiment ${action} le compte ${username} ?`,
+            { title: active ? 'Activer le compte' : 'DÃ©sactiver le compte', type: 'question', confirmText: active ? 'Activer' : 'DÃ©sactiver', danger: !active }
+        );
+        if (!confirmed) return;
+
+        try {
+            const response = await fetch(`/api/users/${username}/toggle-status`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ active: active })
+            });
+
+            if (!response.ok) throw new Error(await response.text());
+            loadUsersV8();
+        } catch (error) {
+            await dialog.alert(error.message, { title: 'Erreur', type: 'error' });
+        }
+    }
+
+    // Unlock User
+    async function unlockUser(username) {
+        const confirmed = await dialog.confirm(
+            `DÃ©verrouiller le compte ${username} ?`,
+            { title: 'DÃ©verrouiller le compte', type: 'question', confirmText: 'DÃ©verrouiller' }
+        );
+        if (!confirmed) return;
+
+        try {
+            const response = await fetch(`/api/users/${username}/unlock`, {
+                method: 'POST'
+            });
+
+            if (!response.ok) throw new Error(await response.text());
+            loadUsersV8();
+            await dialog.alert('Compte dÃ©verrouillÃ© avec succÃ¨s', { title: 'SuccÃ¨s', type: 'success' });
+        } catch (error) {
+            await dialog.alert(error.message, { title: 'Erreur', type: 'error' });
+        }
+    }
+
+    // Delete User
+    async function deleteUser(username) {
+        const confirmed = await dialog.confirm(
+            `ÃŠtes-vous sÃ»r de vouloir supprimer l'utilisateur ${username} ?\n\nCette action est irrÃ©versible.`,
+            { title: 'Supprimer l\'utilisateur', type: 'warning', confirmText: 'Supprimer', danger: true }
+        );
+        if (!confirmed) return;
+
+        try {
+            const response = await fetch(`/api/users/${username}`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) {
+                const err = await response.text();
+                throw new Error(err);
+            }
+
+            loadUsersV8();
+        } catch (error) {
+            await dialog.alert(error.message, { title: 'Erreur', type: 'error' });
+        }
+    }
+
+    // Close modal on background click
+    window.addEventListener('click', (e) => {
+        if (e.target.classList.contains('modal')) {
+            e.target.classList.remove('open');
+        }
+    });
+
+    // Close modal on Escape key
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.modal.open').forEach(modal => {
+                modal.classList.remove('open');
+            });
+        }
+    });
+</script>
+{{end}}

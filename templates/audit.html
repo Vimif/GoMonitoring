@@ -1,0 +1,889 @@
+﻿{{define "title"}}{{ .Title }} - MonitorGo{{end}}
+
+{{define "content"}}
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="header-left">
+        <div class="header-title">
+            <h1>Journal d'Audit</h1>
+            <p class="text-muted" style="margin-top: 0.25rem;">SÃ©curitÃ© & TraÃ§abilitÃ© des actions</p>
+        </div>
+    </div>
+    <div class="header-actions">
+        <button onclick="clearFilters()" class="btn btn-secondary btn-sm" id="btn-clear-filters" style="display: none;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            Effacer les filtres
+        </button>
+        <button onclick="exportAuditLogs()" class="btn btn-secondary btn-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Exporter CSV
+        </button>
+        <button onclick="window.location.reload()" class="btn btn-primary btn-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 4v6h-6"></path>
+                <path d="M1 20v-6h6"></path>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+            Actualiser
+        </button>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="audit-stats">
+    <div class="stat-card stat-card-mini">
+        <div class="stat-icon-mini" style="background: var(--primary-light); color: var(--primary-color);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                <polyline points="10 17 15 12 10 7"></polyline>
+                <line x1="15" y1="12" x2="3" y2="12"></line>
+            </svg>
+        </div>
+        <div class="stat-mini-content">
+            <span class="stat-mini-value" id="stat-login">0</span>
+            <span class="stat-mini-label">Connexions</span>
+        </div>
+    </div>
+    <div class="stat-card stat-card-mini">
+        <div class="stat-icon-mini" style="background: rgba(100, 116, 139, 0.1); color: #64748b;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+        </div>
+        <div class="stat-mini-content">
+            <span class="stat-mini-value" id="stat-logout">0</span>
+            <span class="stat-mini-label">DÃ©connexions</span>
+        </div>
+    </div>
+    <div class="stat-card stat-card-mini">
+        <div class="stat-icon-mini" style="background: var(--success-light); color: var(--success-color);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+        </div>
+        <div class="stat-mini-content">
+            <span class="stat-mini-value" id="stat-create">0</span>
+            <span class="stat-mini-label">CrÃ©ations</span>
+        </div>
+    </div>
+    <div class="stat-card stat-card-mini">
+        <div class="stat-icon-mini" style="background: var(--warning-light); color: var(--warning-color);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+        </div>
+        <div class="stat-mini-content">
+            <span class="stat-mini-value" id="stat-update">0</span>
+            <span class="stat-mini-label">Modifications</span>
+        </div>
+    </div>
+    <div class="stat-card stat-card-mini">
+        <div class="stat-icon-mini" style="background: var(--danger-light); color: var(--danger-color);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+        </div>
+        <div class="stat-mini-content">
+            <span class="stat-mini-value" id="stat-delete">0</span>
+            <span class="stat-mini-label">Suppressions</span>
+        </div>
+    </div>
+</div>
+
+<!-- Filters Card -->
+<div class="card filters-card">
+    <div class="filters-row">
+        <div class="filter-group-inline">
+            <label for="filter-action">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                </svg>
+                Action
+            </label>
+            <select id="filter-action" class="form-select form-select-sm" onchange="applyFilters()">
+                <option value="">Toutes</option>
+                <option value="LOGIN">Connexion</option>
+                <option value="LOGOUT">DÃ©connexion</option>
+                <option value="CREATE">CrÃ©ation</option>
+                <option value="UPDATE">Modification</option>
+                <option value="DELETE">Suppression</option>
+            </select>
+        </div>
+        <div class="filter-group-inline">
+            <label for="filter-user">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                Utilisateur
+            </label>
+            <select id="filter-user" class="form-select form-select-sm" onchange="applyFilters()">
+                <option value="">Tous</option>
+                {{range .Users}}
+                <option value="{{.}}">{{.}}</option>
+                {{end}}
+            </select>
+        </div>
+        <div class="filter-group-inline">
+            <label for="filter-search">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                Recherche
+            </label>
+            <input type="text" id="filter-search" class="form-control form-control-sm" placeholder="Cible, dÃ©tails..."
+                oninput="applyFilters()">
+        </div>
+        <div class="filter-results" id="filter-results">
+            <span id="results-count">0</span> rÃ©sultats
+        </div>
+    </div>
+</div>
+
+<!-- Audit Logs Card -->
+<div class="card" style="margin-top: 1rem;">
+    <div class="card-header">
+        <h3>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                style="margin-right: 0.5rem; opacity: 0.7;">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+            Historique des Actions
+        </h3>
+    </div>
+    <div class="table-responsive">
+        <table class="table services-table" id="audit-table">
+            <thead>
+                <tr>
+                    <th width="12%">Date</th>
+                    <th width="12%">Utilisateur</th>
+                    <th width="12%">Action</th>
+                    <th width="18%">Cible</th>
+                    <th width="34%">DÃ©tails</th>
+                    <th width="12%">IP Source</th>
+                </tr>
+            </thead>
+            <tbody id="audit-tbody">
+                {{range .Logs}}
+                <tr data-action="{{.Action}}" data-user="{{.User}}" data-target="{{.Target}}"
+                    data-details="{{.Details}}">
+                    <td class="text-muted" style="white-space: nowrap;">
+                        <div class="date-cell">
+                            <span class="date-primary">{{.Timestamp.Format "02/01/2006"}}</span>
+                            <span class="date-secondary">{{.Timestamp.Format "15:04:05"}}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="user-cell">
+                            <div class="user-avatar-mini">{{slice .User 0 1}}</div>
+                            <span style="font-weight: 600; color: var(--text-color);">{{.User}}</span>
+                        </div>
+                    </td>
+                    <td>
+                        {{if eq .Action "LOGIN"}}
+                        <div class="action-badge action-login">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                                <polyline points="10 17 15 12 10 7"></polyline>
+                                <line x1="15" y1="12" x2="3" y2="12"></line>
+                            </svg>
+                            Connexion
+                        </div>
+                        {{else if eq .Action "LOGOUT"}}
+                        <div class="action-badge action-logout">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                            </svg>
+                            DÃ©connexion
+                        </div>
+                        {{else if eq .Action "CREATE"}}
+                        <div class="action-badge action-create">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            CrÃ©ation
+                        </div>
+                        {{else if eq .Action "UPDATE"}}
+                        <div class="action-badge action-update">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                            Modification
+                        </div>
+                        {{else if eq .Action "DELETE"}}
+                        <div class="action-badge action-delete">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path
+                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                </path>
+                            </svg>
+                            Suppression
+                        </div>
+                        {{else}}
+                        <div class="action-badge action-other">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                            </svg>
+                            {{.Action}}
+                        </div>
+                        {{end}}
+                    </td>
+                    <td>
+                        <code class="target-code">{{.Target}}</code>
+                    </td>
+                    <td class="details-cell">{{.Details}}</td>
+                    <td>
+                        <span class="ip-badge">{{.IPAddress}}</span>
+                    </td>
+                </tr>
+                {{else}}
+                <tr class="empty-row">
+                    <td colspan="6" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" style="opacity: 0.3; margin-bottom: 1rem;">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                        <div>Aucun log d'audit disponible</div>
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    /* Audit Stats Row */
+    .audit-stats {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+
+    .stat-card-mini {
+        flex: 1;
+        min-width: 140px;
+        padding: 0.875rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .stat-icon-mini {
+        width: 36px;
+        height: 36px;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .stat-mini-content {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .stat-mini-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text-color);
+        line-height: 1;
+    }
+
+    .stat-mini-label {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    /* Filters Card */
+    .filters-card {
+        padding: 1rem 1.25rem;
+        margin-top: 1rem;
+    }
+
+    .filters-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.25rem;
+        align-items: flex-end;
+    }
+
+    .filter-group-inline {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+    }
+
+    .filter-group-inline label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .filter-group-inline .form-select-sm,
+    .filter-group-inline .form-control-sm {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+        min-width: 150px;
+    }
+
+    .filter-results {
+        margin-left: auto;
+        padding: 0.5rem 1rem;
+        background: var(--hover-bg);
+        border-radius: var(--radius-md);
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+
+    .filter-results #results-count {
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+
+    /* Date Cell */
+    .date-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+    }
+
+    .date-primary {
+        font-weight: 500;
+        color: var(--text-color);
+        font-size: 0.875rem;
+    }
+
+    .date-secondary {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    /* User Cell */
+    .user-cell {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .user-avatar-mini {
+        width: 28px;
+        height: 28px;
+        background: var(--primary-color);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    /* Action Badges */
+    .action-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: var(--radius-full);
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .action-login {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+    }
+
+    .action-logout {
+        background: rgba(100, 116, 139, 0.1);
+        color: #64748b;
+    }
+
+    .action-create {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+    }
+
+    .action-update {
+        background: rgba(245, 158, 11, 0.1);
+        color: #f59e0b;
+    }
+
+    .action-delete {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
+
+    .action-other {
+        background: rgba(139, 92, 246, 0.1);
+        color: #8b5cf6;
+    }
+
+    /* Target Code */
+    .target-code {
+        background: var(--bg-color);
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        color: var(--text-color);
+        border: 1px solid var(--border-color);
+        font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    }
+
+    /* Details Cell - Expandable */
+    .details-cell {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        max-width: 300px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: all var(--transition-base);
+    }
+
+    .details-cell:hover {
+        color: var(--text-color);
+    }
+
+    .details-cell.expanded {
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    /* IP Badge */
+    .ip-badge {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        background: var(--hover-bg);
+        border-radius: var(--radius-sm);
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    }
+
+    /* Table Row with Timeline Accent */
+    #audit-tbody tr[data-action] {
+        border-left: 3px solid transparent;
+        transition: all var(--transition-base);
+    }
+
+    #audit-tbody tr[data-action]:hover {
+        background: var(--hover-bg);
+    }
+
+    #audit-tbody tr[data-action="LOGIN"] {
+        border-left-color: #3b82f6;
+    }
+
+    #audit-tbody tr[data-action="LOGOUT"] {
+        border-left-color: #64748b;
+    }
+
+    #audit-tbody tr[data-action="CREATE"] {
+        border-left-color: #10b981;
+    }
+
+    #audit-tbody tr[data-action="UPDATE"] {
+        border-left-color: #f59e0b;
+    }
+
+    #audit-tbody tr[data-action="DELETE"] {
+        border-left-color: #ef4444;
+    }
+
+    /* Hidden row for filtering */
+    #audit-tbody tr.hidden {
+        display: none;
+    }
+
+    /* Empty state */
+    .no-results-row td {
+        text-align: center;
+        padding: 3rem;
+        color: var(--text-muted);
+    }
+
+    /* Toast Notification */
+    .toast {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        padding: 0.875rem 1.25rem;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-lg);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        z-index: 9999;
+        animation: slideIn 0.3s ease-out;
+    }
+
+    .toast.success {
+        border-left: 4px solid var(--success-color);
+    }
+
+    .toast.success svg {
+        color: var(--success-color);
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideOut {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+        .audit-stats {
+            flex-wrap: wrap;
+        }
+
+        .stat-card-mini {
+            min-width: calc(50% - 0.5rem);
+        }
+
+        .filters-row {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .filter-results {
+            margin-left: 0;
+            text-align: center;
+        }
+    }
+
+    @media (max-width: 768px) {
+
+        #audit-table th:nth-child(5),
+        #audit-table td:nth-child(5),
+        #audit-table th:nth-child(6),
+        #audit-table td:nth-child(6) {
+            display: none;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .stat-card-mini {
+            min-width: 100%;
+        }
+    }
+
+    /* =============================================
+       UI/UX BEST PRACTICES
+       ============================================= */
+
+    /* 1. ACCESSIBILITY - Focus States */
+    .form-select-sm:focus-visible,
+    .form-control-sm:focus-visible,
+    .btn:focus-visible {
+        outline: 2px solid var(--primary-color);
+        outline-offset: 2px;
+    }
+
+    /* 2. TOUCH-FRIENDLY - Minimum targets */
+    .form-select-sm,
+    .form-control-sm {
+        min-height: 40px;
+    }
+
+    /* 3. VISUAL HIERARCHY - Table headers */
+    #audit-table th {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+        font-weight: 600;
+        padding: 0.75rem 1rem;
+    }
+
+    #audit-table td {
+        padding: 0.875rem 1rem;
+    }
+
+    /* 4. REDUCED MOTION */
+    @media (prefers-reduced-motion: reduce) {
+
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+
+    /* 5. KEYBOARD NAVIGATION HINT */
+    .keyboard-hint {
+        display: none;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-top: 0.5rem;
+    }
+
+    @media (hover: hover) {
+        .keyboard-hint {
+            display: block;
+        }
+    }
+
+    .kbd {
+        display: inline-block;
+        padding: 0.125rem 0.375rem;
+        background: var(--hover-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 0.7rem;
+    }
+
+    /* 6. LOADING STATE */
+    .table-loading {
+        position: relative;
+    }
+
+    .table-loading::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: rgba(255, 255, 255, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    [data-theme="dark"] .table-loading::after {
+        background: rgba(15, 23, 42, 0.8);
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log("Audit Module - Enhanced V2");
+        calculateStats();
+        updateResultsCount();
+    });
+
+    function calculateStats() {
+        const rows = document.querySelectorAll('#audit-tbody tr[data-action]');
+        let login = 0, logout = 0, create = 0, update = 0, del = 0;
+
+        rows.forEach(row => {
+            const action = row.dataset.action;
+            switch (action) {
+                case 'LOGIN': login++; break;
+                case 'LOGOUT': logout++; break;
+                case 'CREATE': create++; break;
+                case 'UPDATE': update++; break;
+                case 'DELETE': del++; break;
+            }
+        });
+
+        animateValue('stat-login', login);
+        animateValue('stat-logout', logout);
+        animateValue('stat-create', create);
+        animateValue('stat-update', update);
+        animateValue('stat-delete', del);
+    }
+
+    function animateValue(elementId, value) {
+        const el = document.getElementById(elementId);
+        if (!el) return;
+
+        const current = parseInt(el.textContent) || 0;
+        if (current === value) {
+            el.textContent = value;
+            return;
+        }
+
+        const duration = 400;
+        const step = (value - current) / (duration / 16);
+        let currentVal = current;
+
+        const timer = setInterval(() => {
+            currentVal += step;
+            if ((step > 0 && currentVal >= value) || (step < 0 && currentVal <= value)) {
+                el.textContent = value;
+                clearInterval(timer);
+            } else {
+                el.textContent = Math.round(currentVal);
+            }
+        }, 16);
+    }
+
+    function applyFilters() {
+        const actionFilter = document.getElementById('filter-action').value;
+        const userFilter = document.getElementById('filter-user').value;
+        const searchFilter = document.getElementById('filter-search').value.toLowerCase();
+
+        const rows = document.querySelectorAll('#audit-tbody tr[data-action]');
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            const action = row.dataset.action;
+            const user = row.dataset.user;
+            const target = (row.dataset.target || '').toLowerCase();
+            const details = (row.dataset.details || '').toLowerCase();
+
+            let visible = true;
+
+            if (actionFilter && action !== actionFilter) visible = false;
+            if (userFilter && user !== userFilter) visible = false;
+            if (searchFilter && !target.includes(searchFilter) && !details.includes(searchFilter)) visible = false;
+
+            row.classList.toggle('hidden', !visible);
+            if (visible) visibleCount++;
+        });
+
+        updateResultsCount(visibleCount);
+        updateClearButton(actionFilter || userFilter || searchFilter);
+    }
+
+    function updateResultsCount(count) {
+        const countEl = document.getElementById('results-count');
+        if (count === undefined) {
+            count = document.querySelectorAll('#audit-tbody tr[data-action]:not(.hidden)').length;
+        }
+        countEl.textContent = count;
+    }
+
+    function updateClearButton(hasFilters) {
+        const btn = document.getElementById('btn-clear-filters');
+        btn.style.display = hasFilters ? 'inline-flex' : 'none';
+    }
+
+    function clearFilters() {
+        document.getElementById('filter-action').value = '';
+        document.getElementById('filter-user').value = '';
+        document.getElementById('filter-search').value = '';
+        applyFilters();
+    }
+
+    function exportAuditLogs() {
+        const rows = document.querySelectorAll('#audit-tbody tr[data-action]:not(.hidden)');
+        if (rows.length === 0) {
+            showToast('Aucun log Ã  exporter', 'warning');
+            return;
+        }
+
+        let csv = 'Date,Utilisateur,Action,Cible,DÃ©tails,IP\n';
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            const date = cells[0].textContent.trim().replace(/\s+/g, ' ');
+            const user = row.dataset.user;
+            const action = row.dataset.action;
+            const target = row.dataset.target;
+            const details = row.dataset.details.replace(/"/g, '""');
+            const ip = cells[5].textContent.trim();
+
+            csv += `"${date}","${user}","${action}","${target}","${details}","${ip}"\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `audit_logs_${new Date().toISOString().slice(0, 10)}.csv`;
+        link.click();
+
+        showToast(`${rows.length} logs exportÃ©s avec succÃ¨s`, 'success');
+    }
+
+    function showToast(message, type = 'info') {
+        const existing = document.querySelector('.toast');
+        if (existing) existing.remove();
+
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                ${type === 'success' ? '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>' : '<circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>'}
+            </svg>
+            <span>${message}</span>
+        `;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.animation = 'slideOut 0.3s ease-out forwards';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    // Click on details cell to expand
+    document.querySelectorAll('.details-cell').forEach(cell => {
+        cell.addEventListener('click', () => {
+            cell.classList.toggle('expanded');
+        });
+    });
+</script>
+{{end}}

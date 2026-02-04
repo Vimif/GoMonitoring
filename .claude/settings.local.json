@@ -1,0 +1,19 @@
+﻿{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(go build:*)",
+      "Bash(timeout:*)",
+      "Bash(taskkill:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(curl:*)",
+      "Bash(go get:*)",
+      "WebFetch(domain:cdn.jsdelivr.net)",
+      "Bash(xxd:*)",
+      "WebFetch(domain:api.github.com)",
+      "Bash(unzip:*)",
+      "Bash(echo:*)"
+    ]
+  }
+}

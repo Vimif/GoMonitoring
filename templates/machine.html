@@ -1,0 +1,636 @@
+﻿{{define "title"}}{{.Machine.Name}} - MonitorGo{{end}}
+
+{{define "content"}}
+<!-- Header -->
+<div class="page-header">
+    <div class="header-content">
+        <div class="breadcrumb">
+            <a href="/" class="breadcrumb-item">Dashboard</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-item active">{{.Machine.Name}}</span>
+        </div>
+        <div class="header-title-row">
+            <div class="title-left">
+                <h1>{{.Machine.Name}}</h1>
+                <span class="status-badge status-{{.Machine.Status}}"
+                    style="margin-left: 1rem;">{{.Machine.Status}}</span>
+                <span class="header-ip">{{.Machine.Host}}</span>
+            </div>
+            <div class="header-actions">
+                <button onclick="openTerminal()" class="btn btn-primary btn-glow">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="4 17 10 11 4 5"></polyline>
+                        <line x1="12" y1="19" x2="20" y2="19"></line>
+                    </svg>
+                    Terminal
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Terminal Modal -->
+<link rel="stylesheet" href="/static/css/vendor/xterm.css" />
+<div id="terminal-modal" class="modal">
+    <div class="modal-content terminal-content">
+        <div class="terminal-header">
+            <div class="window-controls">
+                <button class="win-btn close-btn" onclick="closeTerminal()" title="Fermer">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+                <button class="win-btn max-btn" onclick="toggleFullscreen()" title="Plein Ã©cran">
+                    <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <polyline points="9 21 3 21 3 15"></polyline>
+                        <line x1="21" y1="3" x2="14" y2="10"></line>
+                        <line x1="3" y1="21" x2="10" y2="14"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="terminal-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="feather feather-terminal">
+                    <polyline points="4 17 10 11 4 5"></polyline>
+                    <line x1="12" y1="19" x2="20" y2="19"></line>
+                </svg>
+                <span>{{.Machine.Name}} â€” SSH</span>
+            </div>
+            <div class="connection-status">
+                <span id="term-status-dot" class="status-dot"></span>
+                <span id="term-status-text">Disconnected</span>
+            </div>
+        </div>
+        <div id="terminal-container"></div>
+    </div>
+</div>
+
+{{if ne .Machine.Status "online"}}
+<div class="card offline-card">
+    <div class="offline-content">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="offline-icon">
+            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+            <line x1="6" y1="6" x2="6.01" y2="6"></line>
+            <line x1="6" y1="18" x2="6.01" y2="18"></line>
+        </svg>
+        <h2>Machine Hors Ligne</h2>
+        <p>Le serveur ne rÃ©pond pas aux requÃªtes SSH.</p>
+        <div class="offline-details"><span>Dernier contact: {{.Machine.LastCheck.Format "02/01/2006 15:04:05"}}</span>
+        </div>
+    </div>
+</div>
+{{else}}
+
+<!-- KPI Row -->
+<div class="kpi-grid">
+    <!-- CPU KPI -->
+    <div class="card kpi-card">
+        <div class="kpi-icon icon-cpu">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                <rect x="9" y="9" width="6" height="6"></rect>
+                <line x1="9" y1="1" x2="9" y2="4"></line>
+                <line x1="15" y1="1" x2="15" y2="4"></line>
+                <line x1="9" y1="20" x2="9" y2="23"></line>
+                <line x1="15" y1="20" x2="15" y2="23"></line>
+                <line x1="20" y1="9" x2="23" y2="9"></line>
+                <line x1="20" y1="14" x2="23" y2="14"></line>
+                <line x1="1" y1="9" x2="4" y2="9"></line>
+                <line x1="1" y1="14" x2="4" y2="14"></line>
+            </svg>
+        </div>
+        <div class="kpi-content">
+            <span class="kpi-label">Utilisation CPU</span>
+            <div class="kpi-value-row">
+                <span class="kpi-value">{{printf "%.1f" .Machine.CPU.UsagePercent}}%</span>
+                <span class="kpi-sub">{{.Machine.CPU.Cores}} Cores</span>
+            </div>
+            <div class="progress-bar small">
+                <div class="progress-fill {{if gt .Machine.CPU.UsagePercent 80.0}}danger{{else}}primary{{end}}"
+                    style="width: {{printf " %.1f" .Machine.CPU.UsagePercent}}%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RAM KPI -->
+    <div class="card kpi-card">
+        <div class="kpi-icon icon-ram">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 11V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v8"></path>
+                <rect x="4" y="11" width="16" height="10" rx="2"></rect>
+                <path d="M6 15h12"></path>
+                <path d="M6 18h12"></path>
+            </svg>
+        </div>
+        <div class="kpi-content">
+            <span class="kpi-label">MÃ©moire RAM</span>
+            <div class="kpi-value-row">
+                <span class="kpi-value">{{printf "%.1f" .Machine.Memory.UsedPercent}}%</span>
+                <span class="kpi-sub">{{.Machine.Memory.Used | formatBytes}} / {{.Machine.Memory.Total |
+                    formatBytes}}</span>
+            </div>
+            <div class="progress-bar small">
+                <div class="progress-fill {{if gt .Machine.Memory.UsedPercent 80.0}}danger{{else}}success{{end}}"
+                    style="width: {{printf " %.1f" .Machine.Memory.UsedPercent}}%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Uptime KPI -->
+    <div class="card kpi-card">
+        <div class="kpi-icon icon-uptime">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+        </div>
+        <div class="kpi-content">
+            <span class="kpi-label">Uptime</span>
+            <span class="kpi-value" style="font-size: 1.1rem; margin-top: 0.25rem;">{{if
+                .Machine.System.Uptime}}{{.Machine.System.Uptime}}{{else}}-{{end}}</span>
+            <span class="kpi-sub">Depuis dernier reboot</span>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content Grid -->
+<div class="main-grid">
+    <!-- Charts Section -->
+    <div class="charts-section">
+        <div class="charts-header">
+            <h2>Historique des Performances</h2>
+            <div class="period-selector">
+                <button class="period-btn" data-period="1h">1h</button>
+                <button class="period-btn" data-period="6h">6h</button>
+                <button class="period-btn active" data-period="24h">24h</button>
+                <button class="period-btn" data-period="7d">7j</button>
+                <button class="period-btn" data-period="30d">30j</button>
+            </div>
+        </div>
+        <div class="charts-grid">
+            <!-- CPU Chart -->
+            <div class="card chart-card">
+                <div class="chart-card-header">
+                    <span class="chart-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                            <rect x="9" y="9" width="6" height="6"></rect>
+                            <line x1="9" y1="1" x2="9" y2="4"></line>
+                            <line x1="15" y1="1" x2="15" y2="4"></line>
+                            <line x1="9" y1="20" x2="9" y2="23"></line>
+                            <line x1="15" y1="20" x2="15" y2="23"></line>
+                        </svg>
+                        CPU
+                    </span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="cpuChart"></canvas>
+                </div>
+            </div>
+            <!-- Memory Chart -->
+            <div class="card chart-card">
+                <div class="chart-card-header">
+                    <span class="chart-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 11V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v8"></path>
+                            <rect x="4" y="11" width="16" height="10" rx="2"></rect>
+                            <path d="M6 15h12"></path>
+                        </svg>
+                        MÃ©moire
+                    </span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="memoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info & Disks Row -->
+    <div class="details-row">
+        <!-- User/System Info -->
+        <div class="card info-card">
+            <div class="card-header">
+                <h3>Informations SystÃ¨me</h3>
+            </div>
+            <div class="info-list">
+                <div class="info-row">
+                    <span class="info-key">OS</span>
+                    <span class="info-val">{{if .Machine.System.OS}}{{.Machine.System.OS}}{{else}}-{{end}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-key">Kernel</span>
+                    <span class="info-val">{{if
+                        .Machine.System.Kernel}}{{.Machine.System.Kernel}}{{else}}-{{end}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-key">CPU</span>
+                    <span class="info-val">{{if .Machine.CPU.Model}}{{.Machine.CPU.Model}}{{else}}-{{end}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-key">Arch</span>
+                    <span class="info-val">{{if
+                        .Machine.System.Architecture}}{{.Machine.System.Architecture}}{{else}}-{{end}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-key">User</span>
+                    <span class="info-val">{{.Machine.User}}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Disks -->
+        <div class="card disks-card">
+            <div class="card-header">
+                <h3>Stockage</h3>
+            </div>
+            <div class="disk-list-compact">
+                {{range .Machine.Disks}}
+                <div class="disk-item">
+                    <div class="disk-icon-small">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                    </div>
+                    <div class="disk-details">
+                        <div class="disk-top">
+                            <span class="disk-name">{{.MountPoint}}</span>
+                            <span class="disk-pct {{if gt .UsedPercent 90.0}}danger{{end}}">{{printf "%.0f"
+                                .UsedPercent}}%</span>
+                        </div>
+                        <div class="progress-bar small">
+                            <div class="progress-fill {{if gt .UsedPercent 90.0}}danger{{else if gt .UsedPercent 75.0}}warning{{end}}"
+                                style="width: {{printf " %.0f" .UsedPercent}}%"></div>
+                        </div>
+                        <div class="disk-meta">
+                            <span>{{.Used | formatBytes}} / {{.Total | formatBytes}}</span>
+                            <button data-path="{{.MountPoint}}" onclick="browseDisk(this.dataset.path)"
+                                class="btn-text-action">Parcourir</button>
+                        </div>
+                    </div>
+                </div>
+                {{end}}
+            </div>
+        </div>
+    </div>
+
+    <!-- Services -->
+    {{if .Machine.Services}}
+    <div class="card services-card">
+        <div class="card-header">
+            <h3>Services</h3>
+        </div>
+        <div class="table-responsive">
+            <table class="table services-table">
+                <thead>
+                    <tr>
+                        <th>Nom du Service</th>
+                        <th>Statut</th>
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range .Machine.Services}}
+                    <tr>
+                        <td class="font-medium">{{.Name}}</td>
+                        <td>
+                            <span class="status-badge status-{{.Status}}">{{.Status}}</span>
+                        </td>
+                        <td class="actions-cell">
+                            <button onclick="controlService('{{.Name}}', 'start')" class="btn-action btn-start"
+                                title="DÃ©marrer">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                </svg>
+                            </button>
+                            <button onclick="controlService('{{.Name}}', 'restart')" class="btn-action btn-restart"
+                                title="RedÃ©marrer">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="23 4 23 10 17 10"></polyline>
+                                    <polyline points="1 20 1 14 7 14"></polyline>
+                                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15">
+                                    </path>
+                                </svg>
+                            </button>
+                            <button onclick="controlService('{{.Name}}', 'stop')" class="btn-action btn-stop"
+                                title="ArrÃªter">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                </svg>
+                            </button>
+                        </td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {{end}}
+
+    <!-- File Browser (Hidden by default) -->
+    <div class="card" id="logs-section">
+        <div class="card-header">
+            <h3>Journaux SystÃ¨me</h3>
+        </div>
+        <div class="logs-container" style="padding: 1.5rem;">
+            <div class="logs-controls" style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                <select id="log-source-select" class="form-select" onchange="loadLogContent()">
+                    <option value="" disabled selected>Chargement des sources...</option>
+                </select>
+                <select id="log-lines-select" class="form-select" style="width: 120px;" onchange="loadLogContent()">
+                    <option value="50">50 lignes</option>
+                    <option value="100" selected>100 lignes</option>
+                    <option value="200">200 lignes</option>
+                    <option value="500">500 lignes</option>
+                </select>
+                <button onclick="loadLogContent()" class="btn btn-secondary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M23 4v6h-6"></path>
+                        <path d="M1 20v-6h6"></path>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                    </svg>
+                    RafraÃ®chir
+                </button>
+            </div>
+            <div id="log-viewer" class="log-viewer-content"
+                style="background: #1e1e1e; color: #f0f0f0; padding: 1rem; border-radius: 8px; font-family: monospace; white-space: pre-wrap; height: 400px; overflow-y: auto; font-size: 0.85rem;">
+                SÃ©lectionnez un fichier log pour voir son contenu...
+            </div>
+        </div>
+    </div>
+
+    <!-- File Browser (Hidden by default) -->
+    <div class="card" id="file-browser-section" style="display: none;">
+        <div class="card-header browser-header">
+            <h3>Navigateur de Fichiers</h3>
+            <div class="browser-controls">
+                <button id="btn-back" class="btn btn-sm btn-secondary" onclick="goBack()" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                    Retour
+                </button>
+                <div class="path-display" id="current-path">/</div>
+            </div>
+        </div>
+        <div class="browser-content">
+            <div class="file-list-header">
+                <span class="col-icon"></span>
+                <span class="col-name">Nom</span>
+                <span class="col-size">Taille</span>
+                <span class="col-perms">Perms</span>
+                <span class="col-owner">PropriÃ©taire</span>
+            </div>
+            <div id="file-list" class="file-list-body">
+                <!-- Content injected by JS -->
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{{end}}
+{{end}}
+
+{{define "scripts"}}
+<script src="/static/js/disk_browser.js"></script>
+<script src="/static/js/vendor/chart.min.js"></script>
+<script src="/static/js/charts.js"></script>
+<script>
+    async function controlService(serviceName, action) {
+        const actionLabels = {
+            'start': 'dÃ©marrer',
+            'stop': 'arrÃªter',
+            'restart': 'redÃ©marrer'
+        };
+        const actionLabel = actionLabels[action] || action;
+
+        const confirmed = await dialog.confirm(
+            `Voulez-vous vraiment ${actionLabel} le service ${serviceName} ?`,
+            {
+                title: 'ContrÃ´le du service',
+                type: 'question',
+                confirmText: actionLabel.charAt(0).toUpperCase() + actionLabel.slice(1),
+                cancelText: 'Annuler',
+                danger: action === 'stop'
+            }
+        );
+
+        if (!confirmed) return;
+
+        try {
+            const response = await fetch(`/api/machine/{{.Machine.ID}}/service/${serviceName}/${action}`, {
+                method: 'POST'
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                await dialog.alert(data.message, {
+                    title: 'SuccÃ¨s',
+                    type: 'success'
+                });
+            } else {
+                await dialog.alert(data.error || 'Action Ã©chouÃ©e', {
+                    title: 'Erreur',
+                    type: 'error'
+                });
+            }
+        } catch (e) {
+            console.error(e);
+            await dialog.alert('Impossible de contacter le serveur', {
+                title: 'Erreur rÃ©seau',
+                type: 'error'
+            });
+        }
+    }
+
+    // Log Viewer Logic
+    document.addEventListener('DOMContentLoaded', function () {
+        loadLogSources();
+    });
+
+    async function loadLogSources() {
+        const select = document.getElementById('log-source-select');
+        try {
+            const response = await fetch(`/api/machine/{{.Machine.ID}}/logs`);
+            if (!response.ok) throw new Error("Erreur chargement sources");
+            const sources = await response.json();
+
+            select.innerHTML = '<option value="" disabled selected>Choisir un log...</option>';
+            sources.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.id;
+                opt.textContent = s.name + (s.type === 'journal' ? ' (Systemd)' : '');
+                select.appendChild(opt);
+            });
+
+            // Auto select generic syslog if available
+            if (sources.length > 0) {
+                const sys = sources.find(s => s.id.includes("syslog")) || sources[0];
+                select.value = sys.id;
+                loadLogContent();
+            }
+        } catch (e) {
+            select.innerHTML = '<option disabled>Erreur chargement</option>';
+            console.error(e);
+        }
+    }
+
+    async function loadLogContent() {
+        const sourceId = document.getElementById('log-source-select').value;
+        const lines = document.getElementById('log-lines-select').value;
+        const viewer = document.getElementById('log-viewer');
+
+        if (!sourceId) return;
+
+        viewer.textContent = "Chargement...";
+
+        try {
+            const response = await fetch(`/api/machine/{{.Machine.ID}}/logs/view?source=${sourceId}&lines=${lines}`);
+            if (!response.ok) {
+                const err = await response.text();
+                throw new Error(err);
+            }
+            const content = await response.text();
+            viewer.textContent = content || "(Fichier vide)";
+            viewer.scrollTop = viewer.scrollHeight;
+        } catch (e) {
+            viewer.textContent = "Erreur: " + e.message;
+        }
+    }
+
+    const machineId = "{{.Machine.ID}}";
+    const serverTotalMemory = {{.Machine.Memory.Total }};
+
+    // Initialiser le gestionnaire de graphiques
+    document.addEventListener('DOMContentLoaded', function () {
+        const chartManager = new ChartManager(machineId, serverTotalMemory);
+        chartManager.init();
+    });
+</script>
+<link rel="stylesheet" href="/static/css/vendor/xterm.css" />
+<script src="/static/js/vendor/xterm.js"></script>
+<script src="/static/js/vendor/xterm-addon-fit.js"></script>
+<script>
+    let term;
+    let ws;
+    let fitAddon;
+
+    function openTerminal() {
+        try {
+            const modal = document.getElementById('terminal-modal');
+            modal.classList.add('open');
+
+            if (typeof Terminal === 'undefined' || typeof FitAddon === 'undefined') {
+                throw new Error("Les librairies xterm.js ne sont pas chargÃ©es correctement.");
+            }
+
+            term = new Terminal({
+                cursorBlink: true,
+                theme: { background: '#1e1e1e', foreground: '#f0f0f0' },
+                fontFamily: 'Menlo, Monaco, "Courier New", monospace',
+                fontSize: 14
+            });
+
+            fitAddon = typeof FitAddon.FitAddon === 'function' ? new FitAddon.FitAddon() : new FitAddon();
+            term.loadAddon(fitAddon);
+
+            const container = document.getElementById('terminal-container');
+            if (!container) { alert('Erreur: Conteneur terminal introuvable'); return; }
+            term.open(container);
+
+            requestAnimationFrame(() => { try { fitAddon.fit(); } catch (e) {} });
+
+            const updateStatus = (status, type) => {
+                const text = document.getElementById('term-status-text');
+                const statusContainer = document.querySelector('.connection-status');
+                text.innerText = status;
+                statusContainer.className = 'connection-status';
+                if (type === 'connected') statusContainer.classList.add('status-connected');
+                else if (type === 'error') statusContainer.classList.add('status-error');
+            };
+
+            updateStatus('Connecting...', 'pending');
+
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            ws = new WebSocket(`${protocol}//${window.location.host}/api/machine/${machineId}/terminal`);
+
+            ws.onopen = function () {
+                term.focus();
+                updateStatus('Connected', 'connected');
+                ws.send(JSON.stringify({ type: 'resize', cols: term.cols, rows: term.rows }));
+            };
+
+            ws.onmessage = function (evt) { term.write(evt.data); };
+            ws.onclose = function () { updateStatus('Disconnected', 'error'); term.write('\r\n[Process completed]\r\n'); };
+            ws.onerror = function () { alert("WebSocket Error."); updateStatus('Error', 'error'); };
+
+            term.onData(data => {
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'input', data: data }));
+                }
+            });
+
+            window.addEventListener('resize', () => {
+                if (fitAddon) {
+                    fitAddon.fit();
+                    if (ws && ws.readyState === WebSocket.OPEN) {
+                        ws.send(JSON.stringify({ type: 'resize', cols: term.cols, rows: term.rows }));
+                    }
+                }
+            });
+        } catch (e) { alert('JS Error: ' + e.message); console.error(e); }
+    }
+
+    function closeTerminal() {
+        const modal = document.getElementById('terminal-modal');
+        const content = modal.querySelector('.terminal-content');
+        const container = document.getElementById('terminal-container');
+        if (content.classList.contains('fullscreen')) { content.classList.remove('fullscreen'); container.style.height = '500px'; }
+        modal.classList.remove('open');
+        if (ws) { ws.close(); ws = null; }
+        if (term) { term.dispose(); term = null; fitAddon = null; }
+    }
+
+    function toggleFullscreen() {
+        const content = document.querySelector('.terminal-content');
+        const container = document.getElementById('terminal-container');
+        content.classList.toggle('fullscreen');
+        container.style.height = content.classList.contains('fullscreen') ? 'calc(100vh - 48px)' : '500px';
+        setTimeout(() => {
+            if (fitAddon) {
+                fitAddon.fit();
+                if (ws && ws.readyState === WebSocket.OPEN && term) {
+                    ws.send(JSON.stringify({ type: 'resize', cols: term.cols, rows: term.rows }));
+                    term.focus();
+                }
+            }
+        }, 350);
+    }
+</script>
+{{end}}
