@@ -1,3 +1,14 @@
+# AI assistants (Claude, Gemini, Copilot, Cursor, etc.)
+.claude/
+.gemini/
+.cursor/
+.copilot/
+.aider*
+.continue/
+CLAUDE.md
+.anthropic/
+brain/
+
 # Binaries
 *.exe
 *.exe~

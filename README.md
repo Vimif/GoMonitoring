@@ -153,7 +153,7 @@ WantedBy=multi-user.target
 
 ## Contribution
 
-Voir [CLAUDE.md](CLAUDE.md) pour les détails techniques. Commentaires en français dans le code.
+Les contributions sont les bienvenues ! Forkez le projet, créez une branche, et soumettez une pull request. Commentaires en français dans le code.
 
 ## Licence
 
