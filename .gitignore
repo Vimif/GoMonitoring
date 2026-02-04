@@ -1,1 +1,49 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Configuration with secrets
+config.yaml
+.env
+.env.*
+
+# IDE and editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
 nul
+
+# Cookies and session files
+cookies.txt
+
+# Build output
+/build/
+/dist/
+
+# Test output
+coverage.out
+coverage.html
+
+# Logs
+*.log
+
+# SSH keys (never commit these!)
+*.pem
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
