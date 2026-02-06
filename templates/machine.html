@@ -12,8 +12,7 @@
         <div class="header-title-row">
             <div class="title-left">
                 <h1>{{.Machine.Name}}</h1>
-                <span class="status-badge status-{{.Machine.Status}}"
-                    style="margin-left: 1rem;">{{.Machine.Status}}</span>
+                <span class="status-badge status-{{.Machine.Status}}">{{.Machine.Status}}</span>
                 <span class="header-ip">{{.Machine.Host}}</span>
             </div>
             <div class="header-actions">
@@ -94,7 +93,7 @@
     <!-- CPU KPI -->
     <div class="card kpi-card">
         <div class="kpi-icon icon-cpu">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
                 <rect x="9" y="9" width="6" height="6"></rect>
@@ -109,14 +108,14 @@
             </svg>
         </div>
         <div class="kpi-content">
-            <span class="kpi-label">Utilisation CPU</span>
+            <span class="kpi-label">CPU</span>
             <div class="kpi-value-row">
                 <span class="kpi-value">{{printf "%.1f" .Machine.CPU.UsagePercent}}%</span>
                 <span class="kpi-sub">{{.Machine.CPU.Cores}} Cores</span>
             </div>
             <div class="progress-bar small">
                 <div class="progress-fill {{if gt .Machine.CPU.UsagePercent 80.0}}danger{{else}}primary{{end}}"
-                    style="width: {{printf " %.1f" .Machine.CPU.UsagePercent}}%"></div>
+                    style="width: {{printf "%.1f" .Machine.CPU.UsagePercent}}%"></div>
             </div>
         </div>
     </div>
@@ -124,7 +123,7 @@
     <!-- RAM KPI -->
     <div class="card kpi-card">
         <div class="kpi-icon icon-ram">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M18 11V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v8"></path>
                 <rect x="4" y="11" width="16" height="10" rx="2"></rect>
@@ -133,23 +132,22 @@
             </svg>
         </div>
         <div class="kpi-content">
-            <span class="kpi-label">MÃ©moire RAM</span>
+            <span class="kpi-label">Memoire</span>
             <div class="kpi-value-row">
                 <span class="kpi-value">{{printf "%.1f" .Machine.Memory.UsedPercent}}%</span>
-                <span class="kpi-sub">{{.Machine.Memory.Used | formatBytes}} / {{.Machine.Memory.Total |
-                    formatBytes}}</span>
             </div>
             <div class="progress-bar small">
                 <div class="progress-fill {{if gt .Machine.Memory.UsedPercent 80.0}}danger{{else}}success{{end}}"
-                    style="width: {{printf " %.1f" .Machine.Memory.UsedPercent}}%"></div>
+                    style="width: {{printf "%.1f" .Machine.Memory.UsedPercent}}%"></div>
             </div>
+            <span class="kpi-sub">{{.Machine.Memory.Used | formatBytes}} / {{.Machine.Memory.Total | formatBytes}}</span>
         </div>
     </div>
 
     <!-- Uptime KPI -->
     <div class="card kpi-card">
         <div class="kpi-icon icon-uptime">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"></circle>
                 <polyline points="12 6 12 12 16 14"></polyline>
@@ -157,8 +155,9 @@
         </div>
         <div class="kpi-content">
             <span class="kpi-label">Uptime</span>
-            <span class="kpi-value" style="font-size: 1.1rem; margin-top: 0.25rem;">{{if
-                .Machine.System.Uptime}}{{.Machine.System.Uptime}}{{else}}-{{end}}</span>
+            <div class="kpi-value-row">
+                <span class="kpi-value kpi-value-sm">{{if .Machine.System.Uptime}}{{.Machine.System.Uptime}}{{else}}-{{end}}</span>
+            </div>
             <span class="kpi-sub">Depuis dernier reboot</span>
         </div>
     </div>
