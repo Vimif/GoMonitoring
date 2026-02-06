@@ -1,4 +1,4 @@
-﻿package collectors
+package collectors
 
 import (
 	"strings"
@@ -86,10 +86,10 @@ func TestParseCPUUsage_EdgeCases(t *testing.T) {
 	})
 
 	t.Run("negative values should be parsed", func(t *testing.T) {
-		// En thÃ©orie impossible mais testons la robustesse
+		// En théorie impossible mais testons la robustesse
 		input := "Cpu(s): -5.0 us,  2.0 sy,  0.0 ni, 103.0 id"
 		result := parseCPUUsage(input)
-		// Le rÃ©sultat dÃ©pend de la regex - elle devrait matcher les nombres positifs
+		// Le résultat dépend de la regex - elle devrait matcher les nombres positifs
 		assert.GreaterOrEqual(t, result, 0.0, "CPU usage should not be negative")
 	})
 
@@ -119,9 +119,9 @@ func BenchmarkParseCPUUsage_Fallback(b *testing.B) {
 	}
 }
 
-// Tests pour les fonctions d'extraction de donnÃ©es
-// Note: Les tests de CollectCPUInfo nÃ©cessitent un mock SSH client
-// qui sera crÃ©Ã© dans ssh/mock_client.go (Sprint 2.3)
+// Tests pour les fonctions d'extraction de données
+// Note: Les tests de CollectCPUInfo nécessitent un mock SSH client
+// qui sera créé dans ssh/mock_client.go (Sprint 2.3)
 
 func TestParseCPUUsage_RealWorldExamples(t *testing.T) {
 	tests := []struct {
@@ -170,7 +170,7 @@ func TestParseCPUUsage_RealWorldExamples(t *testing.T) {
 	}
 }
 
-// Tests de validation des valeurs retournÃ©es
+// Tests de validation des valeurs retournées
 func TestParseCPUUsage_ValidRange(t *testing.T) {
 	inputs := []string{
 		"Cpu(s):  5.2 us,  2.1 sy,  0.0 ni, 92.7 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st",

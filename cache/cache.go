@@ -1,4 +1,4 @@
-﻿package cache
+package cache
 
 import (
 	"sync"
@@ -7,7 +7,7 @@ import (
 	"go-monitoring/models"
 )
 
-// MetricsCache gÃ¨re le cache des mÃ©triques des machines
+// MetricsCache gère le cache des métriques des machines
 type MetricsCache struct {
 	machines map[string]cachedMachine
 	mu       sync.RWMutex
@@ -19,20 +19,20 @@ type cachedMachine struct {
 	Expiration time.Time
 }
 
-// NewMetricsCache crÃ©e un nouveau cache
+// NewMetricsCache crée un nouveau cache
 func NewMetricsCache(ttl time.Duration) *MetricsCache {
 	c := &MetricsCache{
 		machines: make(map[string]cachedMachine),
 		ttl:      ttl,
 	}
 
-	// DÃ©marrer le nettoyage en arriÃ¨re-plan
+	// Démarrer le nettoyage en arrière-plan
 	go c.cleanup()
 
 	return c
 }
 
-// Set met Ã  jour les infos d'une machine
+// Set met à jour les infos d'une machine
 func (c *MetricsCache) Set(machine models.Machine) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -43,7 +43,7 @@ func (c *MetricsCache) Set(machine models.Machine) {
 	}
 }
 
-// Get rÃ©cupÃ¨re les infos d'une machine
+// Get récupère les infos d'une machine
 func (c *MetricsCache) Get(id string) (models.Machine, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -60,7 +60,7 @@ func (c *MetricsCache) Get(id string) (models.Machine, bool) {
 	return item.Machine, true
 }
 
-// GetLastKnown rÃ©cupÃ¨re la derniÃ¨re valeur connue (mÃªme expirÃ©e)
+// GetLastKnown récupère la dernière valeur connue (même expirée)
 func (c *MetricsCache) GetLastKnown(id string) (models.Machine, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -69,14 +69,14 @@ func (c *MetricsCache) GetLastKnown(id string) (models.Machine, bool) {
 	return item.Machine, found
 }
 
-// Invalidate invalide une entrÃ©e spÃ©cifique
+// Invalidate invalide une entrée spécifique
 func (c *MetricsCache) Invalidate(id string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	delete(c.machines, id)
 }
 
-// cleanup nettoie les Ã©lÃ©ments expirÃ©s
+// cleanup nettoie les éléments expirés
 func (c *MetricsCache) cleanup() {
 	ticker := time.NewTicker(time.Minute)
 	defer ticker.Stop()

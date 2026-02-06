@@ -1,4 +1,4 @@
-﻿package repository
+package repository
 
 import (
 	"fmt"
@@ -9,14 +9,14 @@ import (
 	"go-monitoring/pkg/crypto"
 )
 
-// MachineRepository implÃ©mente l'interface MachineRepository avec config.yaml
+// MachineRepository implémente l'interface MachineRepository avec config.yaml
 type MachineRepository struct {
 	configPath string
 	cfg        *config.Config
 	mu         sync.RWMutex
 }
 
-// NewMachineRepository crÃ©e un nouveau repository pour les machines
+// NewMachineRepository crée un nouveau repository pour les machines
 func NewMachineRepository(configPath string) (*MachineRepository, error) {
 	cfg, err := config.LoadConfig(configPath)
 	if err != nil {
@@ -57,12 +57,12 @@ func (r *MachineRepository) GetByID(id string) (*domain.Machine, error) {
 	return nil, fmt.Errorf("machine not found: %s", id)
 }
 
-// Create crÃ©e une nouvelle machine
+// Create crée une nouvelle machine
 func (r *MachineRepository) Create(machine *domain.Machine) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	// VÃ©rifier si la machine existe dÃ©jÃ 
+	// Vérifier si la machine existe déjà
 	for _, m := range r.cfg.Machines {
 		if m.ID == machine.ID {
 			return fmt.Errorf("machine already exists: %s", machine.ID)
@@ -72,7 +72,7 @@ func (r *MachineRepository) Create(machine *domain.Machine) error {
 	// Convertir domain -> config
 	configMachine := machineToConfig(machine)
 
-	// Chiffrer le mot de passe si nÃ©cessaire
+	// Chiffrer le mot de passe si nécessaire
 	if configMachine.Password != "" && !crypto.IsEncrypted(configMachine.Password) {
 		encrypted, err := crypto.Encrypt(configMachine.Password)
 		if err != nil {
@@ -81,14 +81,14 @@ func (r *MachineRepository) Create(machine *domain.Machine) error {
 		configMachine.Password = encrypted
 	}
 
-	// Ajouter Ã  la config
+	// Ajouter à la config
 	r.cfg.Machines = append(r.cfg.Machines, configMachine)
 
 	// Sauvegarder
 	return config.SaveConfig(r.configPath, r.cfg)
 }
 
-// Update met Ã  jour une machine existante
+// Update met à jour une machine existante
 func (r *MachineRepository) Update(machine *domain.Machine) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -109,7 +109,7 @@ func (r *MachineRepository) Update(machine *domain.Machine) error {
 	// Convertir domain -> config
 	configMachine := machineToConfig(machine)
 
-	// Chiffrer le mot de passe si nÃ©cessaire
+	// Chiffrer le mot de passe si nécessaire
 	if configMachine.Password != "" && !crypto.IsEncrypted(configMachine.Password) {
 		encrypted, err := crypto.Encrypt(configMachine.Password)
 		if err != nil {
@@ -118,7 +118,7 @@ func (r *MachineRepository) Update(machine *domain.Machine) error {
 		configMachine.Password = encrypted
 	}
 
-	// Mettre Ã  jour
+	// Mettre à jour
 	r.cfg.Machines[index] = configMachine
 
 	// Sauvegarder
@@ -150,7 +150,7 @@ func (r *MachineRepository) Delete(id string) error {
 	return config.SaveConfig(r.configPath, r.cfg)
 }
 
-// Exists vÃ©rifie si une machine existe
+// Exists vérifie si une machine existe
 func (r *MachineRepository) Exists(id string) bool {
 	r.mu.RLock()
 	defer r.mu.RUnlock()

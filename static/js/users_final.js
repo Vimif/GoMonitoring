@@ -1,4 +1,4 @@
-﻿// Gestion des utilisateurs
+// Gestion des utilisateurs
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log("Users Module Loaded - V4 Dialog System");
@@ -19,7 +19,7 @@ async function loadUsers() {
             let lockInfo = '';
 
             if (user.is_locked) {
-                statusBadge = `<span class="status-badge status-critical">VerrouillÃ©</span>`;
+                statusBadge = `<span class="status-badge status-critical">Verrouillé</span>`;
             } else if (user.is_active) {
                 statusBadge = `<span class="status-badge status-online">Actif</span>`;
             } else {
@@ -45,12 +45,12 @@ async function loadUsers() {
                 <td>${statusBadge}</td>
                 <td class="actions-cell">
                         ${user.is_locked ? `
-                        <button class="btn-action btn-restart" title="DÃ©verrouiller" onclick="unlockUser('${user.username}')">
+                        <button class="btn-action btn-restart" title="Déverrouiller" onclick="unlockUser('${user.username}')">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>
                         </button>` : ''}
 
                         ${user.username !== 'admin' ? `
-                        <button class="btn-action ${user.is_active ? 'btn-stop' : 'btn-start'}" title="${user.is_active ? 'DÃ©sactiver' : 'Activer'}" onclick="toggleUserStatus('${user.username}', ${!user.is_active})">
+                        <button class="btn-action ${user.is_active ? 'btn-stop' : 'btn-start'}" title="${user.is_active ? 'Désactiver' : 'Activer'}" onclick="toggleUserStatus('${user.username}', ${!user.is_active})">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
                                 <line x1="12" y1="2" x2="12" y2="12"></line>
@@ -190,8 +190,8 @@ async function submitPasswordChange(e) {
         }
 
         closePasswordModal();
-        await dialog.alert('Mot de passe mis Ã  jour avec succÃ¨s', {
-            title: 'SuccÃ¨s',
+        await dialog.alert('Mot de passe mis à jour avec succès', {
+            title: 'Succès',
             type: 'success'
         });
     } catch (error) {
@@ -204,14 +204,14 @@ async function submitPasswordChange(e) {
 
 // Toggle Status
 async function toggleUserStatus(username, active) {
-    const action = active ? 'activer' : 'dÃ©sactiver';
+    const action = active ? 'activer' : 'désactiver';
 
     const confirmed = await dialog.confirm(
         `Voulez-vous vraiment ${action} le compte ${username} ?`,
         {
-            title: active ? 'Activer le compte' : 'DÃ©sactiver le compte',
+            title: active ? 'Activer le compte' : 'Désactiver le compte',
             type: 'question',
-            confirmText: active ? 'Activer' : 'DÃ©sactiver',
+            confirmText: active ? 'Activer' : 'Désactiver',
             cancelText: 'Annuler',
             danger: !active
         }
@@ -239,11 +239,11 @@ async function toggleUserStatus(username, active) {
 // Unlock User
 async function unlockUser(username) {
     const confirmed = await dialog.confirm(
-        `DÃ©verrouiller le compte ${username} ?`,
+        `Déverrouiller le compte ${username} ?`,
         {
-            title: 'DÃ©verrouiller le compte',
+            title: 'Déverrouiller le compte',
             type: 'question',
-            confirmText: 'DÃ©verrouiller',
+            confirmText: 'Déverrouiller',
             cancelText: 'Annuler'
         }
     );
@@ -257,8 +257,8 @@ async function unlockUser(username) {
 
         if (!response.ok) throw new Error(await response.text());
         loadUsers();
-        await dialog.alert('Compte dÃ©verrouillÃ© avec succÃ¨s', {
-            title: 'SuccÃ¨s',
+        await dialog.alert('Compte déverrouillé avec succès', {
+            title: 'Succès',
             type: 'success'
         });
     } catch (error) {
@@ -272,7 +272,7 @@ async function unlockUser(username) {
 // Delete User
 async function deleteUser(username) {
     const confirmed = await dialog.confirm(
-        `ÃŠtes-vous sÃ»r de vouloir supprimer l'utilisateur ${username} ?\n\nCette action est irrÃ©versible.`,
+        `Êtes-vous sûr de vouloir supprimer l'utilisateur ${username} ?\n\nCette action est irréversible.`,
         {
             title: 'Supprimer l\'utilisateur',
             type: 'warning',

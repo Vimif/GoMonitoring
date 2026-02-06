@@ -14,7 +14,7 @@ GoMonitoring is a full-stack web-based infrastructure monitoring application for
 - `handlers/` - HTTP handlers (dashboard, machine, users, audit, etc.)
 - `models/system.go` - Data structures (DashboardData, MachineDetailData, etc.)
 - `templates/` - Go HTML templates (base layout + pages)
-- `static/css/style.css` - Main stylesheet (~4000 lines)
+- `static/css/style.css` - Main stylesheet (~4500 lines)
 - `static/js/` - Client-side JS (dashboard_refresh, machines, charts, etc.)
 - `auth/` - Authentication & session management
 - `config/` - YAML config parser
@@ -30,18 +30,35 @@ GoMonitoring is a full-stack web-based infrastructure monitoring application for
 ## Important Patterns
 - All page handlers pass `Username` and `Role` from `auth.AuthManager`
 - CSS uses CSS Custom Properties for theming (light/dark mode via `[data-theme="dark"]`)
-- CSS version query param (`?v=12`) must be bumped on changes
-- Files may have BOM characters - use `Write` tool instead of `Edit` for full file replacements
+- CSS version query param (`?v=13`) must be bumped on changes
+- Files should NOT have BOM characters (all BOMs have been stripped)
 - The `sidebar-border` CSS variable is referenced but defined as `--border-color` in practice
+- Use CSS classes for icon colors (`.stat-icon-primary`, `.stat-icon-success`, etc.) instead of inline styles
+
+## Encoding (CRITICAL)
+- All files must be UTF-8 without BOM
+- The codebase previously had widespread Windows-1252 double-encoding mojibake (é→Ã©, •→â€¢, —→â€")
+- This was fixed by a comprehensive byte-level fix script
+- If new files are added, ensure they are clean UTF-8 without BOM
+- NEVER use editors or tools that add BOM or re-encode to Windows-1252
 
 ## UI/UX Standards
 - Icons: Inline SVG (feather-style, 20x20 for nav, 14-18 for buttons)
 - No emoji in production templates - use SVG icons instead
+- No inline styles - use CSS classes defined in style.css
 - Toast notifications via `showToast(message, type, duration)` function in base.html
 - All forms should have proper `autocomplete` attributes
 - All interactive elements need `aria-label` for accessibility
 - Password fields should have show/hide toggle
 - French language UI labels
+
+## CSS Architecture
+- Design tokens in CSS custom properties (`:root` and `[data-theme="dark"]`)
+- KPI grid: `repeat(3, 1fr)` - always 3 columns on desktop
+- Chart containers: 220px height inside chart-card, 250px standalone
+- Stat icon colors via classes: `.stat-icon-primary`, `.stat-icon-success`, `.stat-icon-warning`, `.stat-icon-danger`, `.stat-icon-muted`
+- Dashboard header: `.dashboard-header` with `.header-left` + `.header-actions`
+- Filter groups: `.filter-group` class (no inline flex)
 
 ## Development Notes
 - Go toolchain download may fail in air-gapped environments

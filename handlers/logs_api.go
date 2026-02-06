@@ -1,4 +1,4 @@
-﻿package handlers
+package handlers
 
 import (
 	"encoding/json"
@@ -35,7 +35,7 @@ func ListLogSources(cm *ConfigManager) http.HandlerFunc {
 
 		sources, err := collectors.GetAvailableLogSources(client, osType)
 		if err != nil {
-			http.Error(w, "Erreur rÃ©cupÃ©ration sources: "+err.Error(), http.StatusInternalServerError)
+			http.Error(w, "Erreur récupération sources: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -77,9 +77,9 @@ func GetLogContent(cm *ConfigManager, db *storage.DB, am *auth.AuthManager) http
 			osType = "linux"
 		}
 
-		// RÃ©cupÃ©rer la dÃ©finition de la source
-		// Note: C'est un peu inefficace de tout relister, mais Ã§a sÃ©curise l'input
-		// car on ne construit la commande qu'Ã  partir de la liste "autorisÃ©e" gÃ©nÃ©rÃ©e cÃ´tÃ© serveur.
+		// Récupérer la définition de la source
+		// Note: C'est un peu inefficace de tout relister, mais ça sécurise l'input
+		// car on ne construit la commande qu'à partir de la liste "autorisée" générée côté serveur.
 		sources, err := collectors.GetAvailableLogSources(client, osType)
 		if err != nil {
 			http.Error(w, "Erreur: "+err.Error(), http.StatusInternalServerError)
@@ -108,7 +108,7 @@ func GetLogContent(cm *ConfigManager, db *storage.DB, am *auth.AuthManager) http
 			return
 		}
 
-		// Audit (Lecture seule, mais bon Ã  savoir)
+		// Audit (Lecture seule, mais bon à savoir)
 		// db.LogAction(am.GetUsername(r), "VIEW_LOG", machineID+":"+sourceID, "Lines: "+linesStr, r.RemoteAddr)
 
 		w.Header().Set("Content-Type", "text/plain")

@@ -1,4 +1,4 @@
-﻿package collectors
+package collectors
 
 import (
 	"go-monitoring/models"
@@ -7,7 +7,7 @@ import (
 )
 
 // CollectServices checks status of given services
-// osType: "linux", "windows" ou vide (dÃ©faut Linux)
+// osType: "linux", "windows" ou vide (défaut Linux)
 func CollectServices(client *ssh.Client, services []string, osType string) ([]models.ServiceStatus, error) {
 	if len(services) == 0 {
 		return []models.ServiceStatus{}, nil
@@ -19,7 +19,7 @@ func CollectServices(client *ssh.Client, services []string, osType string) ([]mo
 	return collectServicesLinux(client, services)
 }
 
-// collectServicesLinux vÃ©rifie le status des services sur Linux via systemctl
+// collectServicesLinux vérifie le status des services sur Linux via systemctl
 func collectServicesLinux(client *ssh.Client, services []string) ([]models.ServiceStatus, error) {
 	var results []models.ServiceStatus
 
@@ -46,7 +46,7 @@ func collectServicesLinux(client *ssh.Client, services []string) ([]models.Servi
 	return results, nil
 }
 
-// collectServicesWindows vÃ©rifie le status des services sur Windows via PowerShell
+// collectServicesWindows vérifie le status des services sur Windows via PowerShell
 func collectServicesWindows(client *ssh.Client, services []string) ([]models.ServiceStatus, error) {
 	var results []models.ServiceStatus
 

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Module de notifications rÃ©utilisable
  * Ã‰limine la duplication de code des notifications
  */

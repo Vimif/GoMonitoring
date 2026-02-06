@@ -1,4 +1,4 @@
-﻿package logger
+package logger
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// Level reprÃ©sente le niveau de log
+// Level représente le niveau de log
 type Level int
 
 const (
@@ -18,7 +18,7 @@ const (
 	FatalLevel
 )
 
-// String retourne la reprÃ©sentation textuelle du niveau
+// String retourne la représentation textuelle du niveau
 func (l Level) String() string {
 	switch l {
 	case DebugLevel:
@@ -36,13 +36,13 @@ func (l Level) String() string {
 	}
 }
 
-// Logger est un logger structurÃ© simple
+// Logger est un logger structuré simple
 type Logger struct {
 	level  Level
 	prefix string
 }
 
-// New crÃ©e un nouveau logger
+// New crée un nouveau logger
 func New(prefix string, level Level) *Logger {
 	return &Logger{
 		level:  level,
@@ -50,7 +50,7 @@ func New(prefix string, level Level) *Logger {
 	}
 }
 
-// Default retourne un logger par dÃ©faut
+// Default retourne un logger par défaut
 func Default() *Logger {
 	return &Logger{
 		level:  InfoLevel,
@@ -58,7 +58,7 @@ func Default() *Logger {
 	}
 }
 
-// WithPrefix retourne un nouveau logger avec un prÃ©fixe
+// WithPrefix retourne un nouveau logger avec un préfixe
 func (l *Logger) WithPrefix(prefix string) *Logger {
 	return &Logger{
 		level:  l.level,
@@ -123,38 +123,38 @@ func (l *Logger) log(level Level, msg string, fields ...Field) {
 	log.Println(logMsg)
 }
 
-// Field reprÃ©sente un champ de log structurÃ©
+// Field représente un champ de log structuré
 type Field struct {
 	Key   string
 	Value interface{}
 }
 
-// String crÃ©e un champ string
+// String crée un champ string
 func String(key, value string) Field {
 	return Field{Key: key, Value: value}
 }
 
-// Int crÃ©e un champ int
+// Int crée un champ int
 func Int(key string, value int) Field {
 	return Field{Key: key, Value: value}
 }
 
-// Int64 crÃ©e un champ int64
+// Int64 crée un champ int64
 func Int64(key string, value int64) Field {
 	return Field{Key: key, Value: value}
 }
 
-// Float64 crÃ©e un champ float64
+// Float64 crée un champ float64
 func Float64(key string, value float64) Field {
 	return Field{Key: key, Value: value}
 }
 
-// Bool crÃ©e un champ bool
+// Bool crée un champ bool
 func Bool(key string, value bool) Field {
 	return Field{Key: key, Value: value}
 }
 
-// Error crÃ©e un champ erreur
+// Error crée un champ erreur
 func Error(err error) Field {
 	if err == nil {
 		return Field{Key: "error", Value: nil}
@@ -162,17 +162,17 @@ func Error(err error) Field {
 	return Field{Key: "error", Value: err.Error()}
 }
 
-// Duration crÃ©e un champ durÃ©e
+// Duration crée un champ durée
 func Duration(key string, value time.Duration) Field {
 	return Field{Key: key, Value: value.String()}
 }
 
-// Any crÃ©e un champ de type quelconque
+// Any crée un champ de type quelconque
 func Any(key string, value interface{}) Field {
 	return Field{Key: key, Value: value}
 }
 
-// Logger global par dÃ©faut
+// Logger global par défaut
 var defaultLogger = Default()
 
 // Debug log un message de debug avec le logger global

@@ -1,4 +1,4 @@
-﻿package collectors
+package collectors
 
 import (
 	"context"
@@ -11,17 +11,17 @@ import (
 	"go-monitoring/ssh"
 )
 
-// ConcurrentCollector permet de collecter les mÃ©triques de plusieurs machines en parallÃ¨le
+// ConcurrentCollector permet de collecter les métriques de plusieurs machines en parallèle
 type ConcurrentCollector struct {
 	pool          *ssh.Pool
 	maxConcurrent int
 	semaphore     chan struct{}
 }
 
-// NewConcurrentCollector crÃ©e un nouveau collecteur concurrent
+// NewConcurrentCollector crée un nouveau collecteur concurrent
 func NewConcurrentCollector(pool *ssh.Pool, maxConcurrent int) *ConcurrentCollector {
 	if maxConcurrent <= 0 {
-		maxConcurrent = 5 // Valeur par dÃ©faut
+		maxConcurrent = 5 // Valeur par défaut
 	}
 
 	return &ConcurrentCollector{
@@ -31,7 +31,7 @@ func NewConcurrentCollector(pool *ssh.Pool, maxConcurrent int) *ConcurrentCollec
 	}
 }
 
-// CollectResult reprÃ©sente le rÃ©sultat de collection pour une machine
+// CollectResult représente le résultat de collection pour une machine
 type CollectResult struct {
 	MachineID string
 	Machine   *models.Machine
@@ -39,7 +39,7 @@ type CollectResult struct {
 	Duration  time.Duration
 }
 
-// CollectAll collecte les mÃ©triques de toutes les machines en parallÃ¨le
+// CollectAll collecte les métriques de toutes les machines en parallèle
 func (c *ConcurrentCollector) CollectAll(ctx context.Context, machines []models.Machine) []CollectResult {
 	results := make([]CollectResult, len(machines))
 	var wg sync.WaitGroup
@@ -54,7 +54,7 @@ func (c *ConcurrentCollector) CollectAll(ctx context.Context, machines []models.
 		go func() {
 			defer wg.Done()
 
-			// AcquÃ©rir le semaphore (limiter la concurrence)
+			// Acquérir le semaphore (limiter la concurrence)
 			select {
 			case c.semaphore <- struct{}{}:
 				defer func() { <-c.semaphore }()
@@ -72,13 +72,13 @@ func (c *ConcurrentCollector) CollectAll(ctx context.Context, machines []models.
 		}()
 	}
 
-	// Attendre que toutes les collectes soient terminÃ©es
+	// Attendre que toutes les collectes soient terminées
 	wg.Wait()
 
 	return results
 }
 
-// collectOne collecte les mÃ©triques d'une seule machine
+// collectOne collecte les métriques d'une seule machine
 func (c *ConcurrentCollector) collectOne(ctx context.Context, machine *models.Machine) CollectResult {
 	startTime := time.Now()
 
@@ -87,7 +87,7 @@ func (c *ConcurrentCollector) collectOne(ctx context.Context, machine *models.Ma
 		Machine:   machine,
 	}
 
-	// RÃ©cupÃ©rer le client SSH
+	// Récupérer le client SSH
 	client, err := c.pool.GetClient(machine.ID)
 	if err != nil {
 		result.Error = fmt.Errorf("failed to get SSH client: %w", err)
@@ -95,11 +95,11 @@ func (c *ConcurrentCollector) collectOne(ctx context.Context, machine *models.Ma
 		return result
 	}
 
-	// CrÃ©er un contexte avec timeout pour cette machine
+	// Créer un contexte avec timeout pour cette machine
 	collectCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 
-	// Channel pour le rÃ©sultat de la collection
+	// Channel pour le résultat de la collection
 	done := make(chan error, 1)
 
 	go func() {
@@ -119,7 +119,7 @@ func (c *ConcurrentCollector) collectOne(ctx context.Context, machine *models.Ma
 	return result
 }
 
-// collectMetrics effectue la collection des mÃ©triques
+// collectMetrics effectue la collection des métriques
 func (c *ConcurrentCollector) collectMetrics(client *ssh.Client, machine *models.Machine) error {
 	// Tenter de se connecter
 	if err := client.Connect(); err != nil {
@@ -130,7 +130,7 @@ func (c *ConcurrentCollector) collectMetrics(client *ssh.Client, machine *models
 	machine.Status = "online"
 	machine.LastCheck = time.Now()
 
-	// Collecter les mÃ©triques systÃ¨me
+	// Collecter les métriques système
 	if system, _, err := CollectSystemInfo(client, machine.OSType); err == nil {
 		machine.System = system
 	} else {
@@ -144,7 +144,7 @@ func (c *ConcurrentCollector) collectMetrics(client *ssh.Client, machine *models
 		log.Printf("Warning: Failed to collect CPU info for %s: %v", machine.ID, err)
 	}
 
-	// Collecter mÃ©moire
+	// Collecter mémoire
 	if memory, err := CollectMemoryInfo(client, machine.OSType); err == nil {
 		machine.Memory = memory
 	} else {
@@ -168,7 +168,7 @@ func (c *ConcurrentCollector) collectMetrics(client *ssh.Client, machine *models
 	return nil
 }
 
-// CollectBatch collecte les mÃ©triques d'un batch de machines spÃ©cifiques
+// CollectBatch collecte les métriques d'un batch de machines spécifiques
 func (c *ConcurrentCollector) CollectBatch(ctx context.Context, machineIDs []string, allMachines []models.Machine) []CollectResult {
 	// Filtrer les machines du batch
 	var batchMachines []models.Machine
@@ -184,7 +184,7 @@ func (c *ConcurrentCollector) CollectBatch(ctx context.Context, machineIDs []str
 	return c.CollectAll(ctx, batchMachines)
 }
 
-// GetStatistics retourne des statistiques sur les rÃ©sultats de collection
+// GetStatistics retourne des statistiques sur les résultats de collection
 func GetStatistics(results []CollectResult) CollectionStats {
 	stats := CollectionStats{
 		Total: len(results),
@@ -230,7 +230,7 @@ type CollectionStats struct {
 	AvgDuration time.Duration
 }
 
-// String retourne une reprÃ©sentation textuelle des statistiques
+// String retourne une représentation textuelle des statistiques
 func (s CollectionStats) String() string {
 	return fmt.Sprintf(
 		"Total: %d, Online: %d, Offline: %d, Failed: %d, Avg: %v, Min: %v, Max: %v",

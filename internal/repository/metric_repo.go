@@ -1,4 +1,4 @@
-﻿package repository
+package repository
 
 import (
 	"database/sql"
@@ -8,19 +8,19 @@ import (
 	"go-monitoring/internal/domain"
 )
 
-// MetricRepository implÃ©mente l'interface MetricRepository avec SQLite
+// MetricRepository implémente l'interface MetricRepository avec SQLite
 type MetricRepository struct {
 	db *sql.DB
 }
 
-// NewMetricRepository crÃ©e un nouveau repository pour les mÃ©triques
+// NewMetricRepository crée un nouveau repository pour les métriques
 func NewMetricRepository(db *sql.DB) *MetricRepository {
 	return &MetricRepository{
 		db: db,
 	}
 }
 
-// Save sauvegarde un point de mÃ©trique
+// Save sauvegarde un point de métrique
 func (r *MetricRepository) Save(machineID string, metric *domain.MetricPoint) error {
 	query := `
 		INSERT INTO metrics (
@@ -49,7 +49,7 @@ func (r *MetricRepository) Save(machineID string, metric *domain.MetricPoint) er
 	return nil
 }
 
-// GetHistory retourne l'historique des mÃ©triques pour une pÃ©riode
+// GetHistory retourne l'historique des métriques pour une période
 func (r *MetricRepository) GetHistory(machineID string, duration time.Duration) ([]domain.MetricPoint, error) {
 	since := time.Now().Add(-duration).Unix()
 
@@ -100,7 +100,7 @@ func (r *MetricRepository) GetHistory(machineID string, duration time.Duration) 
 	return metrics, nil
 }
 
-// GetLatest retourne la derniÃ¨re mÃ©trique enregistrÃ©e
+// GetLatest retourne la dernière métrique enregistrée
 func (r *MetricRepository) GetLatest(machineID string) (*domain.MetricPoint, error) {
 	query := `
 		SELECT timestamp, cpu, memory_used, memory_total, status,
@@ -138,7 +138,7 @@ func (r *MetricRepository) GetLatest(machineID string) (*domain.MetricPoint, err
 	return &metric, nil
 }
 
-// DeleteOlderThan supprime les mÃ©triques plus anciennes que la durÃ©e spÃ©cifiÃ©e
+// DeleteOlderThan supprime les métriques plus anciennes que la durée spécifiée
 func (r *MetricRepository) DeleteOlderThan(duration time.Duration) error {
 	cutoff := time.Now().Add(-duration).Unix()
 
@@ -157,7 +157,7 @@ func (r *MetricRepository) DeleteOlderThan(duration time.Duration) error {
 	return nil
 }
 
-// GetStorageSize retourne la taille de stockage utilisÃ©e
+// GetStorageSize retourne la taille de stockage utilisée
 func (r *MetricRepository) GetStorageSize() (int64, error) {
 	query := `SELECT COUNT(*) FROM metrics`
 

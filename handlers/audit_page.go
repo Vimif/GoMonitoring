@@ -1,4 +1,4 @@
-﻿package handlers
+package handlers
 
 import (
 	"html/template"
@@ -11,20 +11,20 @@ import (
 	"go-monitoring/storage"
 )
 
-// AuditPage gÃ¨re la page d'affichage des logs d'audit
+// AuditPage gère la page d'affichage des logs d'audit
 func AuditPage(cfg *config.Config, db *storage.DB, am *auth.AuthManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// VÃ©rification Admin
+		// Vérification Admin
 		role := am.GetUserRole(r)
 		if role != "admin" {
 			http.Redirect(w, r, "/", http.StatusSeeOther)
 			return
 		}
 
-		// RÃ©cupÃ©rer les logs (limit 100 pour l'instant)
+		// Récupérer les logs (limit 100 pour l'instant)
 		logs, err := db.GetAuditLogs(100)
 		if err != nil {
-			http.Error(w, "Erreur rÃ©cupÃ©ration logs: "+err.Error(), http.StatusInternalServerError)
+			http.Error(w, "Erreur récupération logs: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 

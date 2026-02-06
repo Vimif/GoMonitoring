@@ -1,4 +1,4 @@
-﻿package ssh
+package ssh
 
 import (
 	"bytes"
@@ -12,7 +12,7 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-// Client reprÃ©sente un client SSH vers une machine
+// Client représente un client SSH vers une machine
 type Client struct {
 	config          *config.MachineConfig
 	client          *ssh.Client
@@ -21,7 +21,7 @@ type Client struct {
 	mu              sync.Mutex
 }
 
-// Pool gÃ¨re les connexions SSH vers plusieurs machines
+// Pool gère les connexions SSH vers plusieurs machines
 type Pool struct {
 	clients        map[string]*Client
 	timeout        time.Duration
@@ -29,16 +29,16 @@ type Pool struct {
 	mu             sync.RWMutex
 }
 
-// NewPool crÃ©e un nouveau pool de connexions SSH
+// NewPool crée un nouveau pool de connexions SSH
 func NewPool(machines []config.MachineConfig, timeout int) *Pool {
-	// Initialiser le gestionnaire de host keys (mode TOFU par dÃ©faut)
+	// Initialiser le gestionnaire de host keys (mode TOFU par défaut)
 	hostKeyManager, err := NewHostKeyManager("", true)
 	if err != nil {
-		// Fallback en mode insecure si Ã©chec (pour compatibilitÃ©)
+		// Fallback en mode insecure si échec (pour compatibilité)
 		fmt.Fprintf(os.Stderr, "AVERTISSEMENT: Impossible d'initialiser HostKeyManager: %v\n", err)
-		fmt.Fprintf(os.Stderr, "Mode INSECURE activÃ© (vulnÃ©rable aux attaques MITM)\n")
+		fmt.Fprintf(os.Stderr, "Mode INSECURE activé (vulnérable aux attaques MITM)\n")
 	} else {
-		fmt.Printf("ðŸ”’ Host Key Verification activÃ©e (TOFU mode)\n")
+		fmt.Printf("ðŸ”’ Host Key Verification activée (TOFU mode)\n")
 		fmt.Printf("   Known hosts: %s\n", hostKeyManager.GetKnownHostsPath())
 	}
 
@@ -48,7 +48,7 @@ func NewPool(machines []config.MachineConfig, timeout int) *Pool {
 		hostKeyManager: hostKeyManager,
 	}
 
-	// DÃ©finir le callback Ã  utiliser
+	// Définir le callback à utiliser
 	var hostKeyCallback ssh.HostKeyCallback
 	if hostKeyManager != nil {
 		hostKeyCallback = hostKeyManager.HostKeyCallback()
@@ -75,18 +75,18 @@ func (p *Pool) GetClient(machineID string) (*Client, error) {
 	p.mu.RUnlock()
 
 	if !ok {
-		return nil, fmt.Errorf("machine non trouvÃ©e: %s", machineID)
+		return nil, fmt.Errorf("machine non trouvée: %s", machineID)
 	}
 
 	return client, nil
 }
 
-// Connect Ã©tablit la connexion SSH
+// Connect établit la connexion SSH
 func (c *Client) Connect() error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	// Si dÃ©jÃ  connectÃ©, vÃ©rifier si la connexion est toujours valide
+	// Si déjà connecté, vérifier si la connexion est toujours valide
 	if c.client != nil {
 		_, _, err := c.client.SendRequest("keepalive", true, nil)
 		if err == nil {
@@ -96,19 +96,19 @@ func (c *Client) Connect() error {
 		c.client = nil
 	}
 
-	// PrÃ©parer l'authentification
+	// Préparer l'authentification
 	var authMethods []ssh.AuthMethod
 
-	// Authentification par clÃ© SSH
+	// Authentification par clé SSH
 	if c.config.KeyPath != "" {
 		key, err := os.ReadFile(c.config.KeyPath)
 		if err != nil {
-			return fmt.Errorf("erreur lecture clÃ© SSH: %w", err)
+			return fmt.Errorf("erreur lecture clé SSH: %w", err)
 		}
 
 		signer, err := ssh.ParsePrivateKey(key)
 		if err != nil {
-			return fmt.Errorf("erreur parsing clÃ© SSH: %w", err)
+			return fmt.Errorf("erreur parsing clé SSH: %w", err)
 		}
 
 		authMethods = append(authMethods, ssh.PublicKeys(signer))
@@ -120,7 +120,7 @@ func (c *Client) Connect() error {
 	}
 
 	if len(authMethods) == 0 {
-		return fmt.Errorf("aucune mÃ©thode d'authentification configurÃ©e")
+		return fmt.Errorf("aucune méthode d'authentification configurée")
 	}
 
 	sshConfig := &ssh.ClientConfig{
@@ -133,14 +133,14 @@ func (c *Client) Connect() error {
 	addr := fmt.Sprintf("%s:%d", c.config.Host, c.config.Port)
 	client, err := ssh.Dial("tcp", addr, sshConfig)
 	if err != nil {
-		return fmt.Errorf("erreur connexion SSH Ã  %s: %w", addr, err)
+		return fmt.Errorf("erreur connexion SSH à %s: %w", addr, err)
 	}
 
 	c.client = client
 	return nil
 }
 
-// Execute exÃ©cute une commande SSH et retourne la sortie
+// Execute exécute une commande SSH et retourne la sortie
 func (c *Client) Execute(cmd string) (string, error) {
 	if err := c.Connect(); err != nil {
 		return "", err
@@ -151,7 +151,7 @@ func (c *Client) Execute(cmd string) (string, error) {
 
 	session, err := c.client.NewSession()
 	if err != nil {
-		return "", fmt.Errorf("erreur crÃ©ation session: %w", err)
+		return "", fmt.Errorf("erreur création session: %w", err)
 	}
 	defer session.Close()
 
@@ -160,13 +160,13 @@ func (c *Client) Execute(cmd string) (string, error) {
 	session.Stderr = &stderr
 
 	if err := session.Run(cmd); err != nil {
-		return "", fmt.Errorf("erreur exÃ©cution commande: %w (stderr: %s)", err, stderr.String())
+		return "", fmt.Errorf("erreur exécution commande: %w (stderr: %s)", err, stderr.String())
 	}
 
 	return stdout.String(), nil
 }
 
-// NewSession crÃ©e une nouvelle session SSH interactive
+// NewSession crée une nouvelle session SSH interactive
 func (c *Client) NewSession() (*ssh.Session, error) {
 	if err := c.Connect(); err != nil {
 		return nil, err
@@ -178,7 +178,7 @@ func (c *Client) NewSession() (*ssh.Session, error) {
 	return c.client.NewSession()
 }
 
-// IsConnected vÃ©rifie si le client est connectÃ©
+// IsConnected vérifie si le client est connecté
 func (c *Client) IsConnected() bool {
 	c.mu.Lock()
 	defer c.mu.Unlock()

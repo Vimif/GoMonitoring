@@ -1,4 +1,4 @@
-﻿# Go Monitoring
+# Go Monitoring
 
 Surveillance de machines Linux et Windows via SSH. Interface web avec métriques en temps réel, graphiques historiques et terminal SSH intégré.
 

@@ -1,4 +1,4 @@
-﻿package config
+package config
 
 import (
 	"fmt"
@@ -9,21 +9,21 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// Config reprÃ©sente la configuration complÃ¨te
+// Config représente la configuration complète
 type Config struct {
 	Machines []MachineConfig `yaml:"machines"`
 	Settings Settings        `yaml:"settings"`
 	Users    []UserConfig    `yaml:"users"`
 }
 
-// UserConfig reprÃ©sente un utilisateur
+// UserConfig représente un utilisateur
 type UserConfig struct {
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
 	Role     string `yaml:"role"`
 }
 
-// MachineConfig reprÃ©sente la configuration d'une machine
+// MachineConfig représente la configuration d'une machine
 type MachineConfig struct {
 	ID       string   `yaml:"id" json:"id"`
 	Name     string   `yaml:"name" json:"name"`
@@ -37,14 +37,14 @@ type MachineConfig struct {
 	Services []string `yaml:"services,omitempty" json:"services,omitempty"`
 }
 
-// Thresholds contient les seuils d'alerte pour la conformitÃ©
+// Thresholds contient les seuils d'alerte pour la conformité
 type Thresholds struct {
 	DiskMinPercent   float64 `yaml:"disk_min_percent"`   // Alerte si espace libre < X%
-	MemoryMinPercent float64 `yaml:"memory_min_percent"` // Alerte si mÃ©moire libre < X%
+	MemoryMinPercent float64 `yaml:"memory_min_percent"` // Alerte si mémoire libre < X%
 	CPUMaxPercent    float64 `yaml:"cpu_max_percent"`    // Alerte si CPU > X%
 }
 
-// Settings contient les paramÃ¨tres gÃ©nÃ©raux
+// Settings contient les paramètres généraux
 type Settings struct {
 	RefreshInterval int        `yaml:"refresh_interval"`
 	SSHTimeout      int        `yaml:"ssh_timeout"`
@@ -63,14 +63,14 @@ func LoadConfig(path string) (*Config, error) {
 		return nil, fmt.Errorf("erreur parsing YAML: %w", err)
 	}
 
-	// Valeurs par dÃ©faut
+	// Valeurs par défaut
 	if cfg.Settings.RefreshInterval == 0 {
 		cfg.Settings.RefreshInterval = 30
 	}
 	if cfg.Settings.SSHTimeout == 0 {
 		cfg.Settings.SSHTimeout = 10
 	}
-	// Seuils par dÃ©faut pour la conformitÃ©
+	// Seuils par défaut pour la conformité
 	if cfg.Settings.Thresholds.DiskMinPercent == 0 {
 		cfg.Settings.Thresholds.DiskMinPercent = 10 // Alerte si < 10% libre
 	}
@@ -81,19 +81,19 @@ func LoadConfig(path string) (*Config, error) {
 		cfg.Settings.Thresholds.CPUMaxPercent = 90 // Alerte si > 90%
 	}
 
-	// Valeurs par dÃ©faut pour les machines et dÃ©chiffrement des passwords
+	// Valeurs par défaut pour les machines et déchiffrement des passwords
 	for i := range cfg.Machines {
 		if cfg.Machines[i].Port == 0 {
 			cfg.Machines[i].Port = 22
 		}
 
-		// DÃ©chiffrer le password s'il est chiffrÃ©
+		// Déchiffrer le password s'il est chiffré
 		if cfg.Machines[i].Password != "" {
 			if crypto.IsEncrypted(cfg.Machines[i].Password) {
 				decrypted, err := crypto.Decrypt(cfg.Machines[i].Password)
 				if err != nil {
-					log.Printf("AVERTISSEMENT: Impossible de dÃ©chiffrer le password pour %s: %v", cfg.Machines[i].ID, err)
-					// On continue avec le password chiffrÃ© (Ã©chec de connexion probable)
+					log.Printf("AVERTISSEMENT: Impossible de déchiffrer le password pour %s: %v", cfg.Machines[i].ID, err)
+					// On continue avec le password chiffré (échec de connexion probable)
 				} else {
 					cfg.Machines[i].Password = decrypted
 				}
@@ -118,24 +118,24 @@ func (c *Config) GetMachine(id string) *MachineConfig {
 func SaveConfig(path string, cfg *Config) error {
 	data, err := yaml.Marshal(cfg)
 	if err != nil {
-		return fmt.Errorf("erreur sÃ©rialisation YAML: %w", err)
+		return fmt.Errorf("erreur sérialisation YAML: %w", err)
 	}
 
 	if err := os.WriteFile(path, data, 0644); err != nil {
-		return fmt.Errorf("erreur Ã©criture fichier config: %w", err)
+		return fmt.Errorf("erreur écriture fichier config: %w", err)
 	}
 
 	return nil
 }
 
-// AddMachine ajoute une nouvelle machine Ã  la configuration
+// AddMachine ajoute une nouvelle machine à la configuration
 func (c *Config) AddMachine(machine MachineConfig) error {
-	// VÃ©rifier si l'ID existe dÃ©jÃ 
+	// Vérifier si l'ID existe déjà
 	if c.GetMachine(machine.ID) != nil {
-		return fmt.Errorf("une machine avec l'ID '%s' existe dÃ©jÃ ", machine.ID)
+		return fmt.Errorf("une machine avec l'ID '%s' existe déjà", machine.ID)
 	}
 
-	// Valeurs par dÃ©faut
+	// Valeurs par défaut
 	if machine.Port == 0 {
 		machine.Port = 22
 	}
@@ -145,7 +145,7 @@ func (c *Config) AddMachine(machine MachineConfig) error {
 		encrypted, err := crypto.Encrypt(machine.Password)
 		if err != nil {
 			log.Printf("AVERTISSEMENT: Impossible de chiffrer le password pour %s: %v", machine.ID, err)
-			// On continue avec le password en clair (pas idÃ©al mais fonctionnel)
+			// On continue avec le password en clair (pas idéal mais fonctionnel)
 		} else {
 			machine.Password = encrypted
 		}
@@ -155,11 +155,11 @@ func (c *Config) AddMachine(machine MachineConfig) error {
 	return nil
 }
 
-// UpdateMachine met Ã  jour une machine existante
+// UpdateMachine met à jour une machine existante
 func (c *Config) UpdateMachine(machine MachineConfig) error {
 	for i := range c.Machines {
 		if c.Machines[i].ID == machine.ID {
-			// Garder le port par dÃ©faut si 0
+			// Garder le port par défaut si 0
 			if machine.Port == 0 {
 				machine.Port = 22
 			}
@@ -178,7 +178,7 @@ func (c *Config) UpdateMachine(machine MachineConfig) error {
 			return nil
 		}
 	}
-	return fmt.Errorf("machine non trouvÃ©e: %s", machine.ID)
+	return fmt.Errorf("machine non trouvée: %s", machine.ID)
 }
 
 // RemoveMachine supprime une machine de la configuration
@@ -189,5 +189,5 @@ func (c *Config) RemoveMachine(id string) error {
 			return nil
 		}
 	}
-	return fmt.Errorf("machine non trouvÃ©e: %s", id)
+	return fmt.Errorf("machine non trouvée: %s", id)
 }

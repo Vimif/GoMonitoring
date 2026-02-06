@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Module de modales rÃ©utilisable
  * Ã‰limine la duplication de code des modales
  */

@@ -1,4 +1,4 @@
-﻿// Dashboard WebSocket avec reconnexion exponentielle
+// Dashboard WebSocket avec reconnexion exponentielle
 let reconnectAttempts = 0;
 const MAX_RECONNECT_ATTEMPTS = 10;
 const BASE_DELAY = 1000; // 1 seconde
@@ -16,10 +16,10 @@ function initWebSocket() {
     const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
-        console.log("WebSocket connectÃ©");
+        console.log("WebSocket connecté");
         reconnectAttempts = 0; // Reset on successful connection
 
-        // Supprimer la notification de dÃ©connexion si elle existe
+        // Supprimer la notification de déconnexion si elle existe
         const disconnectNotif = document.querySelector('.ws-disconnect-notification');
         if (disconnectNotif) disconnectNotif.remove();
     };
@@ -34,10 +34,10 @@ function initWebSocket() {
     };
 
     ws.onclose = () => {
-        console.log("WebSocket dÃ©connectÃ©");
+        console.log("WebSocket déconnecté");
 
         if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
-            // Calcul du dÃ©lai avec backoff exponentiel
+            // Calcul du délai avec backoff exponentiel
             const delay = Math.min(BASE_DELAY * Math.pow(2, reconnectAttempts), MAX_DELAY);
             reconnectAttempts++;
 
@@ -112,7 +112,7 @@ function showReconnectingIndicator(delay) {
 
     document.body.appendChild(indicator);
 
-    // Supprimer aprÃ¨s le dÃ©lai
+    // Supprimer après le délai
     setTimeout(() => {
         if (indicator.parentElement) {
             indicator.style.opacity = '0';
@@ -122,14 +122,14 @@ function showReconnectingIndicator(delay) {
 }
 
 /**
- * Affiche une notification de dÃ©connexion permanente
+ * Affiche une notification de déconnexion permanente
  */
 function showDisconnectedNotification() {
     // Supprimer les indicateurs temporaires
     const indicator = document.querySelector('.ws-reconnect-indicator');
     if (indicator) indicator.remove();
 
-    // CrÃ©er la notification de dÃ©connexion
+    // Créer la notification de déconnexion
     const notification = document.createElement('div');
     notification.className = 'ws-disconnect-notification';
     notification.innerHTML = `
@@ -147,7 +147,7 @@ function showDisconnectedNotification() {
             border-radius: 4px;
             cursor: pointer;
             font-size: 0.8rem;
-        ">RafraÃ®chir</button>
+        ">Rafraîchir</button>
     `;
     notification.style.cssText = `
         position: fixed;
@@ -175,12 +175,12 @@ function updateDashboardUI(machines) {
         const card = document.getElementById(`card-${m.id}`);
         if (!card) return;
 
-        // VÃ©rifier si le statut a changÃ© pour l'animation
+        // Vérifier si le statut a changé pour l'animation
         const previousStatus = card.classList.contains('status-online') ? 'online' :
             card.classList.contains('status-offline') ? 'offline' : 'unknown';
         const statusChanged = previousStatus !== m.status;
 
-        // Mise Ã  jour de la classe de statut
+        // Mise à jour de la classe de statut
         card.classList.forEach(cls => {
             if (cls.startsWith('status-') && cls !== `status-${m.status}`) {
                 card.classList.remove(cls);
@@ -188,13 +188,13 @@ function updateDashboardUI(machines) {
         });
         card.classList.add(`status-${m.status}`);
 
-        // Animation de transition si le statut a changÃ©
+        // Animation de transition si le statut a changé
         if (statusChanged) {
             card.classList.add('fade-in');
             setTimeout(() => card.classList.remove('fade-in'), 300);
         }
 
-        // Mise Ã  jour des mÃ©triques si prÃ©sentes
+        // Mise à jour des métriques si présentes
         if (m.status === 'online') {
             const metricsDiv = card.querySelector('.machine-metrics');
             if (metricsDiv) {
@@ -231,7 +231,7 @@ function updateDashboardUI(machines) {
         }
     });
 
-    // Mise Ã  jour des compteurs globaux (dÃ©fini dans dashboard.html)
+    // Mise à jour des compteurs globaux (défini dans dashboard.html)
     if (typeof updateMachineCounts === 'function') {
         updateMachineCounts();
     }

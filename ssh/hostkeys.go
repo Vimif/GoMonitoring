@@ -1,4 +1,4 @@
-﻿package ssh
+package ssh
 
 import (
 	"bufio"
@@ -16,7 +16,7 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-// HostKeyManager gÃ¨re les clÃ©s SSH des hÃ´tes connus
+// HostKeyManager gère les clés SSH des hôtes connus
 type HostKeyManager struct {
 	knownHostsPath string
 	knownHosts     map[string]ssh.PublicKey
@@ -24,13 +24,13 @@ type HostKeyManager struct {
 	trustOnFirstUse bool // Mode "Trust On First Use"
 }
 
-// NewHostKeyManager crÃ©e un nouveau gestionnaire de host keys
+// NewHostKeyManager crée un nouveau gestionnaire de host keys
 func NewHostKeyManager(knownHostsPath string, trustOnFirstUse bool) (*HostKeyManager, error) {
 	if knownHostsPath == "" {
-		// Chemin par dÃ©faut
+		// Chemin par défaut
 		home, err := os.UserHomeDir()
 		if err != nil {
-			return nil, fmt.Errorf("impossible de dÃ©terminer le home directory: %w", err)
+			return nil, fmt.Errorf("impossible de déterminer le home directory: %w", err)
 		}
 		knownHostsPath = filepath.Join(home, ".ssh", "known_hosts_monitoring")
 	}
@@ -82,19 +82,19 @@ func (hkm *HostKeyManager) loadKnownHosts() error {
 		keyType := parts[1]
 		keyData := parts[2]
 
-		// DÃ©coder la clÃ©
+		// Décoder la clé
 		decoded, err := base64.StdEncoding.DecodeString(keyData)
 		if err != nil {
-			continue // ClÃ© invalide, ignorer
+			continue // Clé invalide, ignorer
 		}
 
-		// Parser la clÃ© publique
+		// Parser la clé publique
 		pubKey, err := ssh.ParsePublicKey(decoded)
 		if err != nil {
-			continue // ClÃ© invalide, ignorer
+			continue // Clé invalide, ignorer
 		}
 
-		// VÃ©rifier que le type correspond
+		// Vérifier que le type correspond
 		if pubKey.Type() != keyType {
 			continue
 		}
@@ -105,12 +105,12 @@ func (hkm *HostKeyManager) loadKnownHosts() error {
 	return scanner.Err()
 }
 
-// saveHostKey sauvegarde une nouvelle clÃ© d'hÃ´te dans le fichier
+// saveHostKey sauvegarde une nouvelle clé d'hôte dans le fichier
 func (hkm *HostKeyManager) saveHostKey(hostname string, key ssh.PublicKey) error {
-	// CrÃ©er le rÃ©pertoire .ssh s'il n'existe pas
+	// Créer le répertoire .ssh s'il n'existe pas
 	dir := filepath.Dir(hkm.knownHostsPath)
 	if err := os.MkdirAll(dir, 0700); err != nil {
-		return fmt.Errorf("erreur crÃ©ation rÃ©pertoire: %w", err)
+		return fmt.Errorf("erreur création répertoire: %w", err)
 	}
 
 	// Ouvrir le fichier en mode append
@@ -125,46 +125,46 @@ func (hkm *HostKeyManager) saveHostKey(hostname string, key ssh.PublicKey) error
 	line := fmt.Sprintf("%s %s %s\n", hostname, key.Type(), keyData)
 
 	if _, err := file.WriteString(line); err != nil {
-		return fmt.Errorf("erreur Ã©criture fichier: %w", err)
+		return fmt.Errorf("erreur écriture fichier: %w", err)
 	}
 
 	return nil
 }
 
-// HostKeyCallback retourne un callback pour vÃ©rifier les host keys
+// HostKeyCallback retourne un callback pour vérifier les host keys
 func (hkm *HostKeyManager) HostKeyCallback() ssh.HostKeyCallback {
 	return func(hostname string, remote net.Addr, key ssh.PublicKey) error {
 		hkm.mu.Lock()
 		defer hkm.mu.Unlock()
 
-		// Normaliser le hostname (enlever le port si prÃ©sent)
+		// Normaliser le hostname (enlever le port si présent)
 		host, _, _ := net.SplitHostPort(hostname)
 		if host == "" {
 			host = hostname
 		}
 
-		// VÃ©rifier si on connaÃ®t cet hÃ´te
+		// Vérifier si on connaît cet hôte
 		knownKey, exists := hkm.knownHosts[host]
 
 		if exists {
-			// Comparer les clÃ©s
+			// Comparer les clés
 			if !bytes.Equal(knownKey.Marshal(), key.Marshal()) {
-				return fmt.Errorf("âš ï¸  HOST KEY MISMATCH pour %s!\n"+
+				return fmt.Errorf("⚠ï¸  HOST KEY MISMATCH pour %s!\n"+
 					"Fingerprint attendu: %s\n"+
-					"Fingerprint reÃ§u:     %s\n"+
+					"Fingerprint reçu:     %s\n"+
 					"POSSIBLE MAN-IN-THE-MIDDLE ATTACK!",
 					host,
 					FormatFingerprint(knownKey),
 					FormatFingerprint(key))
 			}
-			// ClÃ© correspond, OK
+			// Clé correspond, OK
 			return nil
 		}
 
-		// HÃ´te inconnu
+		// Hôte inconnu
 		if hkm.trustOnFirstUse {
 			// Mode TOFU: accepter et sauvegarder automatiquement
-			fmt.Printf("â„¹ï¸  Nouvel hÃ´te %s (TOFU)\n", host)
+			fmt.Printf("ℹï¸  Nouvel hôte %s (TOFU)\n", host)
 			fmt.Printf("   Fingerprint: %s\n", FormatFingerprint(key))
 
 			if err := hkm.saveHostKey(host, key); err != nil {
@@ -176,23 +176,23 @@ func (hkm *HostKeyManager) HostKeyCallback() ssh.HostKeyCallback {
 		}
 
 		// Mode strict: demander confirmation (mode interactif non disponible en service)
-		// En production, on devrait prÃ©-remplir known_hosts ou utiliser TOFU
-		return fmt.Errorf("hÃ´te inconnu %s. Fingerprint: %s\n"+
-			"Ajoutez cette clÃ© dans %s pour l'accepter",
+		// En production, on devrait pré-remplir known_hosts ou utiliser TOFU
+		return fmt.Errorf("hôte inconnu %s. Fingerprint: %s\n"+
+			"Ajoutez cette clé dans %s pour l'accepter",
 			host,
 			FormatFingerprint(key),
 			hkm.knownHostsPath)
 	}
 }
 
-// FormatFingerprint formatte une clÃ© publique en fingerprint SHA256 (format OpenSSH moderne)
+// FormatFingerprint formatte une clé publique en fingerprint SHA256 (format OpenSSH moderne)
 func FormatFingerprint(key ssh.PublicKey) string {
 	hash := sha256.Sum256(key.Marshal())
 	b64 := base64.RawStdEncoding.EncodeToString(hash[:])
 	return "SHA256:" + b64
 }
 
-// FormatFingerprintMD5 formatte une clÃ© publique en fingerprint MD5 (format legacy)
+// FormatFingerprintMD5 formatte une clé publique en fingerprint MD5 (format legacy)
 func FormatFingerprintMD5(key ssh.PublicKey) string {
 	hash := md5.Sum(key.Marshal())
 	parts := make([]string, len(hash))
@@ -207,7 +207,7 @@ func (hkm *HostKeyManager) GetKnownHostsPath() string {
 	return hkm.knownHostsPath
 }
 
-// GetHostCount retourne le nombre d'hÃ´tes connus
+// GetHostCount retourne le nombre d'hôtes connus
 func (hkm *HostKeyManager) GetHostCount() int {
 	hkm.mu.RLock()
 	defer hkm.mu.RUnlock()

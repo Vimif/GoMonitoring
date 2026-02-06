@@ -1,4 +1,4 @@
-﻿package collectors
+package collectors
 
 import (
 	"strconv"
@@ -8,8 +8,8 @@ import (
 	"go-monitoring/ssh"
 )
 
-// CollectMemoryInfo collecte les informations mÃ©moire via SSH
-// osType: "linux", "windows" ou vide (dÃ©faut Linux)
+// CollectMemoryInfo collecte les informations mémoire via SSH
+// osType: "linux", "windows" ou vide (défaut Linux)
 func CollectMemoryInfo(client *ssh.Client, osType string) (models.MemoryInfo, error) {
 	if osType == "windows" {
 		return collectMemoryInfoWindows(client)
@@ -17,7 +17,7 @@ func CollectMemoryInfo(client *ssh.Client, osType string) (models.MemoryInfo, er
 	return collectMemoryInfoLinux(client)
 }
 
-// collectMemoryInfoLinux collecte les infos mÃ©moire sur Linux
+// collectMemoryInfoLinux collecte les infos mémoire sur Linux
 func collectMemoryInfoLinux(client *ssh.Client) (models.MemoryInfo, error) {
 	var info models.MemoryInfo
 
@@ -49,11 +49,11 @@ func collectMemoryInfoLinux(client *ssh.Client) (models.MemoryInfo, error) {
 	return info, nil
 }
 
-// collectMemoryInfoWindows collecte les infos mÃ©moire sur Windows via PowerShell
+// collectMemoryInfoWindows collecte les infos mémoire sur Windows via PowerShell
 func collectMemoryInfoWindows(client *ssh.Client) (models.MemoryInfo, error) {
 	var info models.MemoryInfo
 
-	// RÃ©cupÃ©rer Total et Free en une seule commande
+	// Récupérer Total et Free en une seule commande
 	cmd := `powershell -Command "$os = Get-CimInstance Win32_OperatingSystem; Write-Output ('{0}|{1}' -f ($os.TotalVisibleMemorySize * 1KB), ($os.FreePhysicalMemory * 1KB))"`
 	output, err := client.Execute(cmd)
 	if err != nil {

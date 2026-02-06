@@ -1,4 +1,4 @@
-﻿package main
+package main
 
 import (
 	"log"
@@ -26,41 +26,41 @@ func main() {
 		log.Fatalf("Erreur chargement configuration: %v", err)
 	}
 
-	log.Printf("Configuration chargÃ©e: %d machine(s)", len(cfg.Machines))
+	log.Printf("Configuration chargée: %d machine(s)", len(cfg.Machines))
 
-	// CrÃ©er le pool de connexions SSH
+	// Créer le pool de connexions SSH
 	pool := ssh.NewPool(cfg.Machines, cfg.Settings.SSHTimeout)
 	defer pool.CloseAll()
 
-	// CrÃ©er le cache de mÃ©triques (TTL 10 secondes)
+	// Créer le cache de métriques (TTL 10 secondes)
 	metricsCache := cache.NewMetricsCache(10 * time.Second)
 
-	// Initialiser la base de donnÃ©es
+	// Initialiser la base de données
 	db, err := storage.InitDB("monitoring.db")
 	if err != nil {
-		log.Fatalf("Erreur initialisation base de donnÃ©es: %v", err)
+		log.Fatalf("Erreur initialisation base de données: %v", err)
 	}
 
-	// DÃ©marrer la routine de nettoyage des tokens CSRF
+	// Démarrer la routine de nettoyage des tokens CSRF
 	middleware.StartCleanupRoutine()
-	log.Println("Routine de nettoyage CSRF dÃ©marrÃ©e")
+	log.Println("Routine de nettoyage CSRF démarrée")
 
-	// DÃ©marrer le Hub WebSocket
+	// Démarrer le Hub WebSocket
 	go handlers.WSHub.Run()
 
-	// CrÃ©er le gestionnaire de configuration (Thread-Safe)
+	// Créer le gestionnaire de configuration (Thread-Safe)
 	cm := handlers.NewConfigManager(cfg, pool, metricsCache, configPath)
 
-	// TÃ¢che de fond pour la collecte pÃ©riodique (Historique - 1 min)
+	// Tâche de fond pour la collecte périodique (Historique - 1 min)
 	go func() {
-		log.Println("DÃ©marrage de la collecte d'historique (tout les 1 minute)")
+		log.Println("Démarrage de la collecte d'historique (tout les 1 minute)")
 		ticker := time.NewTicker(1 * time.Minute)
 		defer ticker.Stop()
 		for range ticker.C {
-			// RÃ©cupÃ©rer la configuration et le pool Ã  jour
+			// Récupérer la configuration et le pool à jour
 			currentCfg, currentPool, _ := cm.GetConfigPoolAndCache()
 
-			// Collecter les mÃ©triques pour l'historique
+			// Collecter les métriques pour l'historique
 			machines := handlers.CollectAllMachines(currentCfg, currentPool, metricsCache, 20*time.Second, true)
 
 			for _, m := range machines {
@@ -75,22 +75,22 @@ func main() {
 		}
 	}()
 
-	// TÃ¢che de fond pour le temps rÃ©el (WebSocket - 5s)
+	// Tâche de fond pour le temps réel (WebSocket - 5s)
 	go func() {
-		log.Println("DÃ©marrage de la collecte temps rÃ©el (tout les 5 secondes)")
+		log.Println("Démarrage de la collecte temps réel (tout les 5 secondes)")
 		ticker := time.NewTicker(5 * time.Second)
 		defer ticker.Stop()
 		for range ticker.C {
-			// RÃ©cupÃ©rer la configuration et le pool Ã  jour
+			// Récupérer la configuration et le pool à jour
 			currentCfg, currentPool, _ := cm.GetConfigPoolAndCache()
 
-			// Force refresh pour le temps rÃ©el
+			// Force refresh pour le temps réel
 			machines := handlers.CollectAllMachines(currentCfg, currentPool, metricsCache, 5*time.Second, true)
 			handlers.WSHub.Broadcast(machines)
 		}
 	}()
 
-	// CrÃ©er le gestionnaire d'authentification
+	// Créer le gestionnaire d'authentification
 	userManager := auth.NewUserManager(db, cfg.Users)
 	authManager := auth.NewAuthManager(userManager)
 
@@ -105,7 +105,7 @@ func main() {
 	mux.HandleFunc("POST /login", authManager.LoginHandler)
 	mux.HandleFunc("/logout", authManager.LogoutHandler)
 
-	// Pages protÃ©gÃ©es
+	// Pages protégées
 	log.Println("Registering GET /{$}")
 	mux.HandleFunc("GET /{$}", authManager.Middleware(handlers.DashboardWithCM(cm, authManager)))
 
@@ -117,7 +117,7 @@ func main() {
 	mux.HandleFunc("GET /users", authManager.Middleware(handlers.UsersPage(cfg, authManager)))
 	mux.HandleFunc("GET /audit", authManager.Middleware(handlers.AuditPage(cfg, db, authManager)))
 
-	// API protÃ©gÃ©es
+	// API protégées
 	mux.HandleFunc("GET /api/machine/{id}/disks", authManager.Middleware(handlers.DiskListWithCM(cm)))
 	mux.HandleFunc("GET /api/machine/{id}/disk", authManager.Middleware(handlers.DiskDetailsWithCM(cm)))
 	mux.HandleFunc("GET /api/machine/{id}/browse", authManager.Middleware(handlers.BrowseDirectoryWithCM(cm)))
@@ -146,12 +146,12 @@ func main() {
 	fs := http.FileServer(http.Dir("static"))
 	mux.Handle("GET /static/", http.StripPrefix("/static/", fs))
 
-	// Gestion de l'arrÃªt gracieux
+	// Gestion de l'arrêt gracieux
 	go func() {
 		sigChan := make(chan os.Signal, 1)
 		signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 		<-sigChan
-		log.Println("ArrÃªt du serveur...")
+		log.Println("Arrêt du serveur...")
 		pool.CloseAll()
 		os.Exit(0)
 	}()
@@ -159,9 +159,9 @@ func main() {
 	// Wrapper le serveur avec le middleware CSRF
 	handler := middleware.CSRFMiddleware(mux)
 
-	// DÃ©marrer le serveur
+	// Démarrer le serveur
 	addr := ":8080"
-	log.Printf("Serveur dÃ©marrÃ© sur http://localhost%s (Protection CSRF activÃ©e)", addr)
+	log.Printf("Serveur démarré sur http://localhost%s (Protection CSRF activée)", addr)
 	if err := http.ListenAndServe(addr, handler); err != nil {
 		log.Fatalf("Erreur serveur: %v", err)
 	}

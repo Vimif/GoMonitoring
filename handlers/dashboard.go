@@ -1,4 +1,4 @@
-﻿package handlers
+package handlers
 
 import (
 	"html/template"
@@ -24,10 +24,10 @@ var dashboardFuncs = template.FuncMap{
 	"upper": strings.ToUpper,
 }
 
-// Dashboard gÃ¨re la page d'accueil avec la liste des machines
+// Dashboard gère la page d'accueil avec la liste des machines
 func Dashboard(cfg *config.Config, pool *ssh.Pool, cache *cache.MetricsCache, am *auth.AuthManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Charger les templates avec les fonctions personnalisÃ©es
+		// Charger les templates avec les fonctions personnalisées
 		tmpl, err := template.New("base.html").Funcs(dashboardFuncs).ParseFiles(
 			"templates/layout/base.html",
 			"templates/dashboard.html",
@@ -37,10 +37,10 @@ func Dashboard(cfg *config.Config, pool *ssh.Pool, cache *cache.MetricsCache, am
 			return
 		}
 
-		// Collecter les infos des machines en parallÃ¨le avec timeout et cache
+		// Collecter les infos des machines en parallèle avec timeout et cache
 		machines := CollectAllMachines(cfg, pool, cache, 1*time.Second, false)
 
-		log.Printf("Dashboard: %d machines chargÃ©es", len(machines))
+		log.Printf("Dashboard: %d machines chargées", len(machines))
 
 		// Grouper les machines
 		groupsMap := make(map[string][]models.Machine)
@@ -75,7 +75,7 @@ func Dashboard(cfg *config.Config, pool *ssh.Pool, cache *cache.MetricsCache, am
 			username = am.GetUsername(r)
 		}
 
-		// PrÃ©parer les donnÃ©es
+		// Préparer les données
 		data := models.DashboardData{
 			Title:           "Monitoring Infrastructure",
 			Status:          getGlobalStatus(machines),
@@ -103,7 +103,7 @@ func DashboardWithCM(cm *ConfigManager, am *auth.AuthManager) http.HandlerFunc {
 	}
 }
 
-// CollectAllMachines collecte les infos de toutes les machines en parallÃ¨le
+// CollectAllMachines collecte les infos de toutes les machines en parallèle
 func CollectAllMachines(cfg *config.Config, pool *ssh.Pool, cache *cache.MetricsCache, timeout time.Duration, forceRefresh bool) []models.Machine {
 	machines := make([]models.Machine, len(cfg.Machines))
 	var wg sync.WaitGroup
@@ -113,44 +113,44 @@ func CollectAllMachines(cfg *config.Config, pool *ssh.Pool, cache *cache.Metrics
 		go func(index int, mc config.MachineConfig) {
 			defer wg.Done()
 
-			// CrÃ©er la machine de base
+			// Créer la machine de base
 			machine := models.Machine{
 				ID:        mc.ID,
 				Name:      mc.Name,
 				Host:      mc.Host,
 				Port:      mc.Port,
 				User:      mc.User,
-				KeyPath:   mc.KeyPath, // Copier le chemin de la clÃ©
+				KeyPath:   mc.KeyPath, // Copier le chemin de la clé
 				Group:     mc.Group,
 				Status:    "checking",
 				LastCheck: time.Now(),
 			}
 
-			// Canal pour recevoir le rÃ©sultat
+			// Canal pour recevoir le résultat
 			resultChan := make(chan models.Machine, 1)
 
 			go func() {
-				// 1. VÃ©rifier le cache si pas de forceRefresh
+				// 1. Vérifier le cache si pas de forceRefresh
 				if !forceRefresh {
 					if cached, found := cache.Get(mc.ID); found {
-						// VÃ©rifier la conformitÃ© mÃªme pour les donnÃ©es en cache
+						// Vérifier la conformité même pour les données en cache
 						// collectors.CheckCompliance(&cached, cfg.Settings.Thresholds)
 						resultChan <- cached
 						return
 					}
 				}
 
-				// RÃ©cupÃ©rer l'Ã©tat prÃ©cÃ©dent pour le calcul des dÃ©bits
+				// Récupérer l'état précédent pour le calcul des débits
 				prev, hasPrev := cache.GetLastKnown(mc.ID)
 
-				// VÃ©rifier si c'est une machine locale
+				// Vérifier si c'est une machine locale
 				if collectors.IsLocalHost(mc.Host) {
-					// log.Printf("Dashboard: Machine locale dÃ©tectÃ©e: %s", mc.ID)
+					// log.Printf("Dashboard: Machine locale détectée: %s", mc.ID)
 					res := collectLocalMachineInfo(machine)
 					if hasPrev {
 						CalculateRates(&res, &prev)
 					}
-					// VÃ©rifier la conformitÃ©
+					// Vérifier la conformité
 					// collectors.CheckCompliance(&res, cfg.Settings.Thresholds)
 					cache.Set(res) // Mettre en cache
 					resultChan <- res
@@ -162,7 +162,7 @@ func CollectAllMachines(cfg *config.Config, pool *ssh.Pool, cache *cache.Metrics
 				if err != nil {
 					log.Printf("Dashboard: Erreur client SSH pour %s: %v", mc.ID, err)
 					machine.Status = "error"
-					// Maintien des infos prÃ©cÃ©dentes si disponibles
+					// Maintien des infos précédentes si disponibles
 					if hasPrev {
 						machine.OSType = prev.OSType
 						machine.System = prev.System
@@ -174,12 +174,12 @@ func CollectAllMachines(cfg *config.Config, pool *ssh.Pool, cache *cache.Metrics
 				}
 
 				// Tester la connexion et collecter les infos de base
-				// Utiliser l'OS configurÃ© ou auto-dÃ©tecter
+				// Utiliser l'OS configuré ou auto-détecter
 				sysInfo, detectedOS, err := collectors.CollectSystemInfo(client, mc.OS)
 				if err != nil {
 					log.Printf("Dashboard: Machine %s offline: %v", mc.ID, err)
 					machine.Status = "offline"
-					// Maintien des infos prÃ©cÃ©dentes si disponibles
+					// Maintien des infos précédentes si disponibles
 					if hasPrev {
 						machine.OSType = prev.OSType
 						machine.System = prev.System
@@ -208,7 +208,7 @@ func CollectAllMachines(cfg *config.Config, pool *ssh.Pool, cache *cache.Metrics
 				}
 				log.Printf("DEBUG OS MAPPING: Host=%s OS='%s' Detected='%s' Final='%s'", machine.Name, machine.System.OS, detectedOS, machine.OSType)
 
-				// Collecter les mÃ©triques en parallÃ¨le pour de meilleures performances
+				// Collecter les métriques en parallèle pour de meilleures performances
 				var collectWg sync.WaitGroup
 				var mu sync.Mutex
 
@@ -271,21 +271,21 @@ func CollectAllMachines(cfg *config.Config, pool *ssh.Pool, cache *cache.Metrics
 					CalculateRates(&machine, &prev)
 				}
 
-				// VÃ©rifier la conformitÃ©
+				// Vérifier la conformité
 				// collectors.CheckCompliance(&machine, cfg.Settings.Thresholds)
 
 				cache.Set(machine) // Mettre en cache
 				resultChan <- machine
 			}()
 
-			// Attendre le rÃ©sultat avec timeout
+			// Attendre le résultat avec timeout
 			select {
 			case result := <-resultChan:
 				machines[index] = result
 			case <-time.After(timeout):
 				log.Printf("Dashboard: Timeout pour la machine %s", mc.ID)
 
-				// Tentative de rÃ©cupÃ©ration des infos prÃ©cÃ©dentes
+				// Tentative de récupération des infos précédentes
 				if cached, found := cache.Get(mc.ID); found {
 					machine = cached
 				}
@@ -300,7 +300,7 @@ func CollectAllMachines(cfg *config.Config, pool *ssh.Pool, cache *cache.Metrics
 	return machines
 }
 
-// CalculateRates calcule les dÃ©bits basÃ©s sur l'Ã©tat prÃ©cÃ©dent
+// CalculateRates calcule les débits basés sur l'état précédent
 func CalculateRates(current, previous *models.Machine) {
 	duration := current.LastCheck.Sub(previous.LastCheck).Seconds()
 	if duration <= 0 {
@@ -328,7 +328,7 @@ func CalculateRates(current, previous *models.Machine) {
 func collectLocalMachineInfo(machine models.Machine) models.Machine {
 	sysInfo, err := collectors.CollectLocalSystemInfo()
 	if err != nil {
-		log.Printf("Dashboard: Erreur systÃ¨me local: %v", err)
+		log.Printf("Dashboard: Erreur système local: %v", err)
 		machine.Status = "error"
 		return machine
 	}
@@ -345,7 +345,7 @@ func collectLocalMachineInfo(machine models.Machine) models.Machine {
 
 	memInfo, err := collectors.CollectLocalMemoryInfo()
 	if err != nil {
-		log.Printf("Dashboard: Erreur mÃ©moire locale: %v", err)
+		log.Printf("Dashboard: Erreur mémoire locale: %v", err)
 	} else {
 		machine.Memory = memInfo
 	}

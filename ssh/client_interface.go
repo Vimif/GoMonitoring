@@ -1,8 +1,8 @@
-﻿package ssh
+package ssh
 
 import "golang.org/x/crypto/ssh"
 
-// SSHExecutor dÃ©finit l'interface minimale pour exÃ©cuter des commandes SSH
+// SSHExecutor définit l'interface minimale pour exécuter des commandes SSH
 // Cette interface permet l'utilisation de mocks dans les tests
 type SSHExecutor interface {
 	Execute(cmd string) (string, error)
@@ -12,8 +12,8 @@ type SSHExecutor interface {
 	NewSession() (*ssh.Session, error)
 }
 
-// VÃ©rifier que Client implÃ©mente SSHExecutor
+// Vérifier que Client implémente SSHExecutor
 var _ SSHExecutor = (*Client)(nil)
 
-// VÃ©rifier que MockClient implÃ©mente SSHExecutor
+// Vérifier que MockClient implémente SSHExecutor
 var _ SSHExecutor = (*MockClient)(nil)

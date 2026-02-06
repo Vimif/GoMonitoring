@@ -1,4 +1,4 @@
-﻿package service
+package service
 
 import (
 	"fmt"
@@ -10,12 +10,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// UserService implÃ©mente la logique mÃ©tier pour les utilisateurs
+// UserService implémente la logique métier pour les utilisateurs
 type UserService struct {
 	repo interfaces.UserRepository
 }
 
-// NewUserService crÃ©e un nouveau service de gestion des utilisateurs
+// NewUserService crée un nouveau service de gestion des utilisateurs
 func NewUserService(repo interfaces.UserRepository) *UserService {
 	return &UserService{
 		repo: repo,
@@ -24,23 +24,23 @@ func NewUserService(repo interfaces.UserRepository) *UserService {
 
 // Authenticate authentifie un utilisateur
 func (s *UserService) Authenticate(username, password string) (*domain.User, error) {
-	// RÃ©cupÃ©rer l'utilisateur
+	// Récupérer l'utilisateur
 	user, err := s.repo.GetByUsername(username)
 	if err != nil {
 		return nil, fmt.Errorf("invalid credentials")
 	}
 
-	// VÃ©rifier si le compte est actif
+	// Vérifier si le compte est actif
 	if !user.IsActive {
 		return nil, fmt.Errorf("account is inactive")
 	}
 
-	// VÃ©rifier si le compte est verrouillÃ©
+	// Vérifier si le compte est verrouillé
 	if user.IsLocked() {
 		return nil, fmt.Errorf("account is locked until %s", user.LockedUntil.Format("2006-01-02 15:04:05"))
 	}
 
-	// VÃ©rifier le mot de passe
+	// Vérifier le mot de passe
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
 		return nil, fmt.Errorf("invalid credentials")
@@ -54,7 +54,7 @@ func (s *UserService) GetByUsername(username string) (*domain.User, error) {
 	return s.repo.GetByUsername(username)
 }
 
-// Create crÃ©e un nouvel utilisateur
+// Create crée un nouvel utilisateur
 func (s *UserService) Create(username, password, role string) error {
 	// Validation
 	if username == "" {
@@ -73,7 +73,7 @@ func (s *UserService) Create(username, password, role string) error {
 		return fmt.Errorf("invalid role: must be 'admin' or 'viewer'")
 	}
 
-	// VÃ©rifier si l'utilisateur existe dÃ©jÃ 
+	// Vérifier si l'utilisateur existe déjà
 	if _, err := s.repo.GetByUsername(username); err == nil {
 		return fmt.Errorf("user already exists: %s", username)
 	}
@@ -84,7 +84,7 @@ func (s *UserService) Create(username, password, role string) error {
 		return fmt.Errorf("failed to hash password: %w", err)
 	}
 
-	// CrÃ©er l'utilisateur
+	// Créer l'utilisateur
 	user := &domain.User{
 		Username:    username,
 		Password:    string(hashedPassword),
@@ -98,13 +98,13 @@ func (s *UserService) Create(username, password, role string) error {
 	return s.repo.Create(user)
 }
 
-// Update met Ã  jour un utilisateur
+// Update met à jour un utilisateur
 func (s *UserService) Update(user *domain.User) error {
 	if user.Username == "" {
 		return fmt.Errorf("username is required")
 	}
 
-	// VÃ©rifier que l'utilisateur existe
+	// Vérifier que l'utilisateur existe
 	if _, err := s.repo.GetByUsername(user.Username); err != nil {
 		return fmt.Errorf("user not found: %s", user.Username)
 	}
@@ -154,7 +154,7 @@ func (s *UserService) GetAll() ([]domain.User, error) {
 
 // ChangePassword change le mot de passe d'un utilisateur
 func (s *UserService) ChangePassword(username, oldPassword, newPassword string) error {
-	// VÃ©rifier l'ancien mot de passe
+	// Vérifier l'ancien mot de passe
 	user, err := s.Authenticate(username, oldPassword)
 	if err != nil {
 		return fmt.Errorf("current password is incorrect")
@@ -171,7 +171,7 @@ func (s *UserService) ChangePassword(username, oldPassword, newPassword string) 
 		return fmt.Errorf("failed to hash password: %w", err)
 	}
 
-	// Mettre Ã  jour
+	// Mettre à jour
 	user.Password = string(hashedPassword)
 	user.UpdatedAt = time.Now()
 	return s.repo.Update(user)
@@ -187,7 +187,7 @@ func (s *UserService) LockAccount(username string, duration time.Duration) error
 	return s.repo.LockAccount(username, until)
 }
 
-// UnlockAccount dÃ©verrouille un compte
+// UnlockAccount déverrouille un compte
 func (s *UserService) UnlockAccount(username string) error {
 	if username == "" {
 		return fmt.Errorf("username is required")

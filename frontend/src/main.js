@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Point d'entrÃ©e principal de l'application
  * Initialise les modules communs
  */

@@ -1,9 +1,9 @@
-﻿/**
+/**
  * CSRF Protection Helper
- * Ajoute automatiquement le token CSRF Ã  toutes les requÃªtes HTTP
+ * Ajoute automatiquement le token CSRF à toutes les requêtes HTTP
  */
 
-// RÃ©cupÃ©rer le token CSRF depuis la meta tag
+// Récupérer le token CSRF depuis la meta tag
 function getCSRFToken() {
     const meta = document.querySelector('meta[name="csrf-token"]');
     return meta ? meta.getAttribute('content') : '';
@@ -12,7 +12,7 @@ function getCSRFToken() {
 // Wrapper autour de fetch() pour inclure automatiquement le token CSRF
 const originalFetch = window.fetch;
 window.fetch = function (url, options = {}) {
-    // Pour les requÃªtes qui modifient l'Ã©tat (POST, PUT, DELETE, PATCH)
+    // Pour les requêtes qui modifient l'état (POST, PUT, DELETE, PATCH)
     const method = (options.method || 'GET').toUpperCase();
     if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
         // Ajouter le header X-CSRF-Token
@@ -35,7 +35,7 @@ window.fetch = function (url, options = {}) {
 document.addEventListener('DOMContentLoaded', () => {
     // Pour les formulaires HTML classiques (method POST)
     document.querySelectorAll('form[method="post"], form[method="POST"]').forEach(form => {
-        // VÃ©rifier si le formulaire n'a pas dÃ©jÃ  un input csrf_token
+        // Vérifier si le formulaire n'a pas déjà un input csrf_token
         if (!form.querySelector('input[name="csrf_token"]')) {
             const input = document.createElement('input');
             input.type = 'hidden';
@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// Log pour debug (Ã  retirer en production)
+// Log pour debug (à retirer en production)
 if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    console.log('[CSRF] Protection activÃ©e');
+    console.log('[CSRF] Protection activée');
 }

@@ -1,11 +1,11 @@
-﻿# Go Monitoring - Frontend Moderne
+# Go Monitoring - Frontend Moderne
 
-Frontend modernisÃ© avec Vite, ES6 modules et optimisations.
+Frontend modernisé avec Vite, ES6 modules et optimisations.
 
 ## ðŸš€ Quick Start
 
 ```bash
-# Installer les dÃ©pendances
+# Installer les dépendances
 cd frontend
 npm install
 
@@ -23,39 +23,39 @@ npm run preview
 
 ```
 frontend/
-â”œâ”€â”€ src/
-â”‚   â”œâ”€â”€ main.js                  # Point d'entrÃ©e principal
-â”‚   â”œâ”€â”€ dashboard.js             # Page dashboard
-â”‚   â”œâ”€â”€ machine.js               # Page machine detail
-â”‚   â”œâ”€â”€ terminal.js              # Terminal SSH
-â”‚   â”œâ”€â”€ utils/                   # Utilitaires rÃ©utilisables
-â”‚   â”‚   â”œâ”€â”€ api.js              # Client API + WebSocket
-â”‚   â”‚   â”œâ”€â”€ notifications.js    # SystÃ¨me de notifications
-â”‚   â”‚   â””â”€â”€ modal.js            # SystÃ¨me de modales
-â”‚   â””â”€â”€ styles/
-â”‚       â””â”€â”€ components.css      # Styles composants modernes
-â”œâ”€â”€ package.json
-â”œâ”€â”€ vite.config.js              # Configuration Vite
-â””â”€â”€ README.md
+├── src/
+│   ├── main.js                  # Point d'entrée principal
+│   ├── dashboard.js             # Page dashboard
+│   ├── machine.js               # Page machine detail
+│   ├── terminal.js              # Terminal SSH
+│   ├── utils/                   # Utilitaires réutilisables
+│   │   ├── api.js              # Client API + WebSocket
+│   │   ├── notifications.js    # Système de notifications
+│   │   └── modal.js            # Système de modales
+│   └── styles/
+│       └── components.css      # Styles composants modernes
+├── package.json
+├── vite.config.js              # Configuration Vite
+└── README.md
 ```
 
-## ðŸŽ¯ FonctionnalitÃ©s
+## ðŸŽ¯ Fonctionnalités
 
 ### Modules ES6
 - Import/export natifs
 - Tree shaking automatique
 - Code splitting intelligent
 
-### Utilitaires RÃ©utilisables
+### Utilitaires Réutilisables
 
 #### Notifications
 ```javascript
 import { showSuccess, showError, showWarning, showInfo } from './utils/notifications.js';
 
 // Afficher une notification
-showSuccess('Machine ajoutÃ©e avec succÃ¨s');
+showSuccess('Machine ajoutée avec succès');
 showError('Erreur de connexion', 5000);
-showWarning('Attention: mÃ©moire faible');
+showWarning('Attention: mémoire faible');
 showInfo('Collecte en cours...');
 ```
 
@@ -66,13 +66,13 @@ import { modal, confirm, alert, prompt } from './utils/modal.js';
 // Modale de confirmation
 const confirmed = await confirm({
   title: 'Supprimer la machine?',
-  message: 'Cette action est irrÃ©versible',
+  message: 'Cette action est irréversible',
   dangerous: true
 });
 
-// Modale personnalisÃ©e
+// Modale personnalisée
 modal.create({
-  title: 'Ã‰diter Machine',
+  title: 'Éditer Machine',
   content: formElement,
   size: 'large',
   buttons: [
@@ -86,11 +86,11 @@ modal.create({
 ```javascript
 import { api, machinesAPI } from './utils/api.js';
 
-// RequÃªtes gÃ©nÃ©riques
+// Requêtes génériques
 const data = await api.get('/machines');
 await api.post('/machines', machineData);
 
-// API spÃ©cialisÃ©es
+// API spécialisées
 const machines = await machinesAPI.getAll();
 const history = await machinesAPI.getHistory('machine-1', '24h');
 ```
@@ -112,8 +112,8 @@ ws.connect();
 ## ðŸ”§ Configuration
 
 ### Vite Config
-- **Entry points**: Multiple points d'entrÃ©e par page
-- **Code splitting**: Vendor chunks sÃ©parÃ©s (Chart.js)
+- **Entry points**: Multiple points d'entrée par page
+- **Code splitting**: Vendor chunks séparés (Chart.js)
 - **Minification**: Terser avec drop_console
 - **Assets**: Inline < 4kb, hash pour cache busting
 - **Dev server**: Proxy vers backend Go (port 8080)
@@ -124,46 +124,46 @@ ws.connect();
 npm run build
 ```
 
-GÃ©nÃ¨re:
+Génère:
 ```
 static/dist/
-â”œâ”€â”€ js/
-â”‚   â”œâ”€â”€ main.[hash].js           # ~15 KB (utilitaires)
-â”‚   â”œâ”€â”€ dashboard.[hash].js      # ~20 KB
-â”‚   â”œâ”€â”€ machine.[hash].js        # ~25 KB
-â”‚   â”œâ”€â”€ vendor.[hash].js         # ~60 KB (Chart.js)
-â”‚   â””â”€â”€ terminal.[hash].js       # ~120 KB (xterm.js)
-â””â”€â”€ assets/
-    â””â”€â”€ [hash].[ext]
+├── js/
+│   ├── main.[hash].js           # ~15 KB (utilitaires)
+│   ├── dashboard.[hash].js      # ~20 KB
+│   ├── machine.[hash].js        # ~25 KB
+│   ├── vendor.[hash].js         # ~60 KB (Chart.js)
+│   └── terminal.[hash].js       # ~120 KB (xterm.js)
+└── assets/
+    └── [hash].[ext]
 ```
 
 **Total bundle**: ~240 KB (vs 4.5 MB avant) = **-95%!** ðŸŽ‰
 
 ## ðŸ“¦ Optimisations
 
-### Avant vs AprÃ¨s
+### Avant vs Après
 
-| MÃ©trique | Avant | AprÃ¨s | AmÃ©lioration |
+| Métrique | Avant | Après | Amélioration |
 |----------|-------|-------|--------------|
 | Bundle size | 4.5 MB | 240 KB | **-95%** |
 | Load time | ~3s | ~400ms | **-87%** |
-| Code duplication | Ã‰levÃ©e | Aucune | **-100%** |
-| MaintenabilitÃ© | Difficile | Excellente | **+200%** |
+| Code duplication | Élevée | Aucune | **-100%** |
+| Maintenabilité | Difficile | Excellente | **+200%** |
 
-### Techniques UtilisÃ©es
+### Techniques Utilisées
 
-1. **Tree Shaking**: Supprime code inutilisÃ©
+1. **Tree Shaking**: Supprime code inutilisé
 2. **Code Splitting**: Chunks par page
-3. **Lazy Loading**: Chart.js chargÃ© Ã  la demande
+3. **Lazy Loading**: Chart.js chargé à la demande
 4. **Minification**: Terser avec compression aggressive
 5. **Asset Optimization**: Images inlined si < 4kb
-6. **Vendor Separation**: BibliothÃ¨ques sÃ©parÃ©es
+6. **Vendor Separation**: Bibliothèques séparées
 7. **Module ES6**: Import natifs du navigateur
 
 ## ðŸŽ¨ Styles
 
 ### Composants Modernes
-- Notifications animÃ©es (slide-in)
+- Notifications animées (slide-in)
 - Modales avec backdrop blur
 - Transitions fluides (cubic-bezier)
 - Responsive (mobile-first)
@@ -171,7 +171,7 @@ static/dist/
 
 ### Variables CSS
 ```css
-/* DÃ©finies dans :root */
+/* Définies dans :root */
 --success-color, --danger-color, --warning-color, --primary-color
 --card-bg, --border-color, --text-primary, --text-secondary
 ```
@@ -183,7 +183,7 @@ static/dist/
 // Avant
 alert('Success!');
 
-// AprÃ¨s
+// Après
 import { showSuccess } from './utils/notifications.js';
 showSuccess('Success!');
 ```
@@ -197,7 +197,7 @@ fetch('/api/machines', {
   body: JSON.stringify(data)
 });
 
-// AprÃ¨s
+// Après
 import { machinesAPI } from './utils/api.js';
 await machinesAPI.create(data); // CSRF automatique!
 ```
@@ -221,14 +221,14 @@ npm run test:coverage
 - **Lighthouse Score**: 95+/100
 
 ### Best Practices
-- âœ… Code splitting par route
-- âœ… Lazy loading des dÃ©pendances lourdes
-- âœ… Tree shaking actif
-- âœ… Minification + compression
-- âœ… Cache busting avec hash
-- âœ… Service Worker ready (TODO)
+- ✅ Code splitting par route
+- ✅ Lazy loading des dépendances lourdes
+- ✅ Tree shaking actif
+- ✅ Minification + compression
+- ✅ Cache busting avec hash
+- ✅ Service Worker ready (TODO)
 
-## ðŸš€ DÃ©ploiement
+## ðŸš€ Déploiement
 
 ### Build pour production
 ```bash
@@ -236,7 +236,7 @@ cd frontend
 npm run build
 ```
 
-Les fichiers sont gÃ©nÃ©rÃ©s dans `static/dist/` et automatiquement inclus par les templates Go.
+Les fichiers sont générés dans `static/dist/` et automatiquement inclus par les templates Go.
 
 ### Hot Reload en Dev
 ```bash

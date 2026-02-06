@@ -1,4 +1,4 @@
-﻿package handlers
+package handlers
 
 import (
 	"encoding/json"
@@ -13,13 +13,13 @@ func ListUsers(cm *ConfigManager, am *auth.AuthManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		sessionCookie, _ := r.Cookie("session_token")
 		if sessionCookie == nil || !am.IsAdminSession(sessionCookie.Value) {
-			http.Error(w, "AccÃ¨s refusÃ©", http.StatusForbidden)
+			http.Error(w, "Accès refusé", http.StatusForbidden)
 			return
 		}
 
 		users := cm.userManager.GetAllUsers()
 
-		// Filtrer les donnÃ©es sensibles
+		// Filtrer les données sensibles
 		type UserResponse struct {
 			Username    string `json:"username"`
 			Role        string `json:"role"`
@@ -50,12 +50,12 @@ func ListUsers(cm *ConfigManager, am *auth.AuthManager) http.HandlerFunc {
 	}
 }
 
-// CreateUser crÃ©e un nouvel utilisateur
+// CreateUser crée un nouvel utilisateur
 func CreateUser(cm *ConfigManager, am *auth.AuthManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		sessionCookie, _ := r.Cookie("session_token")
 		if sessionCookie == nil || !am.IsAdminSession(sessionCookie.Value) {
-			http.Error(w, "AccÃ¨s refusÃ©", http.StatusForbidden)
+			http.Error(w, "Accès refusé", http.StatusForbidden)
 			return
 		}
 
@@ -94,7 +94,7 @@ func DeleteUser(cm *ConfigManager, am *auth.AuthManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		sessionCookie, _ := r.Cookie("session_token")
 		if sessionCookie == nil || !am.IsAdminSession(sessionCookie.Value) {
-			http.Error(w, "AccÃ¨s refusÃ©", http.StatusForbidden)
+			http.Error(w, "Accès refusé", http.StatusForbidden)
 			return
 		}
 
@@ -118,7 +118,7 @@ func UpdateUserPassword(cm *ConfigManager, am *auth.AuthManager) http.HandlerFun
 	return func(w http.ResponseWriter, r *http.Request) {
 		sessionCookie, _ := r.Cookie("session_token")
 		if sessionCookie == nil || !am.IsAdminSession(sessionCookie.Value) {
-			http.Error(w, "AccÃ¨s refusÃ©", http.StatusForbidden)
+			http.Error(w, "Accès refusé", http.StatusForbidden)
 			return
 		}
 
@@ -141,12 +141,12 @@ func UpdateUserPassword(cm *ConfigManager, am *auth.AuthManager) http.HandlerFun
 	}
 }
 
-// UpdateUserRole modifie le rÃ´le
+// UpdateUserRole modifie le rôle
 func UpdateUserRole(cm *ConfigManager, am *auth.AuthManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		sessionCookie, _ := r.Cookie("session_token")
 		if sessionCookie == nil || !am.IsAdminSession(sessionCookie.Value) {
-			http.Error(w, "AccÃ¨s refusÃ©", http.StatusForbidden)
+			http.Error(w, "Accès refusé", http.StatusForbidden)
 			return
 		}
 
@@ -161,7 +161,7 @@ func UpdateUserRole(cm *ConfigManager, am *auth.AuthManager) http.HandlerFunc {
 		}
 
 		if req.Role != "admin" && req.Role != "user" {
-			http.Error(w, "RÃ´le invalide", http.StatusBadRequest)
+			http.Error(w, "Rôle invalide", http.StatusBadRequest)
 			return
 		}
 
@@ -174,12 +174,12 @@ func UpdateUserRole(cm *ConfigManager, am *auth.AuthManager) http.HandlerFunc {
 	}
 }
 
-// ToggleUserStatus active/dÃ©sactive un user
+// ToggleUserStatus active/désactive un user
 func ToggleUserStatus(cm *ConfigManager, am *auth.AuthManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		sessionCookie, _ := r.Cookie("session_token")
 		if sessionCookie == nil || !am.IsAdminSession(sessionCookie.Value) {
-			http.Error(w, "AccÃ¨s refusÃ©", http.StatusForbidden)
+			http.Error(w, "Accès refusé", http.StatusForbidden)
 			return
 		}
 
@@ -201,12 +201,12 @@ func ToggleUserStatus(cm *ConfigManager, am *auth.AuthManager) http.HandlerFunc 
 	}
 }
 
-// UnlockUser dÃ©verrouille un user
+// UnlockUser déverrouille un user
 func UnlockUser(cm *ConfigManager, am *auth.AuthManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		sessionCookie, _ := r.Cookie("session_token")
 		if sessionCookie == nil || !am.IsAdminSession(sessionCookie.Value) {
-			http.Error(w, "AccÃ¨s refusÃ©", http.StatusForbidden)
+			http.Error(w, "Accès refusé", http.StatusForbidden)
 			return
 		}
 

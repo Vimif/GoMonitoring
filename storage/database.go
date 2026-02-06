@@ -1,4 +1,4 @@
-﻿package storage
+package storage
 
 import (
 	"database/sql"
@@ -10,12 +10,12 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// DB encapsule la connexion base de donnÃ©es
+// DB encapsule la connexion base de données
 type DB struct {
 	*sql.DB
 }
 
-// AuditLog reprÃ©sente une entrÃ©e dans le journal d'audit
+// AuditLog représente une entrée dans le journal d'audit
 type AuditLog struct {
 	ID        int64     `json:"id"`
 	Timestamp time.Time `json:"timestamp"`
@@ -26,7 +26,7 @@ type AuditLog struct {
 	IPAddress string    `json:"ip_address"`
 }
 
-// UserDB structure pour la base de donnÃ©es
+// UserDB structure pour la base de données
 type UserDB struct {
 	Username       string    `json:"username"`
 	PasswordHash   string    `json:"-"`
@@ -37,7 +37,7 @@ type UserDB struct {
 	LockedUntil    time.Time `json:"locked_until"`
 }
 
-// InitDB initialise la connexion SQLite et crÃ©e les tables
+// InitDB initialise la connexion SQLite et crée les tables
 func InitDB(filepath string) (*DB, error) {
 	db, err := sql.Open("sqlite3", filepath)
 	if err != nil {
@@ -100,7 +100,7 @@ func InitDB(filepath string) (*DB, error) {
 		return nil, err
 	}
 
-	// Migrations (ignorer les erreurs si les colonnes existent dÃ©jÃ )
+	// Migrations (ignorer les erreurs si les colonnes existent déjà)
 	// These ALTER TABLE statements are for backward compatibility if the table already exists without these columns.
 	// In a real application, a more robust migration system would be used.
 	db.Exec("ALTER TABLE metrics ADD COLUMN net_rx_rate REAL DEFAULT 0")
@@ -123,12 +123,12 @@ func (db *DB) SaveMetric(m models.Machine) error {
 		m.Network.RxRate, m.Network.TxRate, m.DiskIO.ReadRate, m.DiskIO.WriteRate,
 	)
 	if err != nil {
-		log.Printf("Erreur sauvegarde mÃ©trique %s: %v", m.ID, err)
+		log.Printf("Erreur sauvegarde métrique %s: %v", m.ID, err)
 	}
 	return err
 }
 
-// GetHistory rÃ©cupÃ¨re l'historique d'une machine
+// GetHistory récupère l'historique d'une machine
 func (db *DB) GetHistory(machineID string, duration time.Duration) ([]models.MetricPoint, error) {
 	startTime := time.Now().Add(-duration)
 	query := `SELECT timestamp, cpu_usage, memory_used, memory_total, status, net_rx_rate, net_tx_rate, disk_read_rate, disk_write_rate
@@ -155,7 +155,7 @@ func (db *DB) GetHistory(machineID string, duration time.Duration) ([]models.Met
 	return points, nil
 }
 
-// CleanupOldMetrics supprime les mÃ©triques plus vieilles que duration
+// CleanupOldMetrics supprime les métriques plus vieilles que duration
 func (db *DB) CleanupOldMetrics(maxAge time.Duration) error {
 	cutoff := time.Now().Add(-maxAge)
 	_, err := db.Exec("DELETE FROM metrics WHERE timestamp < ?", cutoff)

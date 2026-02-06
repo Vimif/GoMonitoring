@@ -1,4 +1,4 @@
-﻿package handlers
+package handlers
 
 import (
 	"html/template"
@@ -26,7 +26,7 @@ var templateFuncs = template.FuncMap{
 	"upper":         strings.ToUpper,
 }
 
-// MachineDetail gÃ¨re la page de dÃ©tail d'une machine
+// MachineDetail gère la page de détail d'une machine
 func MachineDetail(cfg *config.Config, pool *ssh.Pool, cache *cache.MetricsCache, am *auth.AuthManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		machineID := r.PathValue("id")
@@ -38,7 +38,7 @@ func MachineDetail(cfg *config.Config, pool *ssh.Pool, cache *cache.MetricsCache
 		// Trouver la configuration de la machine
 		machineConfig := cfg.GetMachine(machineID)
 		if machineConfig == nil {
-			http.Error(w, "Machine non trouvÃ©e", http.StatusNotFound)
+			http.Error(w, "Machine non trouvée", http.StatusNotFound)
 			return
 		}
 
@@ -56,7 +56,7 @@ func MachineDetail(cfg *config.Config, pool *ssh.Pool, cache *cache.MetricsCache
 		// Collecter les infos avec timeout et cache
 		machine = collectMachineDetailWithTimeout(machine, machineConfig, cfg, pool, cache, 1*time.Second)
 
-		// Charger les templates avec les fonctions personnalisÃ©es
+		// Charger les templates avec les fonctions personnalisées
 		tmpl, err := template.New("base.html").Funcs(templateFuncs).ParseFiles(
 			"templates/layout/base.html",
 			"templates/machine.html",
@@ -74,7 +74,7 @@ func MachineDetail(cfg *config.Config, pool *ssh.Pool, cache *cache.MetricsCache
 			username = am.GetUsername(r)
 		}
 
-		// PrÃ©parer les donnÃ©es
+		// Préparer les données
 		data := models.MachineDetailData{
 			Machine:   machine,
 			Time:      time.Now().Format("15:04:05"),
@@ -94,9 +94,9 @@ func MachineDetail(cfg *config.Config, pool *ssh.Pool, cache *cache.MetricsCache
 // collectMachineDetailWithTimeout collecte les infos d'une machine avec timeout
 // collectMachineDetailWithTimeout collecte les infos d'une machine avec timeout
 func collectMachineDetailWithTimeout(machine models.Machine, machineConfig *config.MachineConfig, cfg *config.Config, pool *ssh.Pool, cache *cache.MetricsCache, timeout time.Duration) models.Machine {
-	// 1. VÃ©rifier le cache (on veut les disques pour cette vue)
+	// 1. Vérifier le cache (on veut les disques pour cette vue)
 	if cached, found := cache.Get(machine.ID); found && len(cached.Disks) > 0 {
-		// VÃ©rifier la conformitÃ© mÃªme pour les donnÃ©es en cache
+		// Vérifier la conformité même pour les données en cache
 		// collectors.CheckCompliance(&cached, cfg.Settings.Thresholds)
 		return cached
 	}
@@ -104,11 +104,11 @@ func collectMachineDetailWithTimeout(machine models.Machine, machineConfig *conf
 	resultChan := make(chan models.Machine, 1)
 
 	go func() {
-		// VÃ©rifier si c'est une machine locale
+		// Vérifier si c'est une machine locale
 		if collectors.IsLocalHost(machineConfig.Host) {
-			log.Printf("MachineDetail: Machine locale dÃ©tectÃ©e: %s", machine.ID)
+			log.Printf("MachineDetail: Machine locale détectée: %s", machine.ID)
 			res := collectLocalMachineDetailInfo(machine)
-			// VÃ©rifier la conformitÃ©
+			// Vérifier la conformité
 			// collectors.CheckCompliance(&res, cfg.Settings.Thresholds)
 			resultChan <- res
 			return
@@ -124,11 +124,11 @@ func collectMachineDetailWithTimeout(machine models.Machine, machineConfig *conf
 			return
 		}
 
-		// Tenter de collecter les informations systÃ¨me
-		// Utiliser l'OS configurÃ© ou auto-dÃ©tecter
+		// Tenter de collecter les informations système
+		// Utiliser l'OS configuré ou auto-détecter
 		sysInfo, detectedOS, err := collectors.CollectSystemInfo(client, machineConfig.OS)
 		if err != nil {
-			log.Printf("Erreur collecte systÃ¨me pour %s: %v", machine.ID, err)
+			log.Printf("Erreur collecte système pour %s: %v", machine.ID, err)
 			machine.Status = "offline"
 			cache.Set(machine) // Mettre en cache
 			resultChan <- machine
@@ -139,11 +139,11 @@ func collectMachineDetailWithTimeout(machine models.Machine, machineConfig *conf
 		machine.System = sysInfo
 		machine.OSType = detectedOS
 
-		// Collecter les mÃ©triques en parallÃ¨le pour de meilleures performances
+		// Collecter les métriques en parallèle pour de meilleures performances
 		var collectWg sync.WaitGroup
 		var mu sync.Mutex
 
-		// Nombre de collecteurs: CPU, Memory, Network, DiskIO, Disks + Services si configurÃ©s
+		// Nombre de collecteurs: CPU, Memory, Network, DiskIO, Disks + Services si configurés
 		numCollectors := 5
 		if len(machineConfig.Services) > 0 {
 			numCollectors = 6
@@ -166,7 +166,7 @@ func collectMachineDetailWithTimeout(machine models.Machine, machineConfig *conf
 		go func() {
 			defer collectWg.Done()
 			if memInfo, err := collectors.CollectMemoryInfo(client, detectedOS); err != nil {
-				log.Printf("Erreur collecte mÃ©moire pour %s: %v", machine.ID, err)
+				log.Printf("Erreur collecte mémoire pour %s: %v", machine.ID, err)
 			} else {
 				mu.Lock()
 				machine.Memory = memInfo
@@ -222,17 +222,17 @@ func collectMachineDetailWithTimeout(machine models.Machine, machineConfig *conf
 
 		collectWg.Wait()
 
-		// VÃ©rifier la conformitÃ©
+		// Vérifier la conformité
 		// collectors.CheckCompliance(&machine, cfg.Settings.Thresholds)
 
 		resultChan <- machine
 	}()
 
-	// Attendre le rÃ©sultat avec timeout
+	// Attendre le résultat avec timeout
 	select {
 	case result := <-resultChan:
 		if result.Status == "online" {
-			cache.Set(result) // Mettre Ã  jour le cache avec les infos dÃ©taillÃ©es
+			cache.Set(result) // Mettre à jour le cache avec les infos détaillées
 		}
 		return result
 	case <-time.After(timeout):
@@ -243,7 +243,7 @@ func collectMachineDetailWithTimeout(machine models.Machine, machineConfig *conf
 	}
 }
 
-// MachineDetailWithCM gÃ¨re la page de dÃ©tail avec ConfigManager
+// MachineDetailWithCM gère la page de détail avec ConfigManager
 func MachineDetailWithCM(cm *ConfigManager, am *auth.AuthManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cfg, pool, cache := cm.GetConfigPoolAndCache()
@@ -251,11 +251,11 @@ func MachineDetailWithCM(cm *ConfigManager, am *auth.AuthManager) http.HandlerFu
 	}
 }
 
-// collectLocalMachineDetailInfo collecte les infos dÃ©taillÃ©es d'une machine locale
+// collectLocalMachineDetailInfo collecte les infos détaillées d'une machine locale
 func collectLocalMachineDetailInfo(machine models.Machine) models.Machine {
 	sysInfo, err := collectors.CollectLocalSystemInfo()
 	if err != nil {
-		log.Printf("MachineDetail: Erreur systÃ¨me local: %v", err)
+		log.Printf("MachineDetail: Erreur système local: %v", err)
 		machine.Status = "error"
 		return machine
 	}
@@ -272,7 +272,7 @@ func collectLocalMachineDetailInfo(machine models.Machine) models.Machine {
 
 	memInfo, err := collectors.CollectLocalMemoryInfo()
 	if err != nil {
-		log.Printf("MachineDetail: Erreur mÃ©moire locale: %v", err)
+		log.Printf("MachineDetail: Erreur mémoire locale: %v", err)
 	} else {
 		machine.Memory = memInfo
 	}
@@ -297,7 +297,7 @@ func collectLocalMachineDetailInfo(machine models.Machine) models.Machine {
 	return machine
 }
 
-// formatBytes formate une taille en bytes de maniÃ¨re lisible
+// formatBytes formate une taille en bytes de manière lisible
 func formatBytes(bytes uint64) string {
 	const unit = 1024
 	if bytes < unit {

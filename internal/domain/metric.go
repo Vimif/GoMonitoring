@@ -1,8 +1,8 @@
-﻿package domain
+package domain
 
 import "time"
 
-// MetricPoint reprÃ©sente un point de mesure dans l'historique
+// MetricPoint représente un point de mesure dans l'historique
 type MetricPoint struct {
 	Timestamp   time.Time `json:"timestamp"`
 	CPU         float64   `json:"cpu"`

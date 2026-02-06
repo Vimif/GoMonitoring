@@ -1,4 +1,4 @@
-﻿package storage
+package storage
 
 import (
 	"log"
@@ -16,7 +16,7 @@ func (db *DB) LogAction(user, action, target, details, ip string) error {
 	return err
 }
 
-// GetAuditLogs rÃ©cupÃ¨re les logs d'audit rÃ©cents
+// GetAuditLogs récupère les logs d'audit récents
 func (db *DB) GetAuditLogs(limit int) ([]AuditLog, error) {
 	query := `SELECT id, timestamp, user, action, target, details, ip_address 
 			  FROM audit_logs ORDER BY timestamp DESC LIMIT ?`

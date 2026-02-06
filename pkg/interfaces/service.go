@@ -1,4 +1,4 @@
-﻿package interfaces
+package interfaces
 
 import (
 	"time"
@@ -6,9 +6,9 @@ import (
 	"go-monitoring/internal/domain"
 )
 
-// MonitoringService dÃ©finit l'interface pour les services de monitoring
+// MonitoringService définit l'interface pour les services de monitoring
 type MonitoringService interface {
-	// CollectMetrics collecte toutes les mÃ©triques pour une machine
+	// CollectMetrics collecte toutes les métriques pour une machine
 	CollectMetrics(machineID string) (*domain.Machine, error)
 
 	// GetMachineStatus retourne le statut actuel d'une machine
@@ -17,17 +17,17 @@ type MonitoringService interface {
 	// GetAllMachinesStatus retourne le statut de toutes les machines
 	GetAllMachinesStatus() ([]domain.Machine, error)
 
-	// GetMetricHistory retourne l'historique des mÃ©triques
+	// GetMetricHistory retourne l'historique des métriques
 	GetMetricHistory(machineID string, duration time.Duration) ([]domain.MetricPoint, error)
 
-	// StartMonitoring dÃ©marre le monitoring continu
+	// StartMonitoring démarre le monitoring continu
 	StartMonitoring(interval time.Duration)
 
-	// StopMonitoring arrÃªte le monitoring
+	// StopMonitoring arrête le monitoring
 	StopMonitoring()
 }
 
-// MachineService dÃ©finit l'interface pour la gestion des machines
+// MachineService définit l'interface pour la gestion des machines
 type MachineService interface {
 	// GetAll retourne toutes les machines
 	GetAll() ([]domain.Machine, error)
@@ -35,23 +35,23 @@ type MachineService interface {
 	// GetByID retourne une machine par son ID
 	GetByID(id string) (*domain.Machine, error)
 
-	// Create crÃ©e une nouvelle machine
+	// Create crée une nouvelle machine
 	Create(machine *domain.Machine) error
 
-	// Update met Ã  jour une machine
+	// Update met à jour une machine
 	Update(machine *domain.Machine) error
 
 	// Delete supprime une machine
 	Delete(id string) error
 
-	// TestConnection teste la connexion SSH Ã  une machine
+	// TestConnection teste la connexion SSH à une machine
 	TestConnection(machineID string) error
 
 	// GroupByGroup regroupe les machines par groupe
 	GroupByGroup() ([]domain.MachineGroup, error)
 }
 
-// UserService dÃ©finit l'interface pour la gestion des utilisateurs
+// UserService définit l'interface pour la gestion des utilisateurs
 type UserService interface {
 	// Authenticate authentifie un utilisateur
 	Authenticate(username, password string) (*domain.User, error)
@@ -59,10 +59,10 @@ type UserService interface {
 	// GetByUsername retourne un utilisateur
 	GetByUsername(username string) (*domain.User, error)
 
-	// Create crÃ©e un nouvel utilisateur
+	// Create crée un nouvel utilisateur
 	Create(username, password, role string) error
 
-	// Update met Ã  jour un utilisateur
+	// Update met à jour un utilisateur
 	Update(user *domain.User) error
 
 	// Delete supprime un utilisateur
@@ -77,16 +77,16 @@ type UserService interface {
 	// LockAccount verrouille un compte
 	LockAccount(username string, duration time.Duration) error
 
-	// UnlockAccount dÃ©verrouille un compte
+	// UnlockAccount déverrouille un compte
 	UnlockAccount(username string) error
 }
 
-// AuditService dÃ©finit l'interface pour le logging d'audit
+// AuditService définit l'interface pour le logging d'audit
 type AuditService interface {
 	// Log enregistre une action
 	Log(username, action, target, status, ipAddress string) error
 
-	// GetRecentLogs retourne les logs rÃ©cents
+	// GetRecentLogs retourne les logs récents
 	GetRecentLogs(limit int) ([]domain.AuditLog, error)
 
 	// GetLogsByUser retourne les logs d'un utilisateur

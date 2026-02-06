@@ -1,4 +1,4 @@
-﻿package handlers
+package handlers
 
 import (
 	"encoding/json"
@@ -8,7 +8,7 @@ import (
 	"go-monitoring/storage"
 )
 
-// GetMachineHistory retourne l'historique des mÃ©triques d'une machine
+// GetMachineHistory retourne l'historique des métriques d'une machine
 func GetMachineHistory(db *storage.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := r.PathValue("id")
@@ -17,7 +17,7 @@ func GetMachineHistory(db *storage.DB) http.HandlerFunc {
 			return
 		}
 
-		// DurÃ©e par dÃ©faut : 24h
+		// Durée par défaut : 24h
 		duration := 24 * time.Hour
 		durationStr := r.URL.Query().Get("duration")
 		if durationStr != "" {
@@ -28,7 +28,7 @@ func GetMachineHistory(db *storage.DB) http.HandlerFunc {
 
 		points, err := db.GetHistory(id, duration)
 		if err != nil {
-			http.Error(w, "Erreur rÃ©cupÃ©ration historique: "+err.Error(), http.StatusInternalServerError)
+			http.Error(w, "Erreur récupération historique: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 

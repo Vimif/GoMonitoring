@@ -1,4 +1,4 @@
-﻿package security
+package security
 
 import (
 	"errors"
@@ -22,7 +22,7 @@ var (
 var serviceNameRegex = regexp.MustCompile(`^[a-zA-Z0-9._-]+$`)
 
 // ValidateServiceName valide un nom de service pour systemctl
-// Accepte uniquement les caractÃ¨res alphanumÃ©riques, tirets, underscores et points
+// Accepte uniquement les caractères alphanumériques, tirets, underscores et points
 func ValidateServiceName(serviceName string) error {
 	if serviceName == "" {
 		return ErrInvalidServiceName
@@ -33,12 +33,12 @@ func ValidateServiceName(serviceName string) error {
 		return ErrInvalidServiceName
 	}
 
-	// VÃ©rifier le pattern
+	// Vérifier le pattern
 	if !serviceNameRegex.MatchString(serviceName) {
 		return ErrInvalidServiceName
 	}
 
-	// Bloquer les caractÃ¨res dangereux explicitement
+	// Bloquer les caractères dangereux explicitement
 	dangerous := []string{";", "&", "|", "$", "`", "(", ")", "<", ">", "\n", "\r", "\\"}
 	for _, char := range dangerous {
 		if strings.Contains(serviceName, char) {
@@ -49,8 +49,8 @@ func ValidateServiceName(serviceName string) error {
 	return nil
 }
 
-// IsServiceInWhitelist vÃ©rifie si un service est dans la whitelist
-// Cette fonction peut Ãªtre utilisÃ©e pour une validation encore plus stricte
+// IsServiceInWhitelist vérifie si un service est dans la whitelist
+// Cette fonction peut être utilisée pour une validation encore plus stricte
 func IsServiceInWhitelist(serviceName string, whitelist []string) bool {
 	for _, allowed := range whitelist {
 		if serviceName == allowed {
@@ -60,7 +60,7 @@ func IsServiceInWhitelist(serviceName string, whitelist []string) bool {
 	return false
 }
 
-// ValidatePath valide un chemin de fichier pour Ã©viter les path traversal attacks
+// ValidatePath valide un chemin de fichier pour éviter les path traversal attacks
 func ValidatePath(path string) error {
 	if path == "" {
 		return ErrInvalidPath
@@ -69,17 +69,17 @@ func ValidatePath(path string) error {
 	// Nettoyer le chemin
 	cleanPath := filepath.Clean(path)
 
-	// Le chemin doit Ãªtre absolu (commencer par /)
+	// Le chemin doit être absolu (commencer par /)
 	if !filepath.IsAbs(cleanPath) {
 		return ErrInvalidPath
 	}
 
-	// DÃ©tecter les tentatives de path traversal
+	// Détecter les tentatives de path traversal
 	if strings.Contains(path, "..") {
 		return ErrInvalidPath
 	}
 
-	// Bloquer les caractÃ¨res dangereux
+	// Bloquer les caractères dangereux
 	dangerous := []string{";", "&", "|", "$", "`", "(", ")", "<", ">", "\n", "\r"}
 	for _, char := range dangerous {
 		if strings.Contains(path, char) {
@@ -87,7 +87,7 @@ func ValidatePath(path string) error {
 		}
 	}
 
-	// Bloquer les chemins systÃ¨me sensibles
+	// Bloquer les chemins système sensibles
 	sensitivePaths := []string{
 		"/etc/shadow",
 		"/etc/passwd",
@@ -114,7 +114,7 @@ func ValidateLogSource(source string) error {
 		return ErrInvalidLogSource
 	}
 
-	// Les logs doivent Ãªtre dans des rÃ©pertoires standards
+	// Les logs doivent être dans des répertoires standards
 	allowedPrefixes := []string{
 		"/var/log/",
 		"/var/log/nginx/",
@@ -130,7 +130,7 @@ func ValidateLogSource(source string) error {
 		"/var/log/messages",
 	}
 
-	// VÃ©rifier si le chemin commence par un prÃ©fixe autorisÃ©
+	// Vérifier si le chemin commence par un préfixe autorisé
 	hasValidPrefix := false
 	for _, prefix := range allowedPrefixes {
 		if strings.HasPrefix(source, prefix) {
@@ -143,14 +143,14 @@ func ValidateLogSource(source string) error {
 		return ErrInvalidLogSource
 	}
 
-	// Utiliser ValidatePath pour les vÃ©rifications gÃ©nÃ©rales
+	// Utiliser ValidatePath pour les vérifications générales
 	return ValidatePath(source)
 }
 
-// SanitizeInput retire les caractÃ¨res potentiellement dangereux d'une entrÃ©e utilisateur
-// Ã€ utiliser en dernier recours - la validation stricte est prÃ©fÃ©rable
+// SanitizeInput retire les caractères potentiellement dangereux d'une entrée utilisateur
+// À utiliser en dernier recours - la validation stricte est préférable
 func SanitizeInput(input string) string {
-	// Remplacer les caractÃ¨res dangereux par des underscores
+	// Remplacer les caractères dangereux par des underscores
 	dangerous := []string{";", "&", "|", "$", "`", "(", ")", "<", ">", "\\", "\n", "\r", "\t"}
 	sanitized := input
 
