@@ -10,7 +10,7 @@
         </div>
     </div>
     <div class="header-actions">
-        <button onclick="clearFilters()" class="btn btn-secondary btn-sm" id="btn-clear-filters" style="display: none;">
+        <button onclick="clearFilters()" class="btn btn-secondary btn-sm hidden" id="btn-clear-filters">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -195,7 +195,7 @@
                 {{range .Logs}}
                 <tr data-action="{{.Action}}" data-user="{{.User}}" data-target="{{.Target}}"
                     data-details="{{.Details}}">
-                    <td class="text-muted" style="white-space: nowrap;">
+                    <td class="text-muted">
                         <div class="date-cell">
                             <span class="date-primary">{{.Timestamp.Format "02/01/2006"}}</span>
                             <span class="date-secondary">{{.Timestamp.Format "15:04:05"}}</span>
@@ -204,7 +204,7 @@
                     <td>
                         <div class="user-cell">
                             <div class="user-avatar-mini">{{slice .User 0 1}}</div>
-                            <span style="font-weight: 600; color: var(--text-color);">{{.User}}</span>
+                            <span class="user-cell-name">{{.User}}</span>
                         </div>
                     </td>
                     <td>
@@ -279,13 +279,16 @@
                 </tr>
                 {{else}}
                 <tr class="empty-row">
-                    <td colspan="6" style="text-align: center; padding: 3rem; color: var(--text-muted);">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="1.5" style="opacity: 0.3; margin-bottom: 1rem;">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                            <polyline points="14 2 14 8 20 8"></polyline>
-                        </svg>
-                        <div>Aucun log d'audit disponible</div>
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                            </svg>
+                            <h4>Aucun log d'audit disponible</h4>
+                            <p>Les actions seront enregistrées ici</p>
+                        </div>
                     </td>
                 </tr>
                 {{end}}
@@ -294,442 +297,8 @@
     </div>
 </div>
 
-<style>
-    /* Audit Stats Row */
-    .audit-stats {
-        display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
-        margin-bottom: 1rem;
-    }
-
-    .stat-card-mini {
-        flex: 1;
-        min-width: 140px;
-        padding: 0.875rem 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .stat-icon-mini {
-        width: 36px;
-        height: 36px;
-        border-radius: var(--radius-md);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-
-    .stat-mini-content {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .stat-mini-value {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--text-color);
-        line-height: 1;
-    }
-
-    .stat-mini-label {
-        font-size: 0.75rem;
-        color: var(--text-muted);
-    }
-
-    /* Filters Card */
-    .filters-card {
-        padding: 1rem 1.25rem;
-        margin-top: 1rem;
-    }
-
-    .filters-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1.25rem;
-        align-items: flex-end;
-    }
-
-    .filter-group-inline {
-        display: flex;
-        flex-direction: column;
-        gap: 0.375rem;
-    }
-
-    .filter-group-inline label {
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: var(--text-muted);
-        display: flex;
-        align-items: center;
-        gap: 0.375rem;
-    }
-
-    .filter-group-inline .form-select-sm,
-    .filter-group-inline .form-control-sm {
-        padding: 0.5rem 0.75rem;
-        font-size: 0.85rem;
-        min-width: 150px;
-    }
-
-    .filter-results {
-        margin-left: auto;
-        padding: 0.5rem 1rem;
-        background: var(--hover-bg);
-        border-radius: var(--radius-md);
-        font-size: 0.85rem;
-        color: var(--text-muted);
-    }
-
-    .filter-results #results-count {
-        font-weight: 700;
-        color: var(--primary-color);
-    }
-
-    /* Date Cell */
-    .date-cell {
-        display: flex;
-        flex-direction: column;
-        gap: 0.125rem;
-    }
-
-    .date-primary {
-        font-weight: 500;
-        color: var(--text-color);
-        font-size: 0.875rem;
-    }
-
-    .date-secondary {
-        font-size: 0.75rem;
-        color: var(--text-muted);
-    }
-
-    /* User Cell */
-    .user-cell {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .user-avatar-mini {
-        width: 28px;
-        height: 28px;
-        background: var(--primary-color);
-        color: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.7rem;
-        font-weight: 700;
-        text-transform: uppercase;
-    }
-
-    /* Action Badges */
-    .action-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.375rem;
-        padding: 0.375rem 0.75rem;
-        border-radius: var(--radius-full);
-        font-size: 0.8rem;
-        font-weight: 500;
-    }
-
-    .action-login {
-        background: rgba(59, 130, 246, 0.1);
-        color: #3b82f6;
-    }
-
-    .action-logout {
-        background: rgba(100, 116, 139, 0.1);
-        color: #64748b;
-    }
-
-    .action-create {
-        background: rgba(16, 185, 129, 0.1);
-        color: #10b981;
-    }
-
-    .action-update {
-        background: rgba(245, 158, 11, 0.1);
-        color: #f59e0b;
-    }
-
-    .action-delete {
-        background: rgba(239, 68, 68, 0.1);
-        color: #ef4444;
-    }
-
-    .action-other {
-        background: rgba(139, 92, 246, 0.1);
-        color: #8b5cf6;
-    }
-
-    /* Target Code */
-    .target-code {
-        background: var(--bg-color);
-        padding: 0.25rem 0.5rem;
-        border-radius: 4px;
-        font-size: 0.8rem;
-        color: var(--text-color);
-        border: 1px solid var(--border-color);
-        font-family: 'JetBrains Mono', 'Fira Code', monospace;
-    }
-
-    /* Details Cell - Expandable */
-    .details-cell {
-        color: var(--text-muted);
-        font-size: 0.85rem;
-        max-width: 300px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        cursor: pointer;
-        transition: all var(--transition-base);
-    }
-
-    .details-cell:hover {
-        color: var(--text-color);
-    }
-
-    .details-cell.expanded {
-        white-space: normal;
-        word-break: break-word;
-    }
-
-    /* IP Badge */
-    .ip-badge {
-        display: inline-block;
-        padding: 0.25rem 0.5rem;
-        background: var(--hover-bg);
-        border-radius: var(--radius-sm);
-        font-size: 0.8rem;
-        color: var(--text-muted);
-        font-family: 'JetBrains Mono', 'Fira Code', monospace;
-    }
-
-    /* Table Row with Timeline Accent */
-    #audit-tbody tr[data-action] {
-        border-left: 3px solid transparent;
-        transition: all var(--transition-base);
-    }
-
-    #audit-tbody tr[data-action]:hover {
-        background: var(--hover-bg);
-    }
-
-    #audit-tbody tr[data-action="LOGIN"] {
-        border-left-color: #3b82f6;
-    }
-
-    #audit-tbody tr[data-action="LOGOUT"] {
-        border-left-color: #64748b;
-    }
-
-    #audit-tbody tr[data-action="CREATE"] {
-        border-left-color: #10b981;
-    }
-
-    #audit-tbody tr[data-action="UPDATE"] {
-        border-left-color: #f59e0b;
-    }
-
-    #audit-tbody tr[data-action="DELETE"] {
-        border-left-color: #ef4444;
-    }
-
-    /* Hidden row for filtering */
-    #audit-tbody tr.hidden {
-        display: none;
-    }
-
-    /* Empty state */
-    .no-results-row td {
-        text-align: center;
-        padding: 3rem;
-        color: var(--text-muted);
-    }
-
-    /* Toast Notification */
-    .toast {
-        position: fixed;
-        bottom: 24px;
-        right: 24px;
-        padding: 0.875rem 1.25rem;
-        background: var(--card-bg);
-        border: 1px solid var(--border-color);
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-lg);
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        z-index: 9999;
-        animation: slideIn 0.3s ease-out;
-    }
-
-    .toast.success {
-        border-left: 4px solid var(--success-color);
-    }
-
-    .toast.success svg {
-        color: var(--success-color);
-    }
-
-    @keyframes slideIn {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
-
-    @keyframes slideOut {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-
-        to {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-    }
-
-    /* Responsive */
-    @media (max-width: 900px) {
-        .audit-stats {
-            flex-wrap: wrap;
-        }
-
-        .stat-card-mini {
-            min-width: calc(50% - 0.5rem);
-        }
-
-        .filters-row {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .filter-results {
-            margin-left: 0;
-            text-align: center;
-        }
-    }
-
-    @media (max-width: 768px) {
-
-        #audit-table th:nth-child(5),
-        #audit-table td:nth-child(5),
-        #audit-table th:nth-child(6),
-        #audit-table td:nth-child(6) {
-            display: none;
-        }
-    }
-
-    @media (max-width: 600px) {
-        .stat-card-mini {
-            min-width: 100%;
-        }
-    }
-
-    /* =============================================
-       UI/UX BEST PRACTICES
-       ============================================= */
-
-    /* 1. ACCESSIBILITY - Focus States */
-    .form-select-sm:focus-visible,
-    .form-control-sm:focus-visible,
-    .btn:focus-visible {
-        outline: 2px solid var(--primary-color);
-        outline-offset: 2px;
-    }
-
-    /* 2. TOUCH-FRIENDLY - Minimum targets */
-    .form-select-sm,
-    .form-control-sm {
-        min-height: 40px;
-    }
-
-    /* 3. VISUAL HIERARCHY - Table headers */
-    #audit-table th {
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: var(--text-muted);
-        font-weight: 600;
-        padding: 0.75rem 1rem;
-    }
-
-    #audit-table td {
-        padding: 0.875rem 1rem;
-    }
-
-    /* 4. REDUCED MOTION */
-    @media (prefers-reduced-motion: reduce) {
-
-        *,
-        *::before,
-        *::after {
-            animation-duration: 0.01ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: 0.01ms !important;
-        }
-    }
-
-    /* 5. KEYBOARD NAVIGATION HINT */
-    .keyboard-hint {
-        display: none;
-        font-size: 0.75rem;
-        color: var(--text-muted);
-        margin-top: 0.5rem;
-    }
-
-    @media (hover: hover) {
-        .keyboard-hint {
-            display: block;
-        }
-    }
-
-    .kbd {
-        display: inline-block;
-        padding: 0.125rem 0.375rem;
-        background: var(--hover-bg);
-        border: 1px solid var(--border-color);
-        border-radius: 4px;
-        font-family: monospace;
-        font-size: 0.7rem;
-    }
-
-    /* 6. LOADING STATE */
-    .table-loading {
-        position: relative;
-    }
-
-    .table-loading::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: rgba(255, 255, 255, 0.8);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    [data-theme="dark"] .table-loading::after {
-        background: rgba(15, 23, 42, 0.8);
-    }
-</style>
-
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        console.log("Audit Module - Enhanced V2");
         calculateStats();
         updateResultsCount();
     });
@@ -819,7 +388,7 @@
 
     function updateClearButton(hasFilters) {
         const btn = document.getElementById('btn-clear-filters');
-        btn.style.display = hasFilters ? 'inline-flex' : 'none';
+        btn.classList.toggle('hidden', !hasFilters);
     }
 
     function clearFilters() {
@@ -832,7 +401,9 @@
     function exportAuditLogs() {
         const rows = document.querySelectorAll('#audit-tbody tr[data-action]:not(.hidden)');
         if (rows.length === 0) {
-            showToast('Aucun log à exporter', 'warning');
+            if (typeof showToast === 'function') {
+                showToast('Aucun log à exporter', 'warning');
+            }
             return;
         }
 
@@ -855,27 +426,9 @@
         link.download = `audit_logs_${new Date().toISOString().slice(0, 10)}.csv`;
         link.click();
 
-        showToast(`${rows.length} logs exportés avec succès`, 'success');
-    }
-
-    function showToast(message, type = 'info') {
-        const existing = document.querySelector('.toast');
-        if (existing) existing.remove();
-
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                ${type === 'success' ? '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>' : '<circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>'}
-            </svg>
-            <span>${message}</span>
-        `;
-        document.body.appendChild(toast);
-
-        setTimeout(() => {
-            toast.style.animation = 'slideOut 0.3s ease-out forwards';
-            setTimeout(() => toast.remove(), 300);
-        }, 3000);
+        if (typeof showToast === 'function') {
+            showToast(`${rows.length} logs exportés avec succès`, 'success');
+        }
     }
 
     // Click on details cell to expand
