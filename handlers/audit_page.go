@@ -41,6 +41,7 @@ func AuditPage(cfg *config.Config, db *storage.DB, am *auth.AuthManager) http.Ha
 		// Charger les templates
 		tmpl, err := template.New("base.html").Funcs(template.FuncMap{
 			"lower": strings.ToLower,
+			"upper": strings.ToUpper,
 		}).ParseFiles(
 			"templates/layout/base.html",
 			"templates/audit.html",
@@ -50,10 +51,13 @@ func AuditPage(cfg *config.Config, db *storage.DB, am *auth.AuthManager) http.Ha
 			return
 		}
 
+		username := am.GetUsername(r)
+
 		data := struct {
 			Title     string
 			Status    string
 			Role      string
+			Username  string
 			CSRFToken string
 			Logs      []storage.AuditLog
 			Users     []string
@@ -61,6 +65,7 @@ func AuditPage(cfg *config.Config, db *storage.DB, am *auth.AuthManager) http.Ha
 			Title:     "Journal d'Audit",
 			Status:    "OK",
 			Role:      role,
+			Username:  username,
 			CSRFToken: middleware.GetCSRFToken(r),
 			Logs:      logs,
 			Users:     users,

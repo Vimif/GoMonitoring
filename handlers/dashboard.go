@@ -21,6 +21,7 @@ import (
 // Fonctions de template pour le dashboard
 var dashboardFuncs = template.FuncMap{
 	"lower": strings.ToLower,
+	"upper": strings.ToUpper,
 }
 
 // Dashboard gÃ¨re la page d'accueil avec la liste des machines
@@ -68,8 +69,10 @@ func Dashboard(cfg *config.Config, pool *ssh.Pool, cache *cache.MetricsCache, am
 		}
 
 		role := ""
+		username := ""
 		if am != nil {
 			role = am.GetUserRole(r)
+			username = am.GetUsername(r)
 		}
 
 		// PrÃ©parer les donnÃ©es
@@ -81,6 +84,7 @@ func Dashboard(cfg *config.Config, pool *ssh.Pool, cache *cache.MetricsCache, am
 			TotalMachines:   len(machines),
 			RefreshInterval: cfg.Settings.RefreshInterval,
 			Role:            role,
+			Username:        username,
 			CSRFToken:       middleware.GetCSRFToken(r),
 		}
 
