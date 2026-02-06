@@ -1,4 +1,4 @@
-﻿package handlers
+package handlers
 
 import (
 	"html/template"
@@ -9,10 +9,10 @@ import (
 	"go-monitoring/middleware"
 )
 
-// UsersPage gÃ¨re la page de gestion des utilisateurs
+// UsersPage gère la page de gestion des utilisateurs
 func UsersPage(cfg *config.Config, am *auth.AuthManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// VÃ©rification explicite du rÃ´le admin (bien que le middleware le fasse aussi si configurÃ©)
+		// Vérification explicite du rôle admin (bien que le middleware le fasse aussi si configuré)
 		role := am.GetUserRole(r)
 		if role != "admin" {
 			http.Redirect(w, r, "/", http.StatusSeeOther)

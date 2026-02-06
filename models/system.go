@@ -1,15 +1,15 @@
-﻿package models
+package models
 
 import "time"
 
-// Machine reprÃ©sente une machine surveillÃ©e
+// Machine représente une machine surveillée
 type Machine struct {
 	ID        string
 	Name      string
 	Host      string
 	Port      int
 	User      string
-	KeyPath   string          // Champ ajoutÃ© pour l'Ã©dition
+	KeyPath   string          // Champ ajouté pour l'édition
 	Group     string          // Nouveau champ
 	OSType    string          // "linux", "windows", "unknown"
 	Status    string          // "online", "offline", "error"
@@ -42,7 +42,7 @@ type DiskStats struct {
 	WriteRate  float64 `json:"write_rate"` // Octets/s
 }
 
-// SystemInfo contient les informations gÃ©nÃ©rales du systÃ¨me
+// SystemInfo contient les informations générales du système
 type SystemInfo struct {
 	Hostname     string
 	OS           string
@@ -61,7 +61,7 @@ type CPUInfo struct {
 	UsagePercent float64
 }
 
-// MemoryInfo contient les informations de la mÃ©moire
+// MemoryInfo contient les informations de la mémoire
 type MemoryInfo struct {
 	Total       uint64
 	Used        uint64
@@ -82,7 +82,7 @@ type DiskInfo struct {
 	DriveType   string // SSD, HDD, Unknown
 }
 
-// Partition reprÃ©sente une partition avec ses options
+// Partition représente une partition avec ses options
 type Partition struct {
 	Name       string
 	Size       uint64
@@ -91,14 +91,14 @@ type Partition struct {
 	Options    []string
 }
 
-// DirectoryListing reprÃ©sente le contenu d'un rÃ©pertoire
+// DirectoryListing représente le contenu d'un répertoire
 type DirectoryListing struct {
 	Path    string
 	Parent  string
 	Entries []DirectoryEntry
 }
 
-// DirectoryEntry reprÃ©sente un fichier ou dossier
+// DirectoryEntry représente un fichier ou dossier
 type DirectoryEntry struct {
 	Name        string
 	Path        string
@@ -110,13 +110,13 @@ type DirectoryEntry struct {
 	Group       string
 }
 
-// MachineGroup reprÃ©sente un groupe de machines
+// MachineGroup représente un groupe de machines
 type MachineGroup struct {
 	Name     string
 	Machines []Machine
 }
 
-// DashboardData contient les donnÃ©es pour le dashboard
+// DashboardData contient les données pour le dashboard
 type DashboardData struct {
 	Title           string
 	Status          string
@@ -129,7 +129,7 @@ type DashboardData struct {
 	CSRFToken       string // Token CSRF pour les formulaires
 }
 
-// MetricPoint reprÃ©sente un point de mesure dans l'historique
+// MetricPoint représente un point de mesure dans l'historique
 type MetricPoint struct {
 	Timestamp   time.Time `json:"timestamp"`
 	CPU         float64   `json:"cpu"`
@@ -142,7 +142,7 @@ type MetricPoint struct {
 	DiskWrite   float64   `json:"disk_write"`
 }
 
-// MachineDetailData contient les donnÃ©es pour la page dÃ©tail
+// MachineDetailData contient les données pour la page détail
 type MachineDetailData struct {
 	Machine   Machine
 	Time      string

@@ -1,4 +1,4 @@
-﻿machines:
+machines:
     - id: Perso
       name: Perso
       host: 127.0.0.1

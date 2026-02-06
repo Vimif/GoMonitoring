@@ -1,4 +1,4 @@
-﻿package crypto
+package crypto
 
 import (
 	"os"
@@ -7,9 +7,9 @@ import (
 )
 
 func TestEncryptDecrypt(t *testing.T) {
-	// Setup: dÃ©finir une master key pour les tests
+	// Setup: définir une master key pour les tests
 	originalKey := os.Getenv(EnvMasterKey)
-	defer os.Setenv(EnvMasterKey, originalKey) // Restore aprÃ¨s test
+	defer os.Setenv(EnvMasterKey, originalKey) // Restore après test
 
 	testKey := "test-master-key-for-unit-tests-12345678"
 	os.Setenv(EnvMasterKey, testKey)
@@ -22,7 +22,7 @@ func TestEncryptDecrypt(t *testing.T) {
 		{"complex password", "P@ssw0rd!#$%^&*()_+{}[]|:;<>?,./"},
 		{"empty string", ""},
 		{"long password", strings.Repeat("a", 1000)},
-		{"unicode", "ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰ðŸ”’"},
+		{"unicode", "パスワードðŸ”’"},
 		{"spaces", "password with spaces"},
 	}
 
@@ -34,7 +34,7 @@ func TestEncryptDecrypt(t *testing.T) {
 				t.Fatalf("Encrypt() error = %v", err)
 			}
 
-			// VÃ©rifier que le chiffrÃ© est diffÃ©rent du clair
+			// Vérifier que le chiffré est différent du clair
 			if tt.plaintext != "" && encrypted == tt.plaintext {
 				t.Error("Encrypted text should be different from plaintext")
 			}
@@ -45,7 +45,7 @@ func TestEncryptDecrypt(t *testing.T) {
 				t.Fatalf("Decrypt() error = %v", err)
 			}
 
-			// VÃ©rifier que le dÃ©chiffrÃ© correspond au clair
+			// Vérifier que le déchiffré correspond au clair
 			if decrypted != tt.plaintext {
 				t.Errorf("Decrypted text = %q, want %q", decrypted, tt.plaintext)
 			}
@@ -89,7 +89,7 @@ func TestDecryptInvalidCiphertext(t *testing.T) {
 	}{
 		{"not base64", "not-valid-base64!@#"},
 		{"too short", "YWJj"}, // "abc" en base64, trop court
-		{"corrupted", "YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo="}, // base64 valide mais pas un chiffrÃ© valide
+		{"corrupted", "YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo="}, // base64 valide mais pas un chiffré valide
 	}
 
 	for _, tt := range tests {
@@ -108,7 +108,7 @@ func TestIsEncrypted(t *testing.T) {
 	defer os.Setenv(EnvMasterKey, originalKey)
 	os.Setenv(EnvMasterKey, "test-key")
 
-	// GÃ©nÃ©rer un texte chiffrÃ© valide
+	// Générer un texte chiffré valide
 	encrypted, _ := Encrypt("test")
 
 	tests := []struct {
@@ -152,7 +152,7 @@ func TestMigratePassword(t *testing.T) {
 		t.Error("Encrypted password should be different from plain password")
 	}
 
-	// Test avec password dÃ©jÃ  chiffrÃ©
+	// Test avec password déjà chiffré
 	alreadyEncrypted, _ := Encrypt("another")
 	result, migrated, err := MigratePassword(alreadyEncrypted)
 	if err != nil {
@@ -188,12 +188,12 @@ func TestGenerateMasterKey(t *testing.T) {
 		t.Error("Generated key should not be empty")
 	}
 
-	// VÃ©rifier que c'est du base64 valide
+	// Vérifier que c'est du base64 valide
 	if !strings.Contains("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=", string(key[0])) {
 		t.Error("Generated key should be valid base64")
 	}
 
-	// GÃ©nÃ©rer une deuxiÃ¨me clÃ© pour vÃ©rifier qu'elle est diffÃ©rente
+	// Générer une deuxième clé pour vérifier qu'elle est différente
 	key2, _ := GenerateMasterKey()
 	if key == key2 {
 		t.Error("Generated keys should be unique")
@@ -208,16 +208,16 @@ func TestEncryptionDeterminism(t *testing.T) {
 
 	plaintext := "test-password"
 
-	// Chiffrer deux fois le mÃªme texte
+	// Chiffrer deux fois le même texte
 	encrypted1, _ := Encrypt(plaintext)
 	encrypted2, _ := Encrypt(plaintext)
 
-	// Les chiffrÃ©s doivent Ãªtre diffÃ©rents (car nonce alÃ©atoire)
+	// Les chiffrés doivent être différents (car nonce aléatoire)
 	if encrypted1 == encrypted2 {
 		t.Error("Encrypting same text twice should produce different ciphertexts (due to random nonce)")
 	}
 
-	// Mais les deux doivent se dÃ©chiffrer vers le mÃªme plaintext
+	// Mais les deux doivent se déchiffrer vers le même plaintext
 	decrypted1, _ := Decrypt(encrypted1)
 	decrypted2, _ := Decrypt(encrypted2)
 

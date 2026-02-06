@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Module API rÃ©utilisable
  * GÃ¨re les requÃªtes HTTP avec CSRF, erreurs, etc.
  */

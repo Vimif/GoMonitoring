@@ -1,4 +1,4 @@
-﻿package handlers
+package handlers
 
 import (
 	"log"
@@ -26,12 +26,12 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		origin := r.Header.Get("Origin")
 
-		// Si pas d'origin (requÃªte directe), accepter
+		// Si pas d'origin (requête directe), accepter
 		if origin == "" {
 			return true
 		}
 
-		// Liste blanche des origines autorisÃ©es
+		// Liste blanche des origines autorisées
 		allowedOrigins := []string{
 			"http://localhost:8080",
 			"http://127.0.0.1:8080",
@@ -39,15 +39,15 @@ var upgrader = websocket.Upgrader{
 			"https://127.0.0.1:8080",
 		}
 
-		// VÃ©rifier si l'origine est dans la liste blanche
+		// Vérifier si l'origine est dans la liste blanche
 		for _, allowed := range allowedOrigins {
 			if origin == allowed {
 				return true
 			}
 		}
 
-		// Log des tentatives d'accÃ¨s non autorisÃ©es
-		log.Printf("WebSocket: origine non autorisÃ©e refusÃ©e: %s", origin)
+		// Log des tentatives d'accès non autorisées
+		log.Printf("WebSocket: origine non autorisée refusée: %s", origin)
 		return false
 	},
 }
@@ -79,7 +79,7 @@ func (h *Hub) Run() {
 			h.mu.Lock()
 			h.clients[client] = true
 			h.mu.Unlock()
-			log.Println("Client WS connectÃ©")
+			log.Println("Client WS connecté")
 
 		case client := <-h.unregister:
 			h.mu.Lock()
@@ -88,7 +88,7 @@ func (h *Hub) Run() {
 				client.Close()
 			}
 			h.mu.Unlock()
-			log.Println("Client WS dÃ©connectÃ©")
+			log.Println("Client WS déconnecté")
 
 		case message := <-h.broadcast:
 			h.mu.Lock()
@@ -106,12 +106,12 @@ func (h *Hub) Run() {
 	}
 }
 
-// Broadcast envoie les mises Ã  jour
+// Broadcast envoie les mises à jour
 func (h *Hub) Broadcast(machines []models.Machine) {
 	h.broadcast <- machines
 }
 
-// ServeWS gÃ¨re la connexion WebSocket
+// ServeWS gère la connexion WebSocket
 func ServeWS(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {

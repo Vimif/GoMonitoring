@@ -1,6 +1,6 @@
-﻿/**
+/**
  * ChartManager - Gestion des graphiques historiques
- * Graphiques : CPU, MÃ©moire
+ * Graphiques : CPU, Mémoire
  */
 class ChartManager {
     constructor(machineId, totalMemory) {
@@ -28,7 +28,7 @@ class ChartManager {
         };
     }
 
-    // Mapping des pÃ©riodes vers durÃ©es API
+    // Mapping des périodes vers durées API
     getPeriodDuration(period) {
         const map = {
             '1h': '1h',
@@ -40,7 +40,7 @@ class ChartManager {
         return map[period] || '24h';
     }
 
-    // Charger les donnÃ©es depuis l'API
+    // Charger les données depuis l'API
     async loadData(period) {
         this.currentPeriod = period;
         const duration = this.getPeriodDuration(period);
@@ -51,7 +51,7 @@ class ChartManager {
             this.data = await response.json();
             return this.data;
         } catch (e) {
-            console.error('Erreur chargement donnÃ©es:', e);
+            console.error('Erreur chargement données:', e);
             return null;
         }
     }
@@ -137,7 +137,7 @@ class ChartManager {
         };
     }
 
-    // DÃ©truire un graphique existant
+    // Détruire un graphique existant
     destroyChart(chartId) {
         if (this.charts[chartId]) {
             this.charts[chartId].destroy();
@@ -205,7 +205,7 @@ class ChartManager {
         });
     }
 
-    // Graphique MÃ©moire
+    // Graphique Mémoire
     renderMemoryChart(data, timestamps) {
         const ctx = document.getElementById('memoryChart');
         if (!ctx) return;
@@ -246,7 +246,7 @@ class ChartManager {
                 labels: timestamps,
                 datasets: [
                     {
-                        label: 'UtilisÃ©e',
+                        label: 'Utilisée',
                         data: memoryUsed,
                         borderColor: this.colors.memory,
                         backgroundColor: this.colors.memory + '15',
@@ -271,9 +271,9 @@ class ChartManager {
         });
     }
 
-    // Changer de pÃ©riode
+    // Changer de période
     async changePeriod(period) {
-        // Mise Ã  jour UI boutons
+        // Mise à jour UI boutons
         document.querySelectorAll('.period-btn').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.period === period);
         });
@@ -283,7 +283,7 @@ class ChartManager {
             container.classList.add('loading');
         });
 
-        // Charger les donnÃ©es
+        // Charger les données
         const data = await this.loadData(period);
 
         // Masquer loading
@@ -298,24 +298,24 @@ class ChartManager {
 
     // Initialisation
     async init() {
-        // CrÃ©er une version debounced de changePeriod (300ms)
+        // Créer une version debounced de changePeriod (300ms)
         const debouncedChange = this.debounce((period) => {
             this.changePeriod(period);
         }, 300);
 
-        // Configurer les boutons de pÃ©riode avec debounce
+        // Configurer les boutons de période avec debounce
         document.querySelectorAll('.period-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                // Mise Ã  jour UI immÃ©diate pour le feedback
+                // Mise à jour UI immédiate pour le feedback
                 document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
 
-                // Appel debounced pour le chargement des donnÃ©es
+                // Appel debounced pour le chargement des données
                 debouncedChange(btn.dataset.period);
             });
         });
 
-        // Charger les donnÃ©es initiales
+        // Charger les données initiales
         await this.changePeriod(this.currentPeriod);
     }
 }

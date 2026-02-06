@@ -1,4 +1,4 @@
-﻿package collectors
+package collectors
 
 import (
 	"fmt"
@@ -17,12 +17,12 @@ import (
 	"go-monitoring/models"
 )
 
-// IsLocalHost vÃ©rifie si l'hÃ´te est local
+// IsLocalHost vérifie si l'hôte est local
 func IsLocalHost(host string) bool {
 	return host == "localhost" || host == "127.0.0.1" || host == "::1"
 }
 
-// CollectLocalSystemInfo collecte les informations systÃ¨me locales
+// CollectLocalSystemInfo collecte les informations système locales
 func CollectLocalSystemInfo() (models.SystemInfo, error) {
 	var info models.SystemInfo
 
@@ -78,7 +78,7 @@ func CollectLocalCPUInfo() (models.CPUInfo, error) {
 		info.Threads = threads
 	}
 
-	// Usage CPU (moyenne sur 100ms pour Ãªtre rapide)
+	// Usage CPU (moyenne sur 100ms pour être rapide)
 	percent, err := cpu.Percent(100*time.Millisecond, false)
 	if err == nil && len(percent) > 0 {
 		info.UsagePercent = percent[0]
@@ -87,7 +87,7 @@ func CollectLocalCPUInfo() (models.CPUInfo, error) {
 	return info, nil
 }
 
-// CollectLocalMemoryInfo collecte les informations mÃ©moire locales
+// CollectLocalMemoryInfo collecte les informations mémoire locales
 func CollectLocalMemoryInfo() (models.MemoryInfo, error) {
 	var info models.MemoryInfo
 
@@ -115,7 +115,7 @@ func CollectLocalDiskInfo() ([]models.DiskInfo, error) {
 	}
 
 	for _, partition := range partitions {
-		// Ignorer certains types de systÃ¨mes de fichiers virtuels
+		// Ignorer certains types de systèmes de fichiers virtuels
 		if isLocalVirtualFS(partition.Fstype) {
 			continue
 		}
@@ -142,7 +142,7 @@ func CollectLocalDiskInfo() ([]models.DiskInfo, error) {
 	return disks, nil
 }
 
-// isLocalVirtualFS vÃ©rifie si le systÃ¨me de fichiers est virtuel (local)
+// isLocalVirtualFS vérifie si le système de fichiers est virtuel (local)
 func isLocalVirtualFS(fsType string) bool {
 	virtualFS := []string{
 		"tmpfs", "devtmpfs", "sysfs", "proc", "devpts",
@@ -161,14 +161,14 @@ func isLocalVirtualFS(fsType string) bool {
 	return false
 }
 
-// detectLocalDriveType dÃ©termine si le disque est SSD ou HDD (simplifiÃ© pour local)
+// detectLocalDriveType détermine si le disque est SSD ou HDD (simplifié pour local)
 func detectLocalDriveType(device string) string {
-	// Sur Windows, on ne peut pas facilement dÃ©terminer le type
+	// Sur Windows, on ne peut pas facilement déterminer le type
 	if runtime.GOOS == "windows" {
 		return "Unknown"
 	}
 
-	// Sur Linux, vÃ©rifier via /sys
+	// Sur Linux, vérifier via /sys
 	baseName := filepath.Base(device)
 	diskName := strings.TrimRight(baseName, "0123456789")
 
@@ -186,9 +186,9 @@ func detectLocalDriveType(device string) string {
 	return "Unknown"
 }
 
-// BrowseLocalDirectory liste le contenu d'un rÃ©pertoire local
+// BrowseLocalDirectory liste le contenu d'un répertoire local
 func BrowseLocalDirectory(path string) (*models.DirectoryListing, error) {
-	// Valider le chemin pour Ã©viter les attaques path traversal
+	// Valider le chemin pour éviter les attaques path traversal
 	cleanPath := filepath.Clean(path)
 	if strings.Contains(cleanPath, "..") {
 		return nil, fmt.Errorf("chemin invalide")
@@ -206,7 +206,7 @@ func BrowseLocalDirectory(path string) (*models.DirectoryListing, error) {
 
 	entries, err := os.ReadDir(cleanPath)
 	if err != nil {
-		return nil, fmt.Errorf("erreur lecture rÃ©pertoire: %w", err)
+		return nil, fmt.Errorf("erreur lecture répertoire: %w", err)
 	}
 
 	for _, entry := range entries {
@@ -232,7 +232,7 @@ func BrowseLocalDirectory(path string) (*models.DirectoryListing, error) {
 	return listing, nil
 }
 
-// GetLocalDiskDetails retourne les dÃ©tails d'un disque local spÃ©cifique
+// GetLocalDiskDetails retourne les détails d'un disque local spécifique
 func GetLocalDiskDetails(mountPoint string) (*models.DiskInfo, []models.Partition, error) {
 	// Obtenir les infos de tous les disques
 	disks, err := CollectLocalDiskInfo()
@@ -249,11 +249,11 @@ func GetLocalDiskDetails(mountPoint string) (*models.DiskInfo, []models.Partitio
 	}
 
 	if targetDisk == nil {
-		return nil, nil, fmt.Errorf("disque non trouvÃ©: %s", mountPoint)
+		return nil, nil, fmt.Errorf("disque non trouvé: %s", mountPoint)
 	}
 
-	// Pour Windows et les systÃ¨mes locaux, on ne peut pas facilement obtenir les partitions
-	// comme sur Linux, donc on retourne une partition unique basÃ©e sur le disque
+	// Pour Windows et les systèmes locaux, on ne peut pas facilement obtenir les partitions
+	// comme sur Linux, donc on retourne une partition unique basée sur le disque
 	partition := models.Partition{
 		Name:       targetDisk.Device,
 		Size:       targetDisk.Total,
@@ -264,7 +264,7 @@ func GetLocalDiskDetails(mountPoint string) (*models.DiskInfo, []models.Partitio
 	return targetDisk, []models.Partition{partition}, nil
 }
 
-// CollectLocalNetworkStats collecte les statistiques rÃ©seau locales
+// CollectLocalNetworkStats collecte les statistiques réseau locales
 func CollectLocalNetworkStats() (models.NetworkStats, error) {
 	var stats models.NetworkStats
 	counters, err := net.IOCounters(false) // false = total

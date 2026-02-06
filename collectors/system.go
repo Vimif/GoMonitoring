@@ -1,4 +1,4 @@
-﻿package collectors
+package collectors
 
 import (
 	"strings"
@@ -8,7 +8,7 @@ import (
 	"go-monitoring/ssh"
 )
 
-// DetectOS dÃ©tecte le type d'OS de la machine (linux ou windows)
+// DetectOS détecte le type d'OS de la machine (linux ou windows)
 func DetectOS(client *ssh.Client) string {
 	// Essayer une commande Linux d'abord
 	output, err := client.Execute("uname -s 2>/dev/null || echo NOTLINUX")
@@ -34,10 +34,10 @@ func DetectOS(client *ssh.Client) string {
 	return "unknown"
 }
 
-// CollectSystemInfo collecte les informations systÃ¨me via SSH
-// osType peut Ãªtre "linux", "windows" ou vide (auto-dÃ©tection)
+// CollectSystemInfo collecte les informations système via SSH
+// osType peut être "linux", "windows" ou vide (auto-détection)
 func CollectSystemInfo(client *ssh.Client, osType string) (models.SystemInfo, string, error) {
-	// Auto-dÃ©tection si osType n'est pas spÃ©cifiÃ©
+	// Auto-détection si osType n'est pas spécifié
 	if osType == "" || osType == "unknown" {
 		osType = DetectOS(client)
 	}
@@ -50,7 +50,7 @@ func CollectSystemInfo(client *ssh.Client, osType string) (models.SystemInfo, st
 	return info, osType, err
 }
 
-// collectSystemInfoLinux collecte les infos systÃ¨me sur Linux
+// collectSystemInfoLinux collecte les infos système sur Linux
 func collectSystemInfoLinux(client *ssh.Client) (models.SystemInfo, error) {
 	var info models.SystemInfo
 
@@ -101,7 +101,7 @@ func collectSystemInfoLinux(client *ssh.Client) (models.SystemInfo, error) {
 	if err == nil {
 		info.Uptime = strings.TrimSpace(uptime)
 	} else {
-		// Fallback pour les systÃ¨mes sans uptime -p
+		// Fallback pour les systèmes sans uptime -p
 		uptime, err = client.Execute("cat /proc/uptime | awk '{print $1}'")
 		if err == nil {
 			info.Uptime = strings.TrimSpace(uptime) + " secondes"
@@ -120,7 +120,7 @@ func collectSystemInfoLinux(client *ssh.Client) (models.SystemInfo, error) {
 	return info, nil
 }
 
-// collectSystemInfoWindows collecte les infos systÃ¨me sur Windows via PowerShell
+// collectSystemInfoWindows collecte les infos système sur Windows via PowerShell
 func collectSystemInfoWindows(client *ssh.Client) (models.SystemInfo, error) {
 	var info models.SystemInfo
 
@@ -136,7 +136,7 @@ func collectSystemInfoWindows(client *ssh.Client) (models.SystemInfo, error) {
 		info.OS = strings.TrimSpace(osName)
 	}
 
-	// OS Version (utilisÃ© comme "Kernel" pour Windows)
+	// OS Version (utilisé comme "Kernel" pour Windows)
 	version, err := client.Execute("powershell -Command \"(Get-CimInstance Win32_OperatingSystem).Version\"")
 	if err == nil {
 		info.Kernel = strings.TrimSpace(version)
@@ -148,7 +148,7 @@ func collectSystemInfoWindows(client *ssh.Client) (models.SystemInfo, error) {
 		info.Architecture = strings.TrimSpace(arch)
 	}
 
-	// Uptime - calculÃ© Ã  partir de LastBootUpTime
+	// Uptime - calculé à partir de LastBootUpTime
 	uptimeCmd := `powershell -Command "$boot = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; $uptime = (Get-Date) - $boot; '{0}j {1}h {2}m' -f $uptime.Days, $uptime.Hours, $uptime.Minutes"`
 	uptime, err := client.Execute(uptimeCmd)
 	if err == nil {

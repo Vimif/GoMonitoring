@@ -1,4 +1,4 @@
-﻿package service
+package service
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ import (
 	"go-monitoring/ssh"
 )
 
-// MonitoringService implÃ©mente la logique de monitoring
+// MonitoringService implémente la logique de monitoring
 type MonitoringService struct {
 	machineRepo interfaces.MachineRepository
 	metricRepo  interfaces.MetricRepository
@@ -23,7 +23,7 @@ type MonitoringService struct {
 	wg          sync.WaitGroup
 }
 
-// NewMonitoringService crÃ©e un nouveau service de monitoring
+// NewMonitoringService crée un nouveau service de monitoring
 func NewMonitoringService(
 	machineRepo interfaces.MachineRepository,
 	metricRepo interfaces.MetricRepository,
@@ -39,15 +39,15 @@ func NewMonitoringService(
 	}
 }
 
-// CollectMetrics collecte toutes les mÃ©triques pour une machine
+// CollectMetrics collecte toutes les métriques pour une machine
 func (s *MonitoringService) CollectMetrics(machineID string) (*domain.Machine, error) {
-	// RÃ©cupÃ©rer la machine
+	// Récupérer la machine
 	machine, err := s.machineRepo.GetByID(machineID)
 	if err != nil {
 		return nil, fmt.Errorf("machine not found: %w", err)
 	}
 
-	// RÃ©cupÃ©rer le client SSH
+	// Récupérer le client SSH
 	client, err := s.sshPool.GetClient(machineID)
 	if err != nil {
 		machine.Status = "error"
@@ -63,7 +63,7 @@ func (s *MonitoringService) CollectMetrics(machineID string) (*domain.Machine, e
 	machine.Status = "online"
 	machine.LastCheck = time.Now()
 
-	// Collecter les mÃ©triques systÃ¨me
+	// Collecter les métriques système
 	if system, err := collectors.CollectSystemInfo(client, machine.OSType); err == nil {
 		machine.System = domain.SystemInfo{
 			Hostname:     system.Hostname,
@@ -86,7 +86,7 @@ func (s *MonitoringService) CollectMetrics(machineID string) (*domain.Machine, e
 		}
 	}
 
-	// Collecter mÃ©moire
+	// Collecter mémoire
 	if memory, err := collectors.CollectMemoryInfo(client, machine.OSType); err == nil {
 		machine.Memory = domain.MemoryInfo{
 			Total:       memory.Total,
@@ -114,7 +114,7 @@ func (s *MonitoringService) CollectMetrics(machineID string) (*domain.Machine, e
 		}
 	}
 
-	// Collecter statistiques rÃ©seau et disque I/O
+	// Collecter statistiques réseau et disque I/O
 	if diskIO, err := collectors.CollectDiskIOStats(client, machine.OSType); err == nil {
 		machine.DiskIO = domain.DiskStats{
 			ReadBytes:  diskIO.ReadBytes,
@@ -134,7 +134,7 @@ func (s *MonitoringService) CollectMetrics(machineID string) (*domain.Machine, e
 
 // GetMachineStatus retourne le statut actuel d'une machine (avec cache)
 func (s *MonitoringService) GetMachineStatus(machineID string) (*domain.Machine, error) {
-	// VÃ©rifier le cache d'abord
+	// Vérifier le cache d'abord
 	if s.cache != nil {
 		if cached, found := s.cache.Get(machineID); found {
 			return cached, nil
@@ -167,12 +167,12 @@ func (s *MonitoringService) GetAllMachinesStatus() ([]domain.Machine, error) {
 	return result, nil
 }
 
-// GetMetricHistory retourne l'historique des mÃ©triques
+// GetMetricHistory retourne l'historique des métriques
 func (s *MonitoringService) GetMetricHistory(machineID string, duration time.Duration) ([]domain.MetricPoint, error) {
 	return s.metricRepo.GetHistory(machineID, duration)
 }
 
-// StartMonitoring dÃ©marre le monitoring continu
+// StartMonitoring démarre le monitoring continu
 func (s *MonitoringService) StartMonitoring(interval time.Duration) {
 	s.wg.Add(1)
 	go func() {
@@ -195,14 +195,14 @@ func (s *MonitoringService) StartMonitoring(interval time.Duration) {
 	log.Printf("Monitoring service started with interval: %v", interval)
 }
 
-// StopMonitoring arrÃªte le monitoring
+// StopMonitoring arrête le monitoring
 func (s *MonitoringService) StopMonitoring() {
 	close(s.stopChan)
 	s.wg.Wait()
 	log.Println("Monitoring service stopped")
 }
 
-// collectAndSaveAll collecte et sauvegarde les mÃ©triques de toutes les machines
+// collectAndSaveAll collecte et sauvegarde les métriques de toutes les machines
 func (s *MonitoringService) collectAndSaveAll() {
 	machines, err := s.machineRepo.GetAll()
 	if err != nil {
@@ -211,14 +211,14 @@ func (s *MonitoringService) collectAndSaveAll() {
 	}
 
 	for _, machine := range machines {
-		// Collecter les mÃ©triques
+		// Collecter les métriques
 		status, err := s.CollectMetrics(machine.ID)
 		if err != nil {
 			log.Printf("Failed to collect metrics for %s: %v", machine.ID, err)
 			continue
 		}
 
-		// CrÃ©er un point de mÃ©trique
+		// Créer un point de métrique
 		metric := &domain.MetricPoint{
 			Timestamp:   time.Now(),
 			CPU:         status.CPU.UsagePercent,
@@ -231,7 +231,7 @@ func (s *MonitoringService) collectAndSaveAll() {
 			DiskWrite:   status.DiskIO.WriteRate,
 		}
 
-		// Sauvegarder dans la base de donnÃ©es
+		// Sauvegarder dans la base de données
 		if err := s.metricRepo.Save(machine.ID, metric); err != nil {
 			log.Printf("Failed to save metrics for %s: %v", machine.ID, err)
 		}

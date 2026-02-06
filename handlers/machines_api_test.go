@@ -1,4 +1,4 @@
-﻿package handlers
+package handlers
 
 import (
 	"bytes"
@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// Helper pour crÃ©er un ConfigManager de test
+// Helper pour créer un ConfigManager de test
 func newTestConfigManager() *ConfigManager {
 	cfg := &config.Config{
 		Machines: []config.MachineConfig{},
@@ -54,11 +54,11 @@ func TestAddMachine_Success(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code, "Expected status OK")
 
-	// VÃ©rifier la rÃ©ponse JSON
+	// Vérifier la réponse JSON
 	var response map[string]interface{}
 	err = json.NewDecoder(w.Body).Decode(&response)
 	require.NoError(t, err, "Failed to decode response")
-	assert.Equal(t, "Machine ajoutÃ©e avec succÃ¨s", response["message"])
+	assert.Equal(t, "Machine ajoutée avec succès", response["message"])
 }
 
 func TestAddMachine_ValidationErrors(t *testing.T) {
@@ -93,7 +93,7 @@ func TestAddMachine_ValidationErrors(t *testing.T) {
 				Name: "Test Machine",
 			},
 			expectedStatus: http.StatusBadRequest,
-			expectedError:  "L'hÃ´te est requis",
+			expectedError:  "L'hôte est requis",
 		},
 	}
 
@@ -138,13 +138,13 @@ func TestAddMachine_InvalidJSON(t *testing.T) {
 	var response map[string]interface{}
 	err := json.NewDecoder(w.Body).Decode(&response)
 	require.NoError(t, err)
-	assert.Contains(t, response["error"].(string), "DonnÃ©es invalides")
+	assert.Contains(t, response["error"].(string), "Données invalides")
 }
 
 func TestAddMachine_DuplicateID(t *testing.T) {
 	cm := newTestConfigManager()
 
-	// Ajouter une premiÃ¨re machine
+	// Ajouter une première machine
 	existingMachine := config.MachineConfig{
 		ID:   "duplicate-id",
 		Name: "Existing Machine",
@@ -157,7 +157,7 @@ func TestAddMachine_DuplicateID(t *testing.T) {
 	cfg := cm.GetConfig()
 	cfg.Machines = append(cfg.Machines, existingMachine)
 
-	// Tenter d'ajouter une machine avec le mÃªme ID
+	// Tenter d'ajouter une machine avec le même ID
 	newMachine := config.MachineConfig{
 		ID:   "duplicate-id",
 		Name: "New Machine",
@@ -176,7 +176,7 @@ func TestAddMachine_DuplicateID(t *testing.T) {
 	handler := AddMachine(cm)
 	handler(w, req)
 
-	// Devrait retourner une erreur (le comportement exact dÃ©pend de l'implÃ©mentation)
+	// Devrait retourner une erreur (le comportement exact dépend de l'implémentation)
 	assert.NotEqual(t, http.StatusOK, w.Code, "Should not accept duplicate ID")
 }
 
@@ -195,7 +195,7 @@ func TestUpdateMachine_Success(t *testing.T) {
 	cfg := cm.GetConfig()
 	cfg.Machines = append(cfg.Machines, existingMachine)
 
-	// Mettre Ã  jour la machine
+	// Mettre à jour la machine
 	updatedMachine := config.MachineConfig{
 		ID:   "update-test",
 		Name: "New Name",
@@ -240,7 +240,7 @@ func TestDeleteMachine_Success(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code, "Expected status OK")
 
-	// VÃ©rifier que la machine a Ã©tÃ© supprimÃ©e
+	// Vérifier que la machine a été supprimée
 	cfg = cm.GetConfig()
 	assert.Len(t, cfg.Machines, 0, "Machine should be deleted")
 }
@@ -273,7 +273,7 @@ func TestConfigManager_ThreadSafety(t *testing.T) {
 	cfg := cm.GetConfig()
 	cfg.Machines = append(cfg.Machines, machine)
 
-	// Lire la config de maniÃ¨re concurrente
+	// Lire la config de manière concurrente
 	done := make(chan bool)
 	for i := 0; i < 10; i++ {
 		go func() {

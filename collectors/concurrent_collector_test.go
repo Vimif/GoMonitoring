@@ -1,4 +1,4 @@
-﻿package collectors
+package collectors
 
 import (
 	"context"
@@ -35,10 +35,10 @@ func TestNewConcurrentCollector(t *testing.T) {
 }
 
 func TestConcurrentCollector_CollectAll(t *testing.T) {
-	// CrÃ©er un pool mock
+	// Créer un pool mock
 	mockPool := ssh.NewMockPool()
 
-	// CrÃ©er des machines de test
+	// Créer des machines de test
 	machines := []models.Machine{
 		{ID: "test-1", Name: "Test 1", Host: "192.168.1.1", OSType: "linux"},
 		{ID: "test-2", Name: "Test 2", Host: "192.168.1.2", OSType: "linux"},
@@ -57,7 +57,7 @@ func TestConcurrentCollector_CollectAll(t *testing.T) {
 	ctx := context.Background()
 	results := collector.CollectAll(ctx, machines)
 
-	// VÃ©rifier les rÃ©sultats
+	// Vérifier les résultats
 	assert.Len(t, results, 3, "Should have 3 results")
 
 	for _, result := range results {
@@ -80,7 +80,7 @@ func TestConcurrentCollector_CollectAllWithTimeout(t *testing.T) {
 	collector := NewConcurrentCollector(nil, 5)
 	collector.pool = mockPool
 
-	// CrÃ©er un contexte avec timeout trÃ¨s court
+	// Créer un contexte avec timeout très court
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Millisecond)
 	defer cancel()
 
@@ -88,9 +88,9 @@ func TestConcurrentCollector_CollectAllWithTimeout(t *testing.T) {
 
 	results := collector.CollectAll(ctx, machines)
 
-	// Le rÃ©sultat devrait contenir une erreur de timeout
+	// Le résultat devrait contenir une erreur de timeout
 	assert.Len(t, results, 1)
-	// L'erreur peut Ãªtre soit context.DeadlineExceeded soit context.Canceled
+	// L'erreur peut être soit context.DeadlineExceeded soit context.Canceled
 	if results[0].Error != nil {
 		assert.Contains(t, results[0].Error.Error(), "context")
 	}
@@ -99,7 +99,7 @@ func TestConcurrentCollector_CollectAllWithTimeout(t *testing.T) {
 func TestConcurrentCollector_CollectAllConcurrency(t *testing.T) {
 	mockPool := ssh.NewMockPool()
 
-	// CrÃ©er 10 machines
+	// Créer 10 machines
 	machines := make([]models.Machine, 10)
 	for i := 0; i < 10; i++ {
 		id := fmt.Sprintf("test-%d", i)
@@ -114,7 +114,7 @@ func TestConcurrentCollector_CollectAllConcurrency(t *testing.T) {
 		mockPool.AddClient(id, client)
 	}
 
-	// Limiter Ã  3 collections concurrentes
+	// Limiter à 3 collections concurrentes
 	collector := NewConcurrentCollector(nil, 3)
 	collector.pool = mockPool
 
@@ -123,11 +123,11 @@ func TestConcurrentCollector_CollectAllConcurrency(t *testing.T) {
 	results := collector.CollectAll(ctx, machines)
 	duration := time.Since(start)
 
-	// Tous les rÃ©sultats devraient Ãªtre prÃ©sents
+	// Tous les résultats devraient être présents
 	assert.Len(t, results, 10)
 
-	// Avec la concurrence, Ã§a devrait Ãªtre plus rapide que sÃ©quentiel
-	// (difficile Ã  tester de maniÃ¨re dÃ©terministe, mais on vÃ©rifie juste que Ã§a ne prend pas trop de temps)
+	// Avec la concurrence, ça devrait être plus rapide que séquentiel
+	// (difficile à tester de manière déterministe, mais on vérifie juste que ça ne prend pas trop de temps)
 	assert.Less(t, duration, 10*time.Second, "Should complete in reasonable time")
 
 	for _, result := range results {
@@ -152,7 +152,7 @@ func TestConcurrentCollector_CollectBatch(t *testing.T) {
 	collector := NewConcurrentCollector(nil, 5)
 	collector.pool = mockPool
 
-	// Ne collecter que 2 machines spÃ©cifiques
+	// Ne collecter que 2 machines spécifiques
 	batchIDs := []string{"test-1", "test-3"}
 
 	ctx := context.Background()
@@ -160,7 +160,7 @@ func TestConcurrentCollector_CollectBatch(t *testing.T) {
 
 	assert.Len(t, results, 2, "Should only collect 2 machines")
 
-	// VÃ©rifier que ce sont bien les bonnes machines
+	// Vérifier que ce sont bien les bonnes machines
 	ids := make(map[string]bool)
 	for _, r := range results {
 		ids[r.MachineID] = true

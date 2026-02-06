@@ -1,4 +1,4 @@
-﻿package handlers
+package handlers
 
 import (
 	"encoding/json"
@@ -7,12 +7,12 @@ import (
 	"go-monitoring/auth"
 )
 
-// UpdateSelfPassword permet Ã  un utilisateur de changer son propre mot de passe
+// UpdateSelfPassword permet à un utilisateur de changer son propre mot de passe
 func UpdateSelfPassword(cm *ConfigManager, am *auth.AuthManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		username := am.GetUsername(r)
 		if username == "" {
-			http.Error(w, "Non authentifiÃ©", http.StatusUnauthorized)
+			http.Error(w, "Non authentifié", http.StatusUnauthorized)
 			return
 		}
 

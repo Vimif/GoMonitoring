@@ -1,6 +1,6 @@
-﻿/**
+/**
  * Professional Dialog System
- * Remplace les alert() et confirm() natifs par des modals stylÃ©s
+ * Remplace les alert() et confirm() natifs par des modals stylés
  */
 
 class DialogManager {
@@ -13,7 +13,7 @@ class DialogManager {
     }
 
     init() {
-        // CrÃ©er le conteneur de dialogue
+        // Créer le conteneur de dialogue
         this.container = document.createElement('div');
         this.container.id = 'dialog-container';
         this.container.innerHTML = `
@@ -27,7 +27,7 @@ class DialogManager {
         `;
         document.body.appendChild(this.container);
 
-        // Ã‰vÃ©nements
+        // Événements
         this.container.addEventListener('click', (e) => {
             if (e.target.hasAttribute('data-dialog-close')) {
                 this.handleCancel();
@@ -48,7 +48,7 @@ class DialogManager {
         });
     }
 
-    // IcÃ´nes SVG pour chaque type
+    // Icônes SVG pour chaque type
     getIcon(type) {
         const icons = {
             info: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -81,7 +81,7 @@ class DialogManager {
 
     /**
      * Affiche une alerte (remplace alert())
-     * @param {string} message - Le message Ã  afficher
+     * @param {string} message - Le message à afficher
      * @param {Object} options - Options de configuration
      * @returns {Promise<void>}
      */
@@ -101,7 +101,7 @@ class DialogManager {
 
     /**
      * Affiche une confirmation (remplace confirm())
-     * @param {string} message - Le message Ã  afficher
+     * @param {string} message - Le message à afficher
      * @param {Object} options - Options de configuration
      * @returns {Promise<boolean>}
      */
@@ -131,10 +131,10 @@ class DialogManager {
         const messageEl = this.container.querySelector('.dialog-message');
         const actionsEl = this.container.querySelector('.dialog-actions');
 
-        // DÃ©finir le type pour le style
+        // Définir le type pour le style
         box.className = `dialog-box dialog-${config.type}`;
 
-        // IcÃ´ne
+        // Icône
         iconEl.innerHTML = this.getIcon(config.type);
 
         // Contenu

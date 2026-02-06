@@ -1,8 +1,8 @@
-﻿package domain
+package domain
 
 import "time"
 
-// DashboardData contient les donnÃ©es pour le dashboard
+// DashboardData contient les données pour le dashboard
 type DashboardData struct {
 	Title           string
 	Status          string
@@ -14,7 +14,7 @@ type DashboardData struct {
 	CSRFToken       string
 }
 
-// MachineDetailData contient les donnÃ©es pour la page dÃ©tail d'une machine
+// MachineDetailData contient les données pour la page détail d'une machine
 type MachineDetailData struct {
 	Machine   Machine
 	Time      string
@@ -23,7 +23,7 @@ type MachineDetailData struct {
 	CSRFToken string
 }
 
-// AuditLogData contient les donnÃ©es pour la page d'audit
+// AuditLogData contient les données pour la page d'audit
 type AuditLogData struct {
 	Logs      []AuditLog
 	Time      string
@@ -31,7 +31,7 @@ type AuditLogData struct {
 	CSRFToken string
 }
 
-// AuditLog reprÃ©sente une entrÃ©e de journal d'audit
+// AuditLog représente une entrée de journal d'audit
 type AuditLog struct {
 	Timestamp time.Time `json:"timestamp"`
 	Username  string    `json:"username"`

@@ -1,8 +1,8 @@
-﻿package domain
+package domain
 
 import "time"
 
-// User reprÃ©sente un utilisateur du systÃ¨me
+// User représente un utilisateur du système
 type User struct {
 	Username    string
 	Password    string // Hash bcrypt
@@ -23,7 +23,7 @@ func (u *User) IsViewer() bool {
 	return u.Role == "viewer"
 }
 
-// IsLocked retourne true si le compte est verrouillÃ©
+// IsLocked retourne true si le compte est verrouillé
 func (u *User) IsLocked() bool {
 	return u.LockedUntil.After(time.Now())
 }

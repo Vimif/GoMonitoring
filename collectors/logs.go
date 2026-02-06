@@ -1,4 +1,4 @@
-﻿package collectors
+package collectors
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"go-monitoring/ssh"
 )
 
-// LogSource dÃ©finit une source de logs disponible
+// LogSource définit une source de logs disponible
 type LogSource struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
@@ -17,7 +17,7 @@ type LogSource struct {
 	Cmd  string `json:"cmd,omitempty"`  // Pour journalctl ou docker logs
 }
 
-// GetAvailableLogSources retourne la liste des sources de logs pour un OS donnÃ©
+// GetAvailableLogSources retourne la liste des sources de logs pour un OS donné
 func GetAvailableLogSources(client *ssh.Client, osType string) ([]LogSource, error) {
 	var sources []LogSource
 
@@ -48,7 +48,7 @@ func GetAvailableLogSources(client *ssh.Client, osType string) ([]LogSource, err
 			"/var/log/mysql/error.log",
 		}
 
-		// VÃ©rifier l'existence des fichiers
+		// Vérifier l'existence des fichiers
 		for _, f := range files {
 			// Test simple avec 'test -f'
 			_, err := client.Execute("test -f " + f)
@@ -74,7 +74,7 @@ func GetAvailableLogSources(client *ssh.Client, osType string) ([]LogSource, err
 		_, err := client.Execute("which docker")
 		if err == nil {
 			// Lister les containers pour offrir leurs logs?
-			// Pour l'instant on met juste une commande gÃ©nÃ©rique ou on laisse l'utilisateur choisir?
+			// Pour l'instant on met juste une commande générique ou on laisse l'utilisateur choisir?
 			// On va faire simple: juste les logs du daemon docker s'ils sont dispo via journalctl
 			sources = append(sources, LogSource{
 				ID:   "journal-docker",
@@ -88,7 +88,7 @@ func GetAvailableLogSources(client *ssh.Client, osType string) ([]LogSource, err
 	return sources, nil
 }
 
-// FetchLogContent rÃ©cupÃ¨re le contenu des logs
+// FetchLogContent récupère le contenu des logs
 func FetchLogContent(client *ssh.Client, source LogSource, lines int) (string, error) {
 	var cmd string
 
@@ -97,7 +97,7 @@ func FetchLogContent(client *ssh.Client, source LogSource, lines int) (string, e
 	}
 
 	if source.Type == "file" {
-		// SÃ‰CURITÃ‰: Valider le chemin du fichier log
+		// SÉCURITÉ: Valider le chemin du fichier log
 		if err := security.ValidateLogSource(source.Path); err != nil {
 			return "", fmt.Errorf("source de log invalide: %w", err)
 		}
@@ -121,8 +121,8 @@ func FetchLogContent(client *ssh.Client, source LogSource, lines int) (string, e
 		}
 	} else if source.Type == "powershell" {
 		// Pour windows, changer le -Newest X
-		// C'est un peu complexe de parser la cmd string, on va juste exÃ©cuter tel quel pour l'instant
-		// ou reconstruire si on est sÃ»r du format.
+		// C'est un peu complexe de parser la cmd string, on va juste exécuter tel quel pour l'instant
+		// ou reconstruire si on est sûr du format.
 		cmd = source.Cmd
 	} else {
 		return "", fmt.Errorf("type de log inconnu: %s", source.Type)

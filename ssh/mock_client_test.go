@@ -1,4 +1,4 @@
-﻿package ssh
+package ssh
 
 import (
 	"fmt"
@@ -228,7 +228,7 @@ func TestMockPool_GetClientNotFound(t *testing.T) {
 
 	_, err := pool.GetClient("nonexistent")
 	require.Error(t, err, "GetClient should return error for nonexistent machine")
-	assert.Contains(t, err.Error(), "non trouvÃ©e", "Error should mention machine not found")
+	assert.Contains(t, err.Error(), "non trouvée", "Error should mention machine not found")
 }
 
 func TestMockClient_ConcurrentExecute(t *testing.T) {

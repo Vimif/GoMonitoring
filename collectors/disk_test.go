@@ -1,4 +1,4 @@
-﻿package collectors
+package collectors
 
 import (
 	"testing"
@@ -183,10 +183,10 @@ func TestParseLsLine_SpecialCases(t *testing.T) {
 	})
 
 	t.Run("file with unicode name", func(t *testing.T) {
-		input := "-rw-r--r-- 1 user group 1234 Jan 15 10:30 fichier_franÃ§ais_æ—¥æœ¬èªž.txt"
+		input := "-rw-r--r-- 1 user group 1234 Jan 15 10:30 fichier_français_日本語.txt"
 		result := parseLsLine(input, "/home/user")
 		assert.NotNil(t, result)
-		assert.Equal(t, "fichier_franÃ§ais_æ—¥æœ¬èªž.txt", result.Name)
+		assert.Equal(t, "fichier_français_日本語.txt", result.Name)
 	})
 
 	t.Run("zero size file", func(t *testing.T) {
@@ -310,13 +310,13 @@ func BenchmarkParseLsLine_ComplexName(b *testing.B) {
 	}
 }
 
-// Tests de sÃ©curitÃ© pour BrowseDirectory
+// Tests de sécurité pour BrowseDirectory
 func TestBrowseDirectory_Security(t *testing.T) {
-	// Ces tests vÃ©rifient que la validation de sÃ©curitÃ© fonctionne
+	// Ces tests vérifient que la validation de sécurité fonctionne
 	// Les tests complets avec mock SSH seront dans Sprint 2.3
 
 	t.Run("path traversal attempt", func(t *testing.T) {
-		// Le path devrait Ãªtre validÃ© par security.ValidatePath
+		// Le path devrait être validé par security.ValidatePath
 		maliciousPaths := []string{
 			"../../../etc/passwd",
 			"/var/log/../../etc/shadow",
@@ -326,9 +326,9 @@ func TestBrowseDirectory_Security(t *testing.T) {
 
 		for _, path := range maliciousPaths {
 			t.Run(path, func(t *testing.T) {
-				// Ces chemins devraient Ãªtre rejetÃ©s par ValidatePath
-				// (testÃ© dans pkg/security/validation_test.go)
-				// BrowseDirectory doit appeler ValidatePath avant toute opÃ©ration
+				// Ces chemins devraient être rejetés par ValidatePath
+				// (testé dans pkg/security/validation_test.go)
+				// BrowseDirectory doit appeler ValidatePath avant toute opération
 				assert.Contains(t, path, "..", "Test path should contain traversal")
 			})
 		}
@@ -343,7 +343,7 @@ func TestBrowseDirectory_Security(t *testing.T) {
 
 		for _, path := range sensitivePaths {
 			t.Run(path, func(t *testing.T) {
-				// Ces chemins devraient Ãªtre bloquÃ©s par ValidatePath
+				// Ces chemins devraient être bloqués par ValidatePath
 				assert.NotEmpty(t, path, "Sensitive path should not be empty")
 			})
 		}

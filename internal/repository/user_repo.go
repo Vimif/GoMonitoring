@@ -1,4 +1,4 @@
-﻿package repository
+package repository
 
 import (
 	"database/sql"
@@ -8,12 +8,12 @@ import (
 	"go-monitoring/internal/domain"
 )
 
-// UserRepository implÃ©mente l'interface UserRepository avec SQLite
+// UserRepository implémente l'interface UserRepository avec SQLite
 type UserRepository struct {
 	db *sql.DB
 }
 
-// NewUserRepository crÃ©e un nouveau repository pour les utilisateurs
+// NewUserRepository crée un nouveau repository pour les utilisateurs
 func NewUserRepository(db *sql.DB) *UserRepository {
 	return &UserRepository{
 		db: db,
@@ -51,7 +51,7 @@ func (r *UserRepository) GetByUsername(username string) (*domain.User, error) {
 	return &user, nil
 }
 
-// Create crÃ©e un nouvel utilisateur
+// Create crée un nouvel utilisateur
 func (r *UserRepository) Create(user *domain.User) error {
 	query := `
 		INSERT INTO users (username, password, role, is_active, locked_until)
@@ -73,7 +73,7 @@ func (r *UserRepository) Create(user *domain.User) error {
 	return nil
 }
 
-// Update met Ã  jour un utilisateur existant
+// Update met à jour un utilisateur existant
 func (r *UserRepository) Update(user *domain.User) error {
 	query := `
 		UPDATE users
@@ -161,7 +161,7 @@ func (r *UserRepository) GetAll() ([]domain.User, error) {
 	return users, nil
 }
 
-// LockAccount verrouille un compte jusqu'Ã  une date
+// LockAccount verrouille un compte jusqu'à une date
 func (r *UserRepository) LockAccount(username string, until time.Time) error {
 	query := `UPDATE users SET locked_until = ? WHERE username = ?`
 
@@ -178,7 +178,7 @@ func (r *UserRepository) LockAccount(username string, until time.Time) error {
 	return nil
 }
 
-// UnlockAccount dÃ©verrouille un compte
+// UnlockAccount déverrouille un compte
 func (r *UserRepository) UnlockAccount(username string) error {
 	query := `UPDATE users SET locked_until = 0 WHERE username = ?`
 
@@ -195,7 +195,7 @@ func (r *UserRepository) UnlockAccount(username string) error {
 	return nil
 }
 
-// UpdatePassword met Ã  jour le mot de passe d'un utilisateur
+// UpdatePassword met à jour le mot de passe d'un utilisateur
 func (r *UserRepository) UpdatePassword(username, passwordHash string) error {
 	query := `UPDATE users SET password = ? WHERE username = ?`
 

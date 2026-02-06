@@ -1,65 +1,65 @@
-﻿# Architecture Interne
+# Architecture Interne
 
-Cette structure suit les principes de Clean Architecture pour amÃ©liorer la maintenabilitÃ© et la testabilitÃ©.
+Cette structure suit les principes de Clean Architecture pour améliorer la maintenabilité et la testabilité.
 
 ## Structure
 
 ```
 internal/
-â”œâ”€â”€ domain/          # EntitÃ©s mÃ©tier (models)
-â”‚   â”œâ”€â”€ machine.go   # DÃ©finitions des machines
-â”‚   â”œâ”€â”€ user.go      # DÃ©finitions des utilisateurs
-â”‚   â””â”€â”€ metric.go    # DÃ©finitions des mÃ©triques
-â”œâ”€â”€ service/         # Logique mÃ©tier
-â”‚   â”œâ”€â”€ machine_service.go      # Gestion des machines
-â”‚   â”œâ”€â”€ monitoring_service.go   # Collecte et monitoring
-â”‚   â””â”€â”€ user_service.go         # Gestion des utilisateurs
-â””â”€â”€ repository/      # AccÃ¨s aux donnÃ©es
-    â”œâ”€â”€ machine_repo.go         # Persistence des machines
-    â”œâ”€â”€ user_repo.go            # Persistence des utilisateurs
-    â””â”€â”€ metric_repo.go          # Persistence des mÃ©triques
+├── domain/          # Entités métier (models)
+│   ├── machine.go   # Définitions des machines
+│   ├── user.go      # Définitions des utilisateurs
+│   └── metric.go    # Définitions des métriques
+├── service/         # Logique métier
+│   ├── machine_service.go      # Gestion des machines
+│   ├── monitoring_service.go   # Collecte et monitoring
+│   └── user_service.go         # Gestion des utilisateurs
+└── repository/      # Accès aux données
+    ├── machine_repo.go         # Persistence des machines
+    ├── user_repo.go            # Persistence des utilisateurs
+    └── metric_repo.go          # Persistence des métriques
 ```
 
 ## Principes
 
-### Domain (EntitÃ©s MÃ©tier)
-- Structures de donnÃ©es pure sans logique
-- Pas de dÃ©pendances externes
-- ReprÃ©sentent les concepts mÃ©tier
+### Domain (Entités Métier)
+- Structures de données pure sans logique
+- Pas de dépendances externes
+- Représentent les concepts métier
 
-### Service (Logique MÃ©tier)
-- ImplÃ©mentent les cas d'usage
+### Service (Logique Métier)
+- Implémentent les cas d'usage
 - Utilisent les repositories via interfaces
-- Orchestrent les opÃ©rations mÃ©tier
-- IndÃ©pendants de la couche prÃ©sentation
+- Orchestrent les opérations métier
+- Indépendants de la couche présentation
 
-### Repository (AccÃ¨s DonnÃ©es)
+### Repository (Accès Données)
 - Abstraient la persistance
-- ImplÃ©mentent les interfaces dÃ©finies dans pkg/interfaces
+- Implémentent les interfaces définies dans pkg/interfaces
 - Peuvent utiliser SQL, fichiers, APIs externes
 
-## DÃ©pendances
+## Dépendances
 
 ```
 Handlers (HTTP)
-    â†“
+    ↓
 Services (Business Logic)
-    â†“
+    ↓
 Repositories (Data Access)
-    â†“
+    ↓
 Database / Config Files
 ```
 
 ## Migration
 
 Cette structure remplace progressivement:
-- `storage/` â†’ `internal/repository/`
-- `models/` â†’ `internal/domain/`
-- Logique Ã©parpillÃ©e dans handlers â†’ `internal/service/`
+- `storage/` → `internal/repository/`
+- `models/` → `internal/domain/`
+- Logique éparpillée dans handlers → `internal/service/`
 
 ## Tests
 
 Chaque couche a ses propres tests:
 - `domain/*_test.go` - Tests unitaires simples
 - `service/*_test.go` - Tests avec mocks de repositories
-- `repository/*_test.go` - Tests d'intÃ©gration avec DB
+- `repository/*_test.go` - Tests d'intégration avec DB

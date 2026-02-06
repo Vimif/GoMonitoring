@@ -1,4 +1,4 @@
-﻿package collectors
+package collectors
 
 import (
 	"testing"
@@ -9,8 +9,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// Note: Ces tests vÃ©rifient la logique de parsing des collectors
-// Les tests avec mock SSH seront ajoutÃ©s dans Sprint 2.3
+// Note: Ces tests vérifient la logique de parsing des collectors
+// Les tests avec mock SSH seront ajoutés dans Sprint 2.3
 
 func TestMemoryInfoLinux_Parsing(t *testing.T) {
 	// Simuler le parsing d'une sortie `free -b`
@@ -76,7 +76,7 @@ func TestMemoryInfoLinux_Parsing(t *testing.T) {
 			var info models.MemoryInfo
 			parseMemoryFields(parts, &info)
 
-			// VÃ©rifier les valeurs parsÃ©es
+			// Vérifier les valeurs parsées
 			assert.Equal(t, tt.expectedTotal, info.Total, "Total memory should match")
 			assert.Equal(t, tt.expectedFree, info.Free, "Free memory should match")
 			assert.Equal(t, tt.expectedAvail, info.Available, "Available memory should match")
@@ -147,7 +147,7 @@ func TestMemoryPercentageCalculation(t *testing.T) {
 		{"75% usage", 16000000000, 12000000000, 75.0},
 		{"0% usage", 8000000000, 0, 0.0},
 		{"100% usage", 4000000000, 4000000000, 100.0},
-		{"zero total (edge case)", 0, 0, 0.0}, // Division par zÃ©ro
+		{"zero total (edge case)", 0, 0, 0.0}, // Division par zéro
 	}
 
 	for _, tt := range tests {
@@ -244,7 +244,7 @@ func parseMemoryFields(fields []string, info *models.MemoryInfo) {
 			if char >= '0' && char <= '9' {
 				val = val*10 + uint64(char-'0')
 			} else {
-				return 0 // CaractÃ¨re invalide
+				return 0 // Caractère invalide
 			}
 		}
 		return val

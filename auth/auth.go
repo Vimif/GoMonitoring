@@ -1,4 +1,4 @@
-﻿package auth
+package auth
 
 import (
 	"crypto/rand"
@@ -14,7 +14,7 @@ type Session struct {
 	Expiry   time.Time
 }
 
-// AuthManager gÃ¨re les sessions et middlewares
+// AuthManager gère les sessions et middlewares
 type AuthManager struct {
 	UserManager *UserManager
 	sessions    map[string]Session
@@ -27,12 +27,12 @@ func NewAuthManager(um *UserManager) *AuthManager {
 	}
 }
 
-// Middleware protÃ¨ge les routes
+// Middleware protège les routes
 func (am *AuthManager) Middleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Ignorer les fichiers statiques (images, css, js) si nÃ©cessaire
+		// Ignorer les fichiers statiques (images, css, js) si nécessaire
 		// Mais ici les statiques sont souvent publics.
-		// Si on veut protÃ©ger, on applique middleware.
+		// Si on veut protéger, on applique middleware.
 
 		cookie, err := r.Cookie("session_token")
 		if err != nil {
@@ -58,7 +58,7 @@ func (am *AuthManager) Middleware(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-// LoginHandler gÃ¨re la page de connexion
+// LoginHandler gère la page de connexion
 func (am *AuthManager) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		tmpl, err := template.ParseFiles("templates/login.html")
@@ -81,7 +81,7 @@ func (am *AuthManager) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// CrÃ©er session
+	// Créer session
 	sessionToken := generateToken()
 	expiresAt := time.Now().Add(24 * time.Hour)
 
@@ -101,7 +101,7 @@ func (am *AuthManager) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
-// LogoutHandler gÃ¨re la dÃ©connexion
+// LogoutHandler gère la déconnexion
 func (am *AuthManager) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session_token")
 	if err == nil {
@@ -118,7 +118,7 @@ func (am *AuthManager) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
-// IsAdminSession vÃ©rifie si la session appartient Ã  un admin
+// IsAdminSession vérifie si la session appartient à un admin
 func (am *AuthManager) IsAdminSession(token string) bool {
 	session, exists := am.sessions[token]
 	if !exists {
@@ -130,7 +130,7 @@ func (am *AuthManager) IsAdminSession(token string) bool {
 	return am.UserManager.IsAdmin(session.Username)
 }
 
-// GetUserRole retourne le rÃ´le de l'utilisateur connectÃ©
+// GetUserRole retourne le rôle de l'utilisateur connecté
 func (am *AuthManager) GetUserRole(r *http.Request) string {
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
@@ -143,21 +143,21 @@ func (am *AuthManager) GetUserRole(r *http.Request) string {
 		return ""
 	}
 
-	// RÃ©cupÃ©rer le rÃ´le via UserManager pour Ãªtre Ã  jour
-	// (Si on stockait le rÃ´le dans la session, ce serait plus rapide mais moins "live")
-	// Mais UserManager.users est en mÃ©moire, c'est rapide.
-	// On n'a pas accÃ¨s direct Ã  UserManager.users ici sans mÃ©thode publique,
-	// mais on peut ajouter une mÃ©thode GetUser(username) ou juste dÃ©duire du IsAdmin.
+	// Récupérer le rôle via UserManager pour être à jour
+	// (Si on stockait le rôle dans la session, ce serait plus rapide mais moins "live")
+	// Mais UserManager.users est en mémoire, c'est rapide.
+	// On n'a pas accès direct à UserManager.users ici sans méthode publique,
+	// mais on peut ajouter une méthode GetUser(username) ou juste déduire du IsAdmin.
 
-	// Simplification: on rÃ©cupÃ¨re l'user complet ou on modifie Session pour inclure le rÃ´le?
+	// Simplification: on récupère l'user complet ou on modifie Session pour inclure le rôle?
 	// La session a juste Username.
 
 	// On va utiliser GetAllUsers() pour trouver l'user? Non c'est lourd.
-	// On va ajouter GetUserRole Ã  UserManager.
+	// On va ajouter GetUserRole à UserManager.
 	return am.UserManager.GetUserRole(session.Username)
 }
 
-// GetUsername retourne le nom de l'utilisateur connectÃ©
+// GetUsername retourne le nom de l'utilisateur connecté
 func (am *AuthManager) GetUsername(r *http.Request) string {
 	cookie, err := r.Cookie("session_token")
 	if err != nil {

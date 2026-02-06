@@ -1,4 +1,4 @@
-﻿{{define "title"}}{{.Machine.Name}} - MonitorGo{{end}}
+{{define "title"}}{{.Machine.Name}} - MonitorGo{{end}}
 
 {{define "content"}}
 <!-- Header -->
@@ -42,7 +42,7 @@
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
                 </button>
-                <button class="win-btn max-btn" onclick="toggleFullscreen()" title="Plein Ã©cran">
+                <button class="win-btn max-btn" onclick="toggleFullscreen()" title="Plein écran">
                     <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"
                         stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="15 3 21 3 21 9"></polyline>
@@ -59,7 +59,7 @@
                     <polyline points="4 17 10 11 4 5"></polyline>
                     <line x1="12" y1="19" x2="20" y2="19"></line>
                 </svg>
-                <span>{{.Machine.Name}} â€” SSH</span>
+                <span>{{.Machine.Name}} — SSH</span>
             </div>
             <div class="connection-status">
                 <span id="term-status-dot" class="status-dot"></span>
@@ -81,7 +81,7 @@
             <line x1="6" y1="18" x2="6.01" y2="18"></line>
         </svg>
         <h2>Machine Hors Ligne</h2>
-        <p>Le serveur ne rÃ©pond pas aux requÃªtes SSH.</p>
+        <p>Le serveur ne répond pas aux requêtes SSH.</p>
         <div class="offline-details"><span>Dernier contact: {{.Machine.LastCheck.Format "02/01/2006 15:04:05"}}</span>
         </div>
     </div>
@@ -208,7 +208,7 @@
                             <rect x="4" y="11" width="16" height="10" rx="2"></rect>
                             <path d="M6 15h12"></path>
                         </svg>
-                        MÃ©moire
+                        Mémoire
                     </span>
                 </div>
                 <div class="chart-container">
@@ -223,7 +223,7 @@
         <!-- User/System Info -->
         <div class="card info-card">
             <div class="card-header">
-                <h3>Informations SystÃ¨me</h3>
+                <h3>Informations Système</h3>
             </div>
             <div class="info-list">
                 <div class="info-row">
@@ -313,7 +313,7 @@
                         </td>
                         <td class="actions-cell">
                             <button onclick="controlService('{{.Name}}', 'start')" class="btn-action btn-start"
-                                title="DÃ©marrer">
+                                title="Démarrer">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                     stroke-linejoin="round">
@@ -321,7 +321,7 @@
                                 </svg>
                             </button>
                             <button onclick="controlService('{{.Name}}', 'restart')" class="btn-action btn-restart"
-                                title="RedÃ©marrer">
+                                title="Redémarrer">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                     stroke-linejoin="round">
@@ -332,7 +332,7 @@
                                 </svg>
                             </button>
                             <button onclick="controlService('{{.Name}}', 'stop')" class="btn-action btn-stop"
-                                title="ArrÃªter">
+                                title="Arrêter">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                     stroke-linejoin="round">
@@ -351,14 +351,14 @@
     <!-- File Browser (Hidden by default) -->
     <div class="card" id="logs-section">
         <div class="card-header">
-            <h3>Journaux SystÃ¨me</h3>
+            <h3>Journaux Système</h3>
         </div>
-        <div class="logs-container" style="padding: 1.5rem;">
-            <div class="logs-controls" style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+        <div class="logs-container">
+            <div class="logs-controls">
                 <select id="log-source-select" class="form-select" onchange="loadLogContent()">
                     <option value="" disabled selected>Chargement des sources...</option>
                 </select>
-                <select id="log-lines-select" class="form-select" style="width: 120px;" onchange="loadLogContent()">
+                <select id="log-lines-select" class="form-select log-lines-select" onchange="loadLogContent()">
                     <option value="50">50 lignes</option>
                     <option value="100" selected>100 lignes</option>
                     <option value="200">200 lignes</option>
@@ -371,12 +371,11 @@
                         <path d="M1 20v-6h6"></path>
                         <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
                     </svg>
-                    RafraÃ®chir
+                    Rafraîchir
                 </button>
             </div>
-            <div id="log-viewer" class="log-viewer-content"
-                style="background: #1e1e1e; color: #f0f0f0; padding: 1rem; border-radius: 8px; font-family: monospace; white-space: pre-wrap; height: 400px; overflow-y: auto; font-size: 0.85rem;">
-                SÃ©lectionnez un fichier log pour voir son contenu...
+            <div id="log-viewer" class="log-viewer-content">
+                Sélectionnez un fichier log pour voir son contenu...
             </div>
         </div>
     </div>
@@ -402,7 +401,7 @@
                 <span class="col-name">Nom</span>
                 <span class="col-size">Taille</span>
                 <span class="col-perms">Perms</span>
-                <span class="col-owner">PropriÃ©taire</span>
+                <span class="col-owner">Propriétaire</span>
             </div>
             <div id="file-list" class="file-list-body">
                 <!-- Content injected by JS -->
@@ -422,16 +421,16 @@
 <script>
     async function controlService(serviceName, action) {
         const actionLabels = {
-            'start': 'dÃ©marrer',
-            'stop': 'arrÃªter',
-            'restart': 'redÃ©marrer'
+            'start': 'démarrer',
+            'stop': 'arrêter',
+            'restart': 'redémarrer'
         };
         const actionLabel = actionLabels[action] || action;
 
         const confirmed = await dialog.confirm(
             `Voulez-vous vraiment ${actionLabel} le service ${serviceName} ?`,
             {
-                title: 'ContrÃ´le du service',
+                title: 'Contrôle du service',
                 type: 'question',
                 confirmText: actionLabel.charAt(0).toUpperCase() + actionLabel.slice(1),
                 cancelText: 'Annuler',
@@ -450,11 +449,11 @@
 
             if (response.ok) {
                 await dialog.alert(data.message, {
-                    title: 'SuccÃ¨s',
+                    title: 'Succès',
                     type: 'success'
                 });
             } else {
-                await dialog.alert(data.error || 'Action Ã©chouÃ©e', {
+                await dialog.alert(data.error || 'Action échouée', {
                     title: 'Erreur',
                     type: 'error'
                 });
@@ -462,7 +461,7 @@
         } catch (e) {
             console.error(e);
             await dialog.alert('Impossible de contacter le serveur', {
-                title: 'Erreur rÃ©seau',
+                title: 'Erreur réseau',
                 type: 'error'
             });
         }
@@ -546,7 +545,7 @@
             modal.classList.add('open');
 
             if (typeof Terminal === 'undefined' || typeof FitAddon === 'undefined') {
-                throw new Error("Les librairies xterm.js ne sont pas chargÃ©es correctement.");
+                throw new Error("Les librairies xterm.js ne sont pas chargées correctement.");
             }
 
             term = new Terminal({

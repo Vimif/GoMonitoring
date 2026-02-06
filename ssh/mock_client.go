@@ -1,4 +1,4 @@
-﻿package ssh
+package ssh
 
 import (
 	"fmt"
@@ -9,31 +9,31 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-// MockClient est un client SSH simulÃ© pour les tests
+// MockClient est un client SSH simulé pour les tests
 type MockClient struct {
-	// Commandes enregistrÃ©es et leurs rÃ©ponses
+	// Commandes enregistrées et leurs réponses
 	Commands map[string]string // cmd -> output
 	Errors   map[string]error  // cmd -> error
 
-	// Historique des commandes exÃ©cutÃ©es
+	// Historique des commandes exécutées
 	ExecutedCommands []string
 
-	// Ã‰tat de la connexion
+	// État de la connexion
 	connected bool
 
-	// Config simulÃ©e
+	// Config simulée
 	config *config.MachineConfig
 
 	mu sync.Mutex
 }
 
-// MockPool est un pool simulÃ© pour les tests
+// MockPool est un pool simulé pour les tests
 type MockPool struct {
 	clients map[string]*MockClient
 	mu      sync.RWMutex
 }
 
-// NewMockClient crÃ©e un nouveau client SSH simulÃ©
+// NewMockClient crée un nouveau client SSH simulé
 func NewMockClient(machineConfig *config.MachineConfig) *MockClient {
 	return &MockClient{
 		Commands:         make(map[string]string),
@@ -44,38 +44,38 @@ func NewMockClient(machineConfig *config.MachineConfig) *MockClient {
 	}
 }
 
-// NewMockPool crÃ©e un nouveau pool simulÃ©
+// NewMockPool crée un nouveau pool simulé
 func NewMockPool() *MockPool {
 	return &MockPool{
 		clients: make(map[string]*MockClient),
 	}
 }
 
-// AddClient ajoute un client simulÃ© au pool
+// AddClient ajoute un client simulé au pool
 func (p *MockPool) AddClient(machineID string, client *MockClient) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	p.clients[machineID] = client
 }
 
-// GetClient retourne un client simulÃ©
+// GetClient retourne un client simulé
 func (p *MockPool) GetClient(machineID string) (*Client, error) {
 	p.mu.RLock()
 	mockClient, ok := p.clients[machineID]
 	p.mu.RUnlock()
 
 	if !ok {
-		return nil, fmt.Errorf("machine non trouvÃ©e: %s", machineID)
+		return nil, fmt.Errorf("machine non trouvée: %s", machineID)
 	}
 
-	// Retourner un wrapper qui implÃ©mente l'interface Client
+	// Retourner un wrapper qui implémente l'interface Client
 	return &Client{
 		config:  mockClient.config,
 		timeout: 0,
 	}, nil
 }
 
-// SetResponse enregistre une rÃ©ponse pour une commande
+// SetResponse enregistre une réponse pour une commande
 func (m *MockClient) SetResponse(cmd, output string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -89,7 +89,7 @@ func (m *MockClient) SetError(cmd string, err error) {
 	m.Errors[cmd] = err
 }
 
-// SetResponseMap enregistre plusieurs rÃ©ponses Ã  la fois
+// SetResponseMap enregistre plusieurs réponses à la fois
 func (m *MockClient) SetResponseMap(responses map[string]string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -103,7 +103,7 @@ func (m *MockClient) Connect() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	// VÃ©rifier s'il y a une erreur de connexion enregistrÃ©e
+	// Vérifier s'il y a une erreur de connexion enregistrée
 	if err, exists := m.Errors["__connect__"]; exists {
 		return err
 	}
@@ -112,7 +112,7 @@ func (m *MockClient) Connect() error {
 	return nil
 }
 
-// Execute simule l'exÃ©cution d'une commande SSH
+// Execute simule l'exécution d'une commande SSH
 func (m *MockClient) Execute(cmd string) (string, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -120,21 +120,21 @@ func (m *MockClient) Execute(cmd string) (string, error) {
 	// Enregistrer la commande dans l'historique
 	m.ExecutedCommands = append(m.ExecutedCommands, cmd)
 
-	// VÃ©rifier si une erreur est enregistrÃ©e pour cette commande
+	// Vérifier si une erreur est enregistrée pour cette commande
 	if err, exists := m.Errors[cmd]; exists {
 		return "", err
 	}
 
-	// Retourner la rÃ©ponse enregistrÃ©e
+	// Retourner la réponse enregistrée
 	if output, exists := m.Commands[cmd]; exists {
 		return output, nil
 	}
 
-	// Si aucune rÃ©ponse n'est enregistrÃ©e, retourner une erreur
+	// Si aucune réponse n'est enregistrée, retourner une erreur
 	return "", fmt.Errorf("mock: no response registered for command: %s", cmd)
 }
 
-// NewSession simule la crÃ©ation d'une session SSH
+// NewSession simule la création d'une session SSH
 func (m *MockClient) NewSession() (*ssh.Session, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -143,12 +143,12 @@ func (m *MockClient) NewSession() (*ssh.Session, error) {
 		return nil, fmt.Errorf("not connected")
 	}
 
-	// Pour les tests, on ne peut pas crÃ©er une vraie session SSH
-	// Cette mÃ©thode devrait Ãªtre mockÃ©e diffÃ©remment si nÃ©cessaire
+	// Pour les tests, on ne peut pas créer une vraie session SSH
+	// Cette méthode devrait être mockée différemment si nécessaire
 	return nil, fmt.Errorf("mock: NewSession not implemented")
 }
 
-// IsConnected retourne l'Ã©tat de connexion simulÃ©
+// IsConnected retourne l'état de connexion simulé
 func (m *MockClient) IsConnected() bool {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -163,17 +163,17 @@ func (m *MockClient) Close() error {
 	return nil
 }
 
-// GetExecutedCommands retourne l'historique des commandes exÃ©cutÃ©es
+// GetExecutedCommands retourne l'historique des commandes exécutées
 func (m *MockClient) GetExecutedCommands() []string {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	// Retourner une copie pour Ã©viter les modifications externes
+	// Retourner une copie pour éviter les modifications externes
 	commands := make([]string, len(m.ExecutedCommands))
 	copy(commands, m.ExecutedCommands)
 	return commands
 }
 
-// Reset rÃ©initialise l'Ã©tat du mock
+// Reset réinitialise l'état du mock
 func (m *MockClient) Reset() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -183,9 +183,9 @@ func (m *MockClient) Reset() {
 	m.connected = false
 }
 
-// --- Helpers pour crÃ©er des clients mock prÃ©configurÃ©s ---
+// --- Helpers pour créer des clients mock préconfigurés ---
 
-// NewMockClientLinux crÃ©e un client mock configurÃ© pour simuler un systÃ¨me Linux
+// NewMockClientLinux crée un client mock configuré pour simuler un système Linux
 func NewMockClientLinux() *MockClient {
 	client := NewMockClient(&config.MachineConfig{
 		ID:   "test-linux",
@@ -196,7 +196,7 @@ func NewMockClientLinux() *MockClient {
 		OS:   "linux",
 	})
 
-	// Commandes par dÃ©faut pour Linux
+	// Commandes par défaut pour Linux
 	client.SetResponseMap(map[string]string{
 		"cat /proc/cpuinfo | grep 'model name' | head -1 | cut -d':' -f2": "Intel(R) Core(TM) i7-9700K CPU @ 3.60GHz",
 		"grep -c ^processor /proc/cpuinfo":                                 "8",
@@ -211,7 +211,7 @@ func NewMockClientLinux() *MockClient {
 	return client
 }
 
-// NewMockClientWindows crÃ©e un client mock configurÃ© pour simuler un systÃ¨me Windows
+// NewMockClientWindows crée un client mock configuré pour simuler un système Windows
 func NewMockClientWindows() *MockClient {
 	client := NewMockClient(&config.MachineConfig{
 		ID:   "test-windows",
@@ -222,7 +222,7 @@ func NewMockClientWindows() *MockClient {
 		OS:   "windows",
 	})
 
-	// Commandes par dÃ©faut pour Windows
+	// Commandes par défaut pour Windows
 	client.SetResponseMap(map[string]string{
 		`powershell -Command "(Get-CimInstance Win32_Processor).Name"`:                    "Intel(R) Core(TM) i7-9700K CPU @ 3.60GHz",
 		`powershell -Command "(Get-CimInstance Win32_Processor).NumberOfCores"`:           "8",
@@ -236,7 +236,7 @@ func NewMockClientWindows() *MockClient {
 	return client
 }
 
-// NewMockClientWithError crÃ©e un client mock qui retourne des erreurs
+// NewMockClientWithError crée un client mock qui retourne des erreurs
 func NewMockClientWithError(errorMsg string) *MockClient {
 	client := NewMockClient(&config.MachineConfig{
 		ID:   "test-error",
@@ -246,23 +246,23 @@ func NewMockClientWithError(errorMsg string) *MockClient {
 		User: "test",
 	})
 
-	// DÃ©finir une erreur de connexion
+	// Définir une erreur de connexion
 	client.SetError("__connect__", fmt.Errorf(errorMsg))
 
 	return client
 }
 
-// NewMockClientOffline crÃ©e un client mock qui simule une machine offline
+// NewMockClientOffline crée un client mock qui simule une machine offline
 func NewMockClientOffline() *MockClient {
 	return NewMockClientWithError("connection refused: machine offline")
 }
 
-// NewMockClientTimeout crÃ©e un client mock qui simule un timeout
+// NewMockClientTimeout crée un client mock qui simule un timeout
 func NewMockClientTimeout() *MockClient {
 	return NewMockClientWithError("i/o timeout: connection timed out")
 }
 
-// NewMockClientAuthFailed crÃ©e un client mock qui simule un Ã©chec d'authentification
+// NewMockClientAuthFailed crée un client mock qui simule un échec d'authentification
 func NewMockClientAuthFailed() *MockClient {
 	return NewMockClientWithError("ssh: unable to authenticate: authentication failed")
 }

@@ -1,4 +1,4 @@
-﻿package handlers
+package handlers
 
 import (
 	"encoding/json"
@@ -23,14 +23,14 @@ func DiskList(cfg *config.Config, pool *ssh.Pool) http.HandlerFunc {
 		// Trouver la configuration de la machine
 		machineConfig := cfg.GetMachine(machineID)
 		if machineConfig == nil {
-			jsonError(w, "Machine non trouvÃ©e", http.StatusNotFound)
+			jsonError(w, "Machine non trouvée", http.StatusNotFound)
 			return
 		}
 
 		var disks []models.DiskInfo
 		var err error
 
-		// VÃ©rifier si c'est une machine locale
+		// Vérifier si c'est une machine locale
 		if collectors.IsLocalHost(machineConfig.Host) {
 			disks, err = collectors.CollectLocalDiskInfo()
 		} else {
@@ -40,7 +40,7 @@ func DiskList(cfg *config.Config, pool *ssh.Pool) http.HandlerFunc {
 				jsonError(w, "Erreur connexion SSH", http.StatusInternalServerError)
 				return
 			}
-			// Utiliser l'OS configurÃ© ou laisser la dÃ©tection automatique
+			// Utiliser l'OS configuré ou laisser la détection automatique
 			disks, err = collectors.CollectDiskInfo(client, machineConfig.OS)
 		}
 
@@ -54,7 +54,7 @@ func DiskList(cfg *config.Config, pool *ssh.Pool) http.HandlerFunc {
 	}
 }
 
-// DiskDetails retourne les dÃ©tails d'un disque spÃ©cifique
+// DiskDetails retourne les détails d'un disque spécifique
 func DiskDetails(cfg *config.Config, pool *ssh.Pool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		machineID := r.PathValue("id")
@@ -72,7 +72,7 @@ func DiskDetails(cfg *config.Config, pool *ssh.Pool) http.HandlerFunc {
 		// Trouver la configuration de la machine
 		machineConfig := cfg.GetMachine(machineID)
 		if machineConfig == nil {
-			jsonError(w, "Machine non trouvÃ©e", http.StatusNotFound)
+			jsonError(w, "Machine non trouvée", http.StatusNotFound)
 			return
 		}
 
@@ -80,7 +80,7 @@ func DiskDetails(cfg *config.Config, pool *ssh.Pool) http.HandlerFunc {
 		var partitions []models.Partition
 		var err error
 
-		// VÃ©rifier si c'est une machine locale
+		// Vérifier si c'est une machine locale
 		if collectors.IsLocalHost(machineConfig.Host) {
 			disk, partitions, err = collectors.GetLocalDiskDetails(mountPoint)
 		} else {
@@ -90,7 +90,7 @@ func DiskDetails(cfg *config.Config, pool *ssh.Pool) http.HandlerFunc {
 				jsonError(w, "Erreur connexion SSH", http.StatusInternalServerError)
 				return
 			}
-			// Utiliser l'OS configurÃ© ou laisser la dÃ©tection automatique
+			// Utiliser l'OS configuré ou laisser la détection automatique
 			disk, partitions, err = collectors.GetDiskDetails(client, mountPoint, machineConfig.OS)
 		}
 
@@ -126,23 +126,23 @@ func BrowseDirectory(cfg *config.Config, pool *ssh.Pool) http.HandlerFunc {
 			path = "/"
 		}
 
-		// Validation de sÃ©curitÃ©
+		// Validation de sécurité
 		if !isAllowedPath(path) {
-			jsonError(w, "Chemin non autorisÃ©", http.StatusForbidden)
+			jsonError(w, "Chemin non autorisé", http.StatusForbidden)
 			return
 		}
 
 		// Trouver la configuration de la machine
 		machineConfig := cfg.GetMachine(machineID)
 		if machineConfig == nil {
-			jsonError(w, "Machine non trouvÃ©e", http.StatusNotFound)
+			jsonError(w, "Machine non trouvée", http.StatusNotFound)
 			return
 		}
 
 		var listing *models.DirectoryListing
 		var err error
 
-		// VÃ©rifier si c'est une machine locale
+		// Vérifier si c'est une machine locale
 		if collectors.IsLocalHost(machineConfig.Host) {
 			listing, err = collectors.BrowseLocalDirectory(path)
 		} else {
@@ -156,7 +156,7 @@ func BrowseDirectory(cfg *config.Config, pool *ssh.Pool) http.HandlerFunc {
 		}
 
 		if err != nil {
-			jsonError(w, "Erreur lecture rÃ©pertoire: "+err.Error(), http.StatusInternalServerError)
+			jsonError(w, "Erreur lecture répertoire: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -165,7 +165,7 @@ func BrowseDirectory(cfg *config.Config, pool *ssh.Pool) http.HandlerFunc {
 	}
 }
 
-// isAllowedPath vÃ©rifie si le chemin est autorisÃ©
+// isAllowedPath vérifie si le chemin est autorisé
 func isAllowedPath(path string) bool {
 	// Interdire les chemins avec ..
 	if strings.Contains(path, "..") {
@@ -208,7 +208,7 @@ func DiskListWithCM(cm *ConfigManager) http.HandlerFunc {
 	}
 }
 
-// DiskDetailsWithCM retourne les dÃ©tails d'un disque avec ConfigManager
+// DiskDetailsWithCM retourne les détails d'un disque avec ConfigManager
 func DiskDetailsWithCM(cm *ConfigManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cfg, pool, _ := cm.GetConfigPoolAndCache()

@@ -1,4 +1,4 @@
-﻿package crypto
+package crypto
 
 import (
 	"crypto/aes"
@@ -13,11 +13,11 @@ import (
 )
 
 var (
-	// ErrInvalidCiphertext indique que le texte chiffrÃ© est invalide
-	ErrInvalidCiphertext = errors.New("texte chiffrÃ© invalide")
+	// ErrInvalidCiphertext indique que le texte chiffré est invalide
+	ErrInvalidCiphertext = errors.New("texte chiffré invalide")
 
-	// ErrMasterKeyNotSet indique que la master key n'est pas configurÃ©e
-	ErrMasterKeyNotSet = errors.New("master key non configurÃ©e (variable d'environnement GO_MONITORING_MASTER_KEY)")
+	// ErrMasterKeyNotSet indique que la master key n'est pas configurée
+	ErrMasterKeyNotSet = errors.New("master key non configurée (variable d'environnement GO_MONITORING_MASTER_KEY)")
 )
 
 const (
@@ -28,8 +28,8 @@ const (
 	NonceSize = 12
 )
 
-// GetMasterKey rÃ©cupÃ¨re la master key depuis la variable d'environnement
-// et gÃ©nÃ¨re une clÃ© AES-256 (32 bytes) via SHA-256
+// GetMasterKey récupère la master key depuis la variable d'environnement
+// et génère une clé AES-256 (32 bytes) via SHA-256
 func GetMasterKey() ([]byte, error) {
 	masterKeyStr := os.Getenv(EnvMasterKey)
 	if masterKeyStr == "" {
@@ -42,35 +42,35 @@ func GetMasterKey() ([]byte, error) {
 }
 
 // Encrypt chiffre un texte en clair avec AES-256-GCM
-// Format du rÃ©sultat: nonce (12 bytes) + ciphertext + tag (16 bytes)
-// Le tout est encodÃ© en base64 pour le stockage
+// Format du résultat: nonce (12 bytes) + ciphertext + tag (16 bytes)
+// Le tout est encodé en base64 pour le stockage
 func Encrypt(plaintext string) (string, error) {
 	if plaintext == "" {
 		return "", nil
 	}
 
-	// RÃ©cupÃ©rer la master key
+	// Récupérer la master key
 	key, err := GetMasterKey()
 	if err != nil {
 		return "", err
 	}
 
-	// CrÃ©er le cipher AES
+	// Créer le cipher AES
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return "", fmt.Errorf("erreur crÃ©ation cipher: %w", err)
+		return "", fmt.Errorf("erreur création cipher: %w", err)
 	}
 
-	// CrÃ©er GCM (Galois/Counter Mode)
+	// Créer GCM (Galois/Counter Mode)
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
-		return "", fmt.Errorf("erreur crÃ©ation GCM: %w", err)
+		return "", fmt.Errorf("erreur création GCM: %w", err)
 	}
 
-	// GÃ©nÃ©rer un nonce alÃ©atoire
+	// Générer un nonce aléatoire
 	nonce := make([]byte, gcm.NonceSize())
 	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
-		return "", fmt.Errorf("erreur gÃ©nÃ©ration nonce: %w", err)
+		return "", fmt.Errorf("erreur génération nonce: %w", err)
 	}
 
 	// Chiffrer (GCM ajoute automatiquement le tag d'authentification)
@@ -80,37 +80,37 @@ func Encrypt(plaintext string) (string, error) {
 	return base64.StdEncoding.EncodeToString(ciphertext), nil
 }
 
-// Decrypt dÃ©chiffre un texte chiffrÃ© avec AES-256-GCM
+// Decrypt déchiffre un texte chiffré avec AES-256-GCM
 func Decrypt(ciphertext string) (string, error) {
 	if ciphertext == "" {
 		return "", nil
 	}
 
-	// RÃ©cupÃ©rer la master key
+	// Récupérer la master key
 	key, err := GetMasterKey()
 	if err != nil {
 		return "", err
 	}
 
-	// DÃ©coder le base64
+	// Décoder le base64
 	data, err := base64.StdEncoding.DecodeString(ciphertext)
 	if err != nil {
-		return "", fmt.Errorf("erreur dÃ©codage base64: %w", err)
+		return "", fmt.Errorf("erreur décodage base64: %w", err)
 	}
 
-	// CrÃ©er le cipher AES
+	// Créer le cipher AES
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return "", fmt.Errorf("erreur crÃ©ation cipher: %w", err)
+		return "", fmt.Errorf("erreur création cipher: %w", err)
 	}
 
-	// CrÃ©er GCM
+	// Créer GCM
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
-		return "", fmt.Errorf("erreur crÃ©ation GCM: %w", err)
+		return "", fmt.Errorf("erreur création GCM: %w", err)
 	}
 
-	// VÃ©rifier la taille minimale (nonce + tag)
+	// Vérifier la taille minimale (nonce + tag)
 	nonceSize := gcm.NonceSize()
 	if len(data) < nonceSize {
 		return "", ErrInvalidCiphertext
@@ -119,52 +119,52 @@ func Decrypt(ciphertext string) (string, error) {
 	// Extraire le nonce et le ciphertext
 	nonce, ciphertextBytes := data[:nonceSize], data[nonceSize:]
 
-	// DÃ©chiffrer et vÃ©rifier l'authenticitÃ©
+	// Déchiffrer et vérifier l'authenticité
 	plaintext, err := gcm.Open(nil, nonce, ciphertextBytes, nil)
 	if err != nil {
-		return "", fmt.Errorf("erreur dÃ©chiffrement: %w", err)
+		return "", fmt.Errorf("erreur déchiffrement: %w", err)
 	}
 
 	return string(plaintext), nil
 }
 
-// IsEncrypted vÃ©rifie si une chaÃ®ne semble Ãªtre chiffrÃ©e (base64 valide avec taille appropriÃ©e)
+// IsEncrypted vérifie si une chaîne semble être chiffrée (base64 valide avec taille appropriée)
 func IsEncrypted(text string) bool {
 	if text == "" {
 		return false
 	}
 
-	// Tenter de dÃ©coder le base64
+	// Tenter de décoder le base64
 	data, err := base64.StdEncoding.DecodeString(text)
 	if err != nil {
 		return false
 	}
 
-	// VÃ©rifier que la taille est cohÃ©rente (au minimum: nonce + quelques bytes + tag)
-	// Nonce: 12 bytes, Tag GCM: 16 bytes, minimum 1 byte de donnÃ©es
+	// Vérifier que la taille est cohérente (au minimum: nonce + quelques bytes + tag)
+	// Nonce: 12 bytes, Tag GCM: 16 bytes, minimum 1 byte de données
 	minSize := NonceSize + 1 + 16
 	return len(data) >= minSize
 }
 
-// GenerateMasterKey gÃ©nÃ¨re une master key alÃ©atoire sÃ©curisÃ©e (pour l'initialisation)
-// Cette fonction ne doit Ãªtre utilisÃ©e qu'une fois lors du premier dÃ©ploiement
+// GenerateMasterKey génère une master key aléatoire sécurisée (pour l'initialisation)
+// Cette fonction ne doit être utilisée qu'une fois lors du premier déploiement
 func GenerateMasterKey() (string, error) {
 	key := make([]byte, 32) // 256 bits
 	if _, err := io.ReadFull(rand.Reader, key); err != nil {
-		return "", fmt.Errorf("erreur gÃ©nÃ©ration master key: %w", err)
+		return "", fmt.Errorf("erreur génération master key: %w", err)
 	}
 
 	// Encoder en base64 pour faciliter le stockage dans une variable d'environnement
 	return base64.StdEncoding.EncodeToString(key), nil
 }
 
-// MigratePassword chiffre un password s'il n'est pas dÃ©jÃ  chiffrÃ©
+// MigratePassword chiffre un password s'il n'est pas déjà chiffré
 func MigratePassword(password string) (string, bool, error) {
 	if password == "" {
 		return "", false, nil
 	}
 
-	// Si dÃ©jÃ  chiffrÃ©, ne rien faire
+	// Si déjà chiffré, ne rien faire
 	if IsEncrypted(password) {
 		return password, false, nil
 	}

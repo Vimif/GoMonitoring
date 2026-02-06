@@ -1,4 +1,4 @@
-﻿package storage
+package storage
 
 import (
 	"database/sql"
@@ -8,7 +8,7 @@ import (
 
 // -- User Management Methods --
 
-// GetUser rÃ©cupÃ¨re un utilisateur par son username
+// GetUser récupère un utilisateur par son username
 func (db *DB) GetUser(username string) (*UserDB, error) {
 	query := `SELECT username, password_hash, role, is_active, created_at, failed_attempts, locked_until 
 			  FROM users WHERE username = ?`
@@ -30,7 +30,7 @@ func (db *DB) GetUser(username string) (*UserDB, error) {
 	return &u, nil
 }
 
-// GetAllUsers rÃ©cupÃ¨re tous les utilisateurs
+// GetAllUsers récupère tous les utilisateurs
 func (db *DB) GetAllUsers() ([]UserDB, error) {
 	query := `SELECT username, role, is_active, created_at, failed_attempts, locked_until FROM users ORDER BY username ASC`
 
@@ -57,7 +57,7 @@ func (db *DB) GetAllUsers() ([]UserDB, error) {
 	return users, nil
 }
 
-// CreateUser crÃ©e un nouvel utilisateur
+// CreateUser crée un nouvel utilisateur
 func (db *DB) CreateUser(username, passwordHash, role string) error {
 	query := `INSERT INTO users (username, password_hash, role, is_active, created_at) VALUES (?, ?, ?, 1, ?)`
 	_, err := db.Exec(query, username, passwordHash, role, time.Now())
@@ -80,31 +80,31 @@ func (db *DB) DeleteUser(username string) error {
 	return nil
 }
 
-// UpdatePassword met Ã  jour le mot de passe
+// UpdatePassword met à jour le mot de passe
 func (db *DB) UpdatePassword(username, passwordHash string) error {
 	_, err := db.Exec("UPDATE users SET password_hash = ? WHERE username = ?", passwordHash, username)
 	return err
 }
 
-// UpdateUserRole met Ã  jour le rÃ´le
+// UpdateUserRole met à jour le rôle
 func (db *DB) UpdateUserRole(username, role string) error {
 	if username == "admin" {
-		return errors.New("impossible de modifier le rÃ´le de l'admin principal")
+		return errors.New("impossible de modifier le rôle de l'admin principal")
 	}
 	_, err := db.Exec("UPDATE users SET role = ? WHERE username = ?", role, username)
 	return err
 }
 
-// ToggleUserStatus active ou dÃ©sactive un utilisateur
+// ToggleUserStatus active ou désactive un utilisateur
 func (db *DB) ToggleUserStatus(username string, active bool) error {
 	if username == "admin" && !active {
-		return errors.New("impossible de dÃ©sactiver l'admin")
+		return errors.New("impossible de désactiver l'admin")
 	}
 	_, err := db.Exec("UPDATE users SET is_active = ? WHERE username = ?", active, username)
 	return err
 }
 
-// RecordLoginAttempt gÃ¨re les tentatives de connexion (lockout)
+// RecordLoginAttempt gère les tentatives de connexion (lockout)
 // Retourne (locked, err)
 func (db *DB) RecordLoginAttempt(username string, success bool) (bool, error) {
 	if success {
@@ -147,7 +147,7 @@ func (db *DB) RecordLoginAttempt(username string, success bool) (bool, error) {
 	return !lockedUntil.IsZero(), err
 }
 
-// UnlockUser dÃ©verrouille un utilisateur manuellement
+// UnlockUser déverrouille un utilisateur manuellement
 func (db *DB) UnlockUser(username string) error {
 	_, err := db.Exec("UPDATE users SET failed_attempts = 0, locked_until = NULL WHERE username = ?", username)
 	return err

@@ -1,4 +1,4 @@
-﻿package handlers
+package handlers
 
 import (
 	"encoding/json"
@@ -12,7 +12,7 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-// TerminalMessage dÃ©finit le protocole de communication
+// TerminalMessage définit le protocole de communication
 type TerminalMessage struct {
 	Type string `json:"type"` // "input", "resize"
 	Data string `json:"data,omitempty"`
@@ -20,7 +20,7 @@ type TerminalMessage struct {
 	Rows int    `json:"rows,omitempty"`
 }
 
-// WebTerminalHandler gÃ¨re la connexion WebSocket pour le terminal
+// WebTerminalHandler gère la connexion WebSocket pour le terminal
 func WebTerminalHandler(cm *ConfigManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := r.PathValue("id")
@@ -37,7 +37,7 @@ func WebTerminalHandler(cm *ConfigManager) http.HandlerFunc {
 		}
 		defer ws.Close()
 
-		// RÃ©cupÃ©rer le client SSH
+		// Récupérer le client SSH
 		pool := cm.GetPool()
 		sshClientWrapper, err := pool.GetClient(id)
 		if err != nil {
@@ -45,10 +45,10 @@ func WebTerminalHandler(cm *ConfigManager) http.HandlerFunc {
 			return
 		}
 
-		// CrÃ©er la session SSH
+		// Créer la session SSH
 		session, err := sshClientWrapper.NewSession()
 		if err != nil {
-			ws.WriteMessage(websocket.TextMessage, []byte("Erreur: Impossible de crÃ©er la session SSH: "+err.Error()+"\r\n"))
+			ws.WriteMessage(websocket.TextMessage, []byte("Erreur: Impossible de créer la session SSH: "+err.Error()+"\r\n"))
 			return
 		}
 		defer session.Close()
@@ -102,7 +102,7 @@ func WebTerminalHandler(cm *ConfigManager) http.HandlerFunc {
 					}
 					break
 				}
-				// Envoyer les donnÃ©es brutes
+				// Envoyer les données brutes
 				if err := ws.WriteMessage(websocket.TextMessage, buf[:n]); err != nil {
 					log.Printf("Terminal: WS Write error: %v", err)
 					break

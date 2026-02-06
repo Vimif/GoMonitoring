@@ -1,4 +1,4 @@
-﻿/* =============================================
+/* =============================================
    GO MONITORING - CONSOLIDATED STYLESHEET
    =============================================
    Version: 3.0 - Professional UI Overhaul
@@ -1810,8 +1810,9 @@ h3 {
 }
 
 .kpi-value-sm {
-    font-size: 1.125rem;
+    font-size: 0.95rem;
     font-weight: 600;
+    white-space: nowrap;
 }
 
 .kpi-sub {
@@ -1897,9 +1898,8 @@ h3 {
 }
 
 .chart-card-header {
-    padding: var(--space-4) 1.25rem;
+    padding: var(--space-3) 1.25rem;
     border-bottom: 1px solid var(--border-color);
-    background: linear-gradient(to right, rgba(0, 0, 0, 0.01), rgba(0, 0, 0, 0.02));
 }
 
 .chart-title {
@@ -1916,13 +1916,13 @@ h3 {
 }
 
 .chart-card .chart-container {
-    height: 280px;
+    height: 220px;
     padding: var(--space-4);
     position: relative;
 }
 
 .chart-container {
-    height: 350px;
+    height: 250px;
     padding: var(--space-4);
     position: relative;
 }
@@ -2864,10 +2864,6 @@ h3 {
     .machine-grid {
         grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
     }
-
-    .kpi-grid {
-        grid-template-columns: repeat(4, 1fr);
-    }
 }
 
 /* Extra Large Desktop: >= 1920px */
@@ -2879,10 +2875,6 @@ h3 {
     .machine-grid {
         grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
         gap: var(--space-6);
-    }
-
-    .kpi-grid {
-        grid-template-columns: repeat(5, 1fr);
     }
 
     .stats-summary {
@@ -2904,10 +2896,6 @@ h3 {
 
     .machine-grid {
         grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
-    }
-
-    .kpi-grid {
-        grid-template-columns: repeat(6, 1fr);
     }
 }
 
@@ -4414,7 +4402,116 @@ h3 {
 }
 
 /* =============================================
-   31. PAGE CONTENT ANIMATION
+   31. DASHBOARD HEADER (Users/Audit pages)
+   ============================================= */
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin-bottom: var(--space-5);
+}
+
+.dashboard-header .header-left {
+    flex: 1;
+    min-width: 0;
+}
+
+.dashboard-header .header-title h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.dashboard-header .header-title .text-muted {
+    margin-top: var(--space-1);
+    font-size: 0.875rem;
+}
+
+.dashboard-header .header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex-shrink: 0;
+}
+
+/* Stat Icon Color Variants */
+.stat-icon-primary {
+    background: var(--primary-light);
+    color: var(--primary-color);
+}
+
+.stat-icon-success {
+    background: var(--success-light);
+    color: var(--success-color);
+}
+
+.stat-icon-warning {
+    background: var(--warning-light);
+    color: var(--warning-color);
+}
+
+.stat-icon-danger {
+    background: var(--danger-light);
+    color: var(--danger-color);
+}
+
+.stat-icon-muted {
+    background: rgba(100, 116, 139, 0.1);
+    color: #64748b;
+}
+
+/* Filter Group */
+.filter-group {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+}
+
+/* Card header icon styling */
+.card-header h3 svg {
+    margin-right: var(--space-2);
+    opacity: 0.7;
+    vertical-align: middle;
+}
+
+/* =============================================
+   32. LOG VIEWER
+   ============================================= */
+
+.logs-container {
+    padding: 1.5rem;
+}
+
+.logs-controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.log-lines-select {
+    width: 120px;
+}
+
+.log-viewer-content {
+    background: #1e1e1e;
+    color: #f0f0f0;
+    padding: 1rem;
+    border-radius: var(--radius-lg);
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    white-space: pre-wrap;
+    height: 400px;
+    overflow-y: auto;
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+/* =============================================
+   33. PAGE CONTENT ANIMATION
    ============================================= */
 
 .page-content {

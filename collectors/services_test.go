@@ -1,4 +1,4 @@
-﻿package collectors
+package collectors
 
 import (
 	"testing"
@@ -207,7 +207,7 @@ func TestServiceStatusEdgeCases(t *testing.T) {
 
 func TestServiceStatusSecurity(t *testing.T) {
 	t.Run("command injection attempt in service name", func(t *testing.T) {
-		// Les noms de services malicieux devraient Ãªtre bloquÃ©s par ValidateServiceName
+		// Les noms de services malicieux devraient être bloqués par ValidateServiceName
 		maliciousNames := []string{
 			"nginx; rm -rf /",
 			"mysql && cat /etc/passwd",
@@ -218,7 +218,7 @@ func TestServiceStatusSecurity(t *testing.T) {
 
 		for _, name := range maliciousNames {
 			t.Run(name, func(t *testing.T) {
-				// Ces noms devraient Ãªtre rejetÃ©s avant mÃªme d'atteindre CollectServices
+				// Ces noms devraient être rejetés avant même d'atteindre CollectServices
 				// La validation se fait dans collectors/services_control.go via security.ValidateServiceName
 				assert.Contains(t, name, []string{";", "&&", "|", "`", "$"}, "Malicious name should contain shell metacharacters")
 			})
@@ -300,7 +300,7 @@ func parseLinuxServiceOutput(output string, services []string) []models.ServiceS
 	return results
 }
 
-// Helper functions simplifiÃ©es pour les tests
+// Helper functions simplifiées pour les tests
 
 func splitLines(s string) []string {
 	var lines []string

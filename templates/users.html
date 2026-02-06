@@ -1,4 +1,4 @@
-﻿{{define "title"}}Utilisateurs - MonitorGo{{end}}
+{{define "title"}}Utilisateurs - MonitorGo{{end}}
 
 {{define "content"}}
 <!-- Dashboard Header -->
@@ -6,7 +6,7 @@
     <div class="header-left">
         <div class="header-title">
             <h1>Gestion des Utilisateurs</h1>
-            <p class="text-muted" style="margin-top: 0.25rem;">Administration des comptes et des accÃ¨s</p>
+            <p class="text-muted">Administration des comptes et des accès</p>
         </div>
     </div>
     <div class="header-actions">
@@ -26,7 +26,7 @@
 <!-- Stats Cards -->
 <div class="stats-grid stats-grid-4" id="users-stats">
     <div class="stat-card">
-        <div class="stat-icon" style="background: var(--primary-light); color: var(--primary-color);">
+        <div class="stat-icon stat-icon-primary">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -41,7 +41,7 @@
         </div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon" style="background: var(--success-light); color: var(--success-color);">
+        <div class="stat-icon stat-icon-success">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
@@ -54,7 +54,7 @@
         </div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon" style="background: var(--warning-light); color: var(--warning-color);">
+        <div class="stat-icon stat-icon-warning">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
@@ -66,7 +66,7 @@
         </div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon" style="background: var(--danger-light); color: var(--danger-color);">
+        <div class="stat-icon stat-icon-danger">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
@@ -75,18 +75,17 @@
         </div>
         <div class="stat-content">
             <span class="stat-value" id="stat-locked">-</span>
-            <span class="stat-label">VerrouillÃ©s</span>
+            <span class="stat-label">Verrouillés</span>
         </div>
     </div>
 </div>
 
 <!-- Users Table Card -->
-<div class="card" style="margin-top: 1.5rem;">
+<div class="card">
     <div class="card-header">
         <h3>
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                style="margin-right: 0.5rem; opacity: 0.7;">
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                 <circle cx="9" cy="7" r="4"></circle>
                 <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -95,11 +94,11 @@
             Liste des Utilisateurs
         </h3>
         <!-- Filtre rapide -->
-        <div class="filter-group" style="display: flex; gap: 0.5rem;">
+        <div class="filter-group">
             <button class="btn-filter active" data-filter="all" onclick="filterUsers('all')">Tous</button>
             <button class="btn-filter" data-filter="active" onclick="filterUsers('active')">Actifs</button>
             <button class="btn-filter" data-filter="admin" onclick="filterUsers('admin')">Admins</button>
-            <button class="btn-filter" data-filter="locked" onclick="filterUsers('locked')">VerrouillÃ©s</button>
+            <button class="btn-filter" data-filter="locked" onclick="filterUsers('locked')">Verrouillés</button>
         </div>
     </div>
 
@@ -108,7 +107,7 @@
             <thead>
                 <tr>
                     <th width="35%">Utilisateur</th>
-                    <th width="15%">RÃ´le</th>
+                    <th width="15%">Rôle</th>
                     <th width="15%">Statut</th>
                     <th width="35%" class="text-right">Actions</th>
                 </tr>
@@ -135,7 +134,7 @@
                 </svg>
                 Nouvel utilisateur
             </h2>
-            <button class="modal-close" onclick="closeAddUserModal()" aria-label="Fermer">Ã—</button>
+            <button class="modal-close" onclick="closeAddUserModal()" aria-label="Fermer">×</button>
         </div>
         <form id="add-user-form" onsubmit="submitAddUser(event)">
             <div class="form-group">
@@ -160,7 +159,7 @@
                     Mot de passe
                 </label>
                 <input type="password" id="new-password" name="password" class="form-control" required
-                    autocomplete="new-password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢">
+                    autocomplete="new-password" placeholder="••••••••">
             </div>
             <div class="form-group">
                 <label for="new-role">
@@ -168,7 +167,7 @@
                         stroke="currentColor" stroke-width="2" style="margin-right: 0.25rem; vertical-align: middle;">
                         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                     </svg>
-                    RÃ´le
+                    Rôle
                 </label>
                 <select id="new-role" name="role" class="form-select">
                     <option value="user">Utilisateur (Lecture seule)</option>
@@ -182,7 +181,7 @@
                         stroke="currentColor" stroke-width="2" style="margin-right: 0.25rem;">
                         <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
-                    CrÃ©er
+                    Créer
                 </button>
             </div>
         </form>
@@ -198,9 +197,9 @@
                     stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem; vertical-align: middle;">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                 </svg>
-                Changer le rÃ´le
+                Changer le rôle
             </h2>
-            <button class="modal-close" onclick="closeRoleModal()" aria-label="Fermer">Ã—</button>
+            <button class="modal-close" onclick="closeRoleModal()" aria-label="Fermer">×</button>
         </div>
         <form id="role-form" onsubmit="submitRoleChange(event)">
             <input type="hidden" id="role-username">
@@ -209,7 +208,7 @@
                 <div class="user-badge-display" id="role-username-display"></div>
             </div>
             <div class="form-group">
-                <label for="edit-role">Nouveau rÃ´le</label>
+                <label for="edit-role">Nouveau rôle</label>
                 <select id="edit-role" name="role" class="form-select">
                     <option value="user">Utilisateur</option>
                     <option value="admin">Administrateur</option>
@@ -235,7 +234,7 @@
                 </svg>
                 Changer le mot de passe
             </h2>
-            <button class="modal-close" onclick="closePasswordModal()" aria-label="Fermer">Ã—</button>
+            <button class="modal-close" onclick="closePasswordModal()" aria-label="Fermer">×</button>
         </div>
         <form id="password-form" onsubmit="submitPasswordChange(event)">
             <input type="hidden" id="pwd-username">
@@ -246,7 +245,7 @@
             <div class="form-group">
                 <label for="new-user-password">Nouveau mot de passe</label>
                 <input type="password" id="new-user-password" name="password" class="form-control" required
-                    placeholder="Minimum 8 caractÃ¨res recommandÃ©">
+                    placeholder="Minimum 8 caractères recommandé">
             </div>
             <div class="form-actions">
                 <button type="button" class="btn btn-secondary" onclick="closePasswordModal()">Annuler</button>
@@ -832,7 +831,7 @@
                             <circle cx="9" cy="7" r="4"></circle>
                             <line x1="17" y1="11" x2="23" y2="11"></line>
                         </svg>
-                        <div>Aucun utilisateur trouvÃ©</div>
+                        <div>Aucun utilisateur trouvé</div>
                     </td>
                 </tr>`;
             return;
@@ -841,7 +840,7 @@
         tableBody.innerHTML = users.map((user, index) => {
             let statusBadge = '';
             if (user.is_locked) {
-                statusBadge = `<span class="status-badge status-critical"><span class="dot red"></span>VerrouillÃ©</span>`;
+                statusBadge = `<span class="status-badge status-critical"><span class="dot red"></span>Verrouillé</span>`;
             } else if (user.is_active) {
                 statusBadge = `<span class="status-badge status-online"><span class="dot green"></span>Actif</span>`;
             } else {
@@ -880,12 +879,12 @@
                 <td>
                     <div class="cell-content" style="justify-content: flex-end; gap: 0.5rem;" role="group" aria-label="Actions utilisateur">
                         ${user.is_locked ? `
-                        <button class="btn-action btn-restart" title="DÃ©verrouiller" aria-label="DÃ©verrouiller ${user.username}" onclick="unlockUser('${user.username}')">
+                        <button class="btn-action btn-restart" title="Déverrouiller" aria-label="Déverrouiller ${user.username}" onclick="unlockUser('${user.username}')">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>
                         </button>` : ''}
                         
                         ${user.username !== 'admin' ? `
-                        <button class="btn-action ${user.is_active ? 'btn-stop' : 'btn-start'}" title="${user.is_active ? 'DÃ©sactiver' : 'Activer'}" aria-label="${user.is_active ? 'DÃ©sactiver' : 'Activer'} ${user.username}" onclick="toggleUserStatus('${user.username}', ${!user.is_active})">
+                        <button class="btn-action ${user.is_active ? 'btn-stop' : 'btn-start'}" title="${user.is_active ? 'Désactiver' : 'Activer'}" aria-label="${user.is_active ? 'Désactiver' : 'Activer'} ${user.username}" onclick="toggleUserStatus('${user.username}', ${!user.is_active})">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
                                 <line x1="12" y1="2" x2="12" y2="12"></line>
@@ -981,7 +980,7 @@
 
             closeAddUserModal();
             loadUsersV8();
-            await dialog.alert('Utilisateur crÃ©Ã© avec succÃ¨s', { title: 'SuccÃ¨s', type: 'success' });
+            await dialog.alert('Utilisateur créé avec succès', { title: 'Succès', type: 'success' });
         } catch (error) {
             await dialog.alert(error.message, { title: 'Erreur', type: 'error' });
         }
@@ -1055,7 +1054,7 @@
             }
 
             closePasswordModal();
-            await dialog.alert('Mot de passe mis Ã  jour avec succÃ¨s', { title: 'SuccÃ¨s', type: 'success' });
+            await dialog.alert('Mot de passe mis à jour avec succès', { title: 'Succès', type: 'success' });
         } catch (error) {
             await dialog.alert(error.message, { title: 'Erreur', type: 'error' });
         }
@@ -1063,10 +1062,10 @@
 
     // Toggle Status
     async function toggleUserStatus(username, active) {
-        const action = active ? 'activer' : 'dÃ©sactiver';
+        const action = active ? 'activer' : 'désactiver';
         const confirmed = await dialog.confirm(
             `Voulez-vous vraiment ${action} le compte ${username} ?`,
-            { title: active ? 'Activer le compte' : 'DÃ©sactiver le compte', type: 'question', confirmText: active ? 'Activer' : 'DÃ©sactiver', danger: !active }
+            { title: active ? 'Activer le compte' : 'Désactiver le compte', type: 'question', confirmText: active ? 'Activer' : 'Désactiver', danger: !active }
         );
         if (!confirmed) return;
 
@@ -1087,8 +1086,8 @@
     // Unlock User
     async function unlockUser(username) {
         const confirmed = await dialog.confirm(
-            `DÃ©verrouiller le compte ${username} ?`,
-            { title: 'DÃ©verrouiller le compte', type: 'question', confirmText: 'DÃ©verrouiller' }
+            `Déverrouiller le compte ${username} ?`,
+            { title: 'Déverrouiller le compte', type: 'question', confirmText: 'Déverrouiller' }
         );
         if (!confirmed) return;
 
@@ -1099,7 +1098,7 @@
 
             if (!response.ok) throw new Error(await response.text());
             loadUsersV8();
-            await dialog.alert('Compte dÃ©verrouillÃ© avec succÃ¨s', { title: 'SuccÃ¨s', type: 'success' });
+            await dialog.alert('Compte déverrouillé avec succès', { title: 'Succès', type: 'success' });
         } catch (error) {
             await dialog.alert(error.message, { title: 'Erreur', type: 'error' });
         }
@@ -1108,7 +1107,7 @@
     // Delete User
     async function deleteUser(username) {
         const confirmed = await dialog.confirm(
-            `ÃŠtes-vous sÃ»r de vouloir supprimer l'utilisateur ${username} ?\n\nCette action est irrÃ©versible.`,
+            `Êtes-vous sûr de vouloir supprimer l'utilisateur ${username} ?\n\nCette action est irréversible.`,
             { title: 'Supprimer l\'utilisateur', type: 'warning', confirmText: 'Supprimer', danger: true }
         );
         if (!confirmed) return;

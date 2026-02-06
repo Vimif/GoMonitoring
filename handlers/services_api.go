@@ -1,4 +1,4 @@
-﻿package handlers
+package handlers
 
 import (
 	"encoding/json"
@@ -10,20 +10,20 @@ import (
 	"go-monitoring/storage"
 )
 
-// HandleServiceAction gÃ¨re les actions sur les services (start, stop, restart)
+// HandleServiceAction gère les actions sur les services (start, stop, restart)
 func HandleServiceAction(cm *ConfigManager, db *storage.DB, am *auth.AuthManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// VÃ©rifier mÃ©thode POST
+		// Vérifier méthode POST
 		if r.Method != http.MethodPost {
-			http.Error(w, "MÃ©thode non autorisÃ©e", http.StatusMethodNotAllowed)
+			http.Error(w, "Méthode non autorisée", http.StatusMethodNotAllowed)
 			return
 		}
 
-		// VÃ©rifier Admin
+		// Vérifier Admin
 		role := am.GetUserRole(r)
 		user := am.GetUsername(r)
 		if role != "admin" {
-			http.Error(w, "AccÃ¨s refusÃ©", http.StatusForbidden)
+			http.Error(w, "Accès refusé", http.StatusForbidden)
 			return
 		}
 
@@ -32,7 +32,7 @@ func HandleServiceAction(cm *ConfigManager, db *storage.DB, am *auth.AuthManager
 		action := r.PathValue("action")
 
 		if machineID == "" || serviceName == "" || action == "" {
-			http.Error(w, "ParamÃ¨tres manquants", http.StatusBadRequest)
+			http.Error(w, "Paramètres manquants", http.StatusBadRequest)
 			return
 		}
 
@@ -43,7 +43,7 @@ func HandleServiceAction(cm *ConfigManager, db *storage.DB, am *auth.AuthManager
 			return
 		}
 
-		// VÃ©rifier si le service est monitorÃ© sur cette machine
+		// Vérifier si le service est monitoré sur cette machine
 		serviceAllowed := false
 		for _, s := range machineConfig.Services {
 			if s == serviceName {
@@ -53,7 +53,7 @@ func HandleServiceAction(cm *ConfigManager, db *storage.DB, am *auth.AuthManager
 		}
 
 		if !serviceAllowed {
-			http.Error(w, "Service non gÃ©rÃ© par le monitoring", http.StatusBadRequest)
+			http.Error(w, "Service non géré par le monitoring", http.StatusBadRequest)
 			return
 		}
 
@@ -64,16 +64,16 @@ func HandleServiceAction(cm *ConfigManager, db *storage.DB, am *auth.AuthManager
 			return
 		}
 
-		// DÃ©terminer l'OS (simple check, ou utiliser le cache si on avait accÃ¨s, ici on check la config)
+		// Déterminer l'OS (simple check, ou utiliser le cache si on avait accès, ici on check la config)
 		osType := machineConfig.OS
 		if osType == "" {
 			osType = "linux" // Default
 		}
 
-		// ExÃ©cuter l'action
+		// Exécuter l'action
 		err = collectors.ServiceAction(client, serviceName, action, osType)
 
-		// Logger l'action dans l'audit, succÃ¨s ou Ã©chec
+		// Logger l'action dans l'audit, succès ou échec
 		status := "SUCCESS"
 		details := ""
 		if err != nil {
@@ -91,18 +91,18 @@ func HandleServiceAction(cm *ConfigManager, db *storage.DB, am *auth.AuthManager
 		)
 
 		if err != nil {
-			http.Error(w, "Erreur exÃ©cution: "+err.Error(), http.StatusInternalServerError)
+			http.Error(w, "Erreur exécution: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		// RÃ©ponse JSON succÃ¨s
+		// Réponse JSON succès
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]string{
 			"status":  "success",
-			"message": "Action " + action + " effectuÃ©e sur " + serviceName,
+			"message": "Action " + action + " effectuée sur " + serviceName,
 		})
 
-		// Optionnel: rafraÃ®chir le cache immÃ©diatement ou attendre le prochain cycle
-		// Pour l'instant on laisse le cycle de monitoring mettre Ã  jour le statut
+		// Optionnel: rafraîchir le cache immédiatement ou attendre le prochain cycle
+		// Pour l'instant on laisse le cycle de monitoring mettre à jour le statut
 	}
 }

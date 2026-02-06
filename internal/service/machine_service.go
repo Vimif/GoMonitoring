@@ -1,4 +1,4 @@
-﻿package service
+package service
 
 import (
 	"fmt"
@@ -8,13 +8,13 @@ import (
 	"go-monitoring/ssh"
 )
 
-// MachineService implÃ©mente la logique mÃ©tier pour les machines
+// MachineService implémente la logique métier pour les machines
 type MachineService struct {
 	repo    interfaces.MachineRepository
 	sshPool *ssh.Pool
 }
 
-// NewMachineService crÃ©e un nouveau service de gestion des machines
+// NewMachineService crée un nouveau service de gestion des machines
 func NewMachineService(repo interfaces.MachineRepository, sshPool *ssh.Pool) *MachineService {
 	return &MachineService{
 		repo:    repo,
@@ -32,9 +32,9 @@ func (s *MachineService) GetByID(id string) (*domain.Machine, error) {
 	return s.repo.GetByID(id)
 }
 
-// Create crÃ©e une nouvelle machine
+// Create crée une nouvelle machine
 func (s *MachineService) Create(machine *domain.Machine) error {
-	// Validation mÃ©tier
+	// Validation métier
 	if machine.ID == "" {
 		return fmt.Errorf("machine ID is required")
 	}
@@ -55,12 +55,12 @@ func (s *MachineService) Create(machine *domain.Machine) error {
 		return fmt.Errorf("machine user is required")
 	}
 
-	// VÃ©rifier si la machine existe dÃ©jÃ 
+	// Vérifier si la machine existe déjà
 	if s.repo.Exists(machine.ID) {
 		return fmt.Errorf("machine already exists: %s", machine.ID)
 	}
 
-	// DÃ©finir les valeurs par dÃ©faut
+	// Définir les valeurs par défaut
 	if machine.Port == 0 {
 		machine.Port = 22
 	}
@@ -73,23 +73,23 @@ func (s *MachineService) Create(machine *domain.Machine) error {
 		machine.OSType = "linux"
 	}
 
-	// CrÃ©er la machine
+	// Créer la machine
 	return s.repo.Create(machine)
 }
 
-// Update met Ã  jour une machine
+// Update met à jour une machine
 func (s *MachineService) Update(machine *domain.Machine) error {
-	// Validation mÃ©tier
+	// Validation métier
 	if machine.ID == "" {
 		return fmt.Errorf("machine ID is required")
 	}
 
-	// VÃ©rifier que la machine existe
+	// Vérifier que la machine existe
 	if !s.repo.Exists(machine.ID) {
 		return fmt.Errorf("machine not found: %s", machine.ID)
 	}
 
-	// Mettre Ã  jour
+	// Mettre à jour
 	return s.repo.Update(machine)
 }
 
@@ -99,7 +99,7 @@ func (s *MachineService) Delete(id string) error {
 		return fmt.Errorf("machine ID is required")
 	}
 
-	// VÃ©rifier que la machine existe
+	// Vérifier que la machine existe
 	if !s.repo.Exists(id) {
 		return fmt.Errorf("machine not found: %s", id)
 	}
@@ -108,9 +108,9 @@ func (s *MachineService) Delete(id string) error {
 	return s.repo.Delete(id)
 }
 
-// TestConnection teste la connexion SSH Ã  une machine
+// TestConnection teste la connexion SSH à une machine
 func (s *MachineService) TestConnection(machineID string) error {
-	// RÃ©cupÃ©rer le client SSH depuis le pool
+	// Récupérer le client SSH depuis le pool
 	client, err := s.sshPool.GetClient(machineID)
 	if err != nil {
 		return fmt.Errorf("failed to get SSH client: %w", err)
@@ -121,7 +121,7 @@ func (s *MachineService) TestConnection(machineID string) error {
 		return fmt.Errorf("connection failed: %w", err)
 	}
 
-	// ExÃ©cuter une commande simple pour vÃ©rifier
+	// Exécuter une commande simple pour vérifier
 	_, err = client.Execute("echo test")
 	if err != nil {
 		return fmt.Errorf("command execution failed: %w", err)

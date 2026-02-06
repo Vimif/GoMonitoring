@@ -1,4 +1,4 @@
-﻿package handlers
+package handlers
 
 import (
 	"encoding/json"
@@ -12,7 +12,7 @@ import (
 	"go-monitoring/ssh"
 )
 
-// ConfigManager gÃ¨re la configuration avec synchronisation
+// ConfigManager gère la configuration avec synchronisation
 type ConfigManager struct {
 	cfg         *config.Config
 	pool        *ssh.Pool
@@ -22,7 +22,7 @@ type ConfigManager struct {
 	mu          sync.RWMutex
 }
 
-// NewConfigManager crÃ©e un nouveau gestionnaire de configuration
+// NewConfigManager crée un nouveau gestionnaire de configuration
 func NewConfigManager(cfg *config.Config, pool *ssh.Pool, cache *cache.MetricsCache, path string) *ConfigManager {
 	return &ConfigManager{
 		cfg:   cfg,
@@ -41,8 +41,8 @@ func (cm *ConfigManager) SetUserManager(um *auth.UserManager) {
 
 // SaveUsers synchronise et sauvegarde la configuration des utilisateurs
 func (cm *ConfigManager) SaveUsers() error {
-	// Les utilisateurs sont maintenant gÃ©rÃ©s en base de donnÃ©es SQLite.
-	// On ne sauvegarde plus dans le fichier config pour Ã©viter les conflits.
+	// Les utilisateurs sont maintenant gérés en base de données SQLite.
+	// On ne sauvegarde plus dans le fichier config pour éviter les conflits.
 	return nil
 }
 
@@ -67,7 +67,7 @@ func (cm *ConfigManager) GetCache() *cache.MetricsCache {
 	return cm.cache
 }
 
-// GetConfigPoolAndCache retourne tout le nÃ©cessaire de maniÃ¨re atomique
+// GetConfigPoolAndCache retourne tout le nécessaire de manière atomique
 func (cm *ConfigManager) GetConfigPoolAndCache() (*config.Config, *ssh.Pool, *cache.MetricsCache) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -81,7 +81,7 @@ func AddMachine(cm *ConfigManager) http.HandlerFunc {
 		var machine config.MachineConfig
 		if err := json.NewDecoder(r.Body).Decode(&machine); err != nil {
 			log.Printf("API Error: JSON Decode failed: %v", err)
-			jsonError(w, "DonnÃ©es invalides: "+err.Error(), http.StatusBadRequest)
+			jsonError(w, "Données invalides: "+err.Error(), http.StatusBadRequest)
 			return
 		}
 
@@ -95,7 +95,7 @@ func AddMachine(cm *ConfigManager) http.HandlerFunc {
 			return
 		}
 		if machine.Host == "" {
-			jsonError(w, "L'hÃ´te est requis", http.StatusBadRequest)
+			jsonError(w, "L'hôte est requis", http.StatusBadRequest)
 			return
 		}
 		if machine.User == "" {
@@ -103,7 +103,7 @@ func AddMachine(cm *ConfigManager) http.HandlerFunc {
 			return
 		}
 		if machine.KeyPath == "" && machine.Password == "" {
-			jsonError(w, "Une clÃ© SSH ou un mot de passe est requis", http.StatusBadRequest)
+			jsonError(w, "Une clé SSH ou un mot de passe est requis", http.StatusBadRequest)
 			return
 		}
 
@@ -124,20 +124,20 @@ func AddMachine(cm *ConfigManager) http.HandlerFunc {
 			return
 		}
 
-		// RecrÃ©er le pool SSH pour inclure la nouvelle machine
+		// Recréer le pool SSH pour inclure la nouvelle machine
 		cm.pool = ssh.NewPool(cm.cfg.Machines, cm.cfg.Settings.SSHTimeout)
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"success": true,
-			"message": "Machine ajoutÃ©e avec succÃ¨s",
+			"message": "Machine ajoutée avec succès",
 			"machine": machine,
 		})
 	}
 }
 
-// UpdateMachine met Ã  jour une machine via l'API
+// UpdateMachine met à jour une machine via l'API
 func UpdateMachine(cm *ConfigManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		machineID := r.PathValue("id")
@@ -149,23 +149,23 @@ func UpdateMachine(cm *ConfigManager) http.HandlerFunc {
 		var machine config.MachineConfig
 		if err := json.NewDecoder(r.Body).Decode(&machine); err != nil {
 			log.Printf("API Error: JSON Decode failed: %v", err)
-			jsonError(w, "DonnÃ©es invalides: "+err.Error(), http.StatusBadRequest)
+			jsonError(w, "Données invalides: "+err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		// L'ID dans l'URL doit correspondre (ou on l'Ã©crase pour Ãªtre sÃ»r)
+		// L'ID dans l'URL doit correspondre (ou on l'écrase pour être sûr)
 		machine.ID = machineID
 
 		// Validation minimale
 		if machine.Name == "" || machine.Host == "" || machine.User == "" {
-			jsonError(w, "Nom, HÃ´te et Utilisateur requis", http.StatusBadRequest)
+			jsonError(w, "Nom, Hôte et Utilisateur requis", http.StatusBadRequest)
 			return
 		}
 
 		cm.mu.Lock()
 		defer cm.mu.Unlock()
 
-		// Mise Ã  jour
+		// Mise à jour
 		if err := cm.cfg.UpdateMachine(machine); err != nil {
 			jsonError(w, err.Error(), http.StatusNotFound)
 			return
@@ -183,7 +183,7 @@ func UpdateMachine(cm *ConfigManager) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"success": true,
-			"message": "Machine mise Ã  jour avec succÃ¨s",
+			"message": "Machine mise à jour avec succès",
 			"machine": machine,
 		})
 	}
@@ -213,18 +213,18 @@ func RemoveMachine(cm *ConfigManager) http.HandlerFunc {
 			return
 		}
 
-		// RecrÃ©er le pool SSH sans la machine supprimÃ©e
+		// Recréer le pool SSH sans la machine supprimée
 		cm.pool = ssh.NewPool(cm.cfg.Machines, cm.cfg.Settings.SSHTimeout)
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"success": true,
-			"message": "Machine supprimÃ©e avec succÃ¨s",
+			"message": "Machine supprimée avec succès",
 		})
 	}
 }
 
-// ListMachines retourne la liste des machines configurÃ©es
+// ListMachines retourne la liste des machines configurées
 func ListMachines(cm *ConfigManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cm.mu.RLock()

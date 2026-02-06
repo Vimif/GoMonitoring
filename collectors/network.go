@@ -1,4 +1,4 @@
-﻿package collectors
+package collectors
 
 import (
 	"strconv"
@@ -8,8 +8,8 @@ import (
 	"go-monitoring/ssh"
 )
 
-// CollectNetworkStats collecte les statistiques rÃ©seau via SSH
-// osType: "linux", "windows" ou vide (dÃ©faut Linux)
+// CollectNetworkStats collecte les statistiques réseau via SSH
+// osType: "linux", "windows" ou vide (défaut Linux)
 func CollectNetworkStats(client *ssh.Client, osType string) (models.NetworkStats, error) {
 	if osType == "windows" {
 		return collectNetworkStatsWindows(client)
@@ -17,7 +17,7 @@ func CollectNetworkStats(client *ssh.Client, osType string) (models.NetworkStats
 	return collectNetworkStatsLinux(client)
 }
 
-// collectNetworkStatsLinux collecte les stats rÃ©seau sur Linux
+// collectNetworkStatsLinux collecte les stats réseau sur Linux
 func collectNetworkStatsLinux(client *ssh.Client) (models.NetworkStats, error) {
 	var stats models.NetworkStats
 
@@ -30,7 +30,7 @@ func collectNetworkStatsLinux(client *ssh.Client) (models.NetworkStats, error) {
 
 	lines := strings.Split(strings.TrimSpace(output), "\n")
 	for _, line := range lines {
-		// Ignorer les en-tÃªtes
+		// Ignorer les en-têtes
 		if strings.Contains(line, "|") {
 			continue
 		}
@@ -59,7 +59,7 @@ func collectNetworkStatsLinux(client *ssh.Client) (models.NetworkStats, error) {
 	return stats, nil
 }
 
-// collectNetworkStatsWindows collecte les stats rÃ©seau sur Windows via PowerShell
+// collectNetworkStatsWindows collecte les stats réseau sur Windows via PowerShell
 func collectNetworkStatsWindows(client *ssh.Client) (models.NetworkStats, error) {
 	var stats models.NetworkStats
 

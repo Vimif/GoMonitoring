@@ -1,4 +1,4 @@
-﻿package collectors
+package collectors
 
 import (
 	"regexp"
@@ -10,7 +10,7 @@ import (
 )
 
 // CollectCPUInfo collecte les informations CPU via SSH
-// osType: "linux", "windows" ou vide (dÃ©faut Linux)
+// osType: "linux", "windows" ou vide (défaut Linux)
 func CollectCPUInfo(client *ssh.Client, osType string) (models.CPUInfo, error) {
 	if osType == "windows" {
 		return collectCPUInfoWindows(client)
@@ -22,7 +22,7 @@ func CollectCPUInfo(client *ssh.Client, osType string) (models.CPUInfo, error) {
 func collectCPUInfoLinux(client *ssh.Client) (models.CPUInfo, error) {
 	var info models.CPUInfo
 
-	// ModÃ¨le du CPU
+	// Modèle du CPU
 	model, err := client.Execute("cat /proc/cpuinfo | grep 'model name' | head -1 | cut -d':' -f2")
 	if err == nil {
 		info.Model = strings.TrimSpace(model)
@@ -45,7 +45,7 @@ func collectCPUInfoLinux(client *ssh.Client) (models.CPUInfo, error) {
 		info.Threads = info.Cores
 	}
 
-	// FrÃ©quence MHz
+	// Fréquence MHz
 	mhz, err := client.Execute("cat /proc/cpuinfo | grep 'cpu MHz' | head -1 | cut -d':' -f2")
 	if err == nil {
 		f, _ := strconv.ParseFloat(strings.TrimSpace(mhz), 64)
@@ -65,7 +65,7 @@ func collectCPUInfoLinux(client *ssh.Client) (models.CPUInfo, error) {
 func collectCPUInfoWindows(client *ssh.Client) (models.CPUInfo, error) {
 	var info models.CPUInfo
 
-	// ModÃ¨le du CPU
+	// Modèle du CPU
 	model, err := client.Execute(`powershell -Command "(Get-CimInstance Win32_Processor).Name"`)
 	if err == nil {
 		info.Model = strings.TrimSpace(model)
@@ -88,7 +88,7 @@ func collectCPUInfoWindows(client *ssh.Client) (models.CPUInfo, error) {
 		info.Threads = info.Cores
 	}
 
-	// FrÃ©quence MHz
+	// Fréquence MHz
 	mhz, err := client.Execute(`powershell -Command "(Get-CimInstance Win32_Processor).MaxClockSpeed"`)
 	if err == nil {
 		f, _ := strconv.ParseFloat(strings.TrimSpace(mhz), 64)

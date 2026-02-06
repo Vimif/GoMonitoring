@@ -1,5 +1,5 @@
-﻿document.addEventListener('DOMContentLoaded', () => {
-    // Charger le thÃ¨me sauvegardÃ© ou utiliser light par dÃ©faut
+document.addEventListener('DOMContentLoaded', () => {
+    // Charger le thème sauvegardé ou utiliser light par défaut
     const savedTheme = localStorage.getItem('theme') || 'light';
     setTheme(savedTheme);
 
@@ -17,9 +17,9 @@ function setTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
 
-    // Mettre Ã  jour l'icÃ´ne
+    // Mettre à jour l'icône
     const icon = document.querySelector('#theme-toggle .icon');
     if (icon) {
-        icon.textContent = theme === 'dark' ? 'â˜€ï¸' : 'ðŸŒ™';
+        icon.textContent = theme === 'dark' ? '☀ï¸' : '🌙';
     }
 }

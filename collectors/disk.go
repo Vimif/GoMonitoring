@@ -1,4 +1,4 @@
-﻿package collectors
+package collectors
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ import (
 )
 
 // CollectDiskInfo collecte les informations des disques via SSH
-// osType: "linux", "windows" ou vide (dÃ©faut Linux)
+// osType: "linux", "windows" ou vide (défaut Linux)
 func CollectDiskInfo(client *ssh.Client, osType string) ([]models.DiskInfo, error) {
 	if osType == "windows" {
 		return collectDiskInfoWindows(client)
@@ -39,7 +39,7 @@ func collectDiskInfoLinux(client *ssh.Client) ([]models.DiskInfo, error) {
 			continue
 		}
 
-		// Ignorer les systÃ¨mes de fichiers virtuels
+		// Ignorer les systèmes de fichiers virtuels
 		fsType := fields[1]
 		if isVirtualFS(fsType) {
 			continue
@@ -60,7 +60,7 @@ func collectDiskInfoLinux(client *ssh.Client) ([]models.DiskInfo, error) {
 			disk.UsedPercent = float64(disk.Used) / float64(disk.Total) * 100
 		}
 
-		// DÃ©tecter le type de disque (SSD/HDD)
+		// Détecter le type de disque (SSD/HDD)
 		disk.DriveType = detectDriveType(client, disk.Device)
 
 		disks = append(disks, disk)
@@ -107,7 +107,7 @@ func collectDiskInfoWindows(client *ssh.Client) ([]models.DiskInfo, error) {
 			disk.UsedPercent = float64(disk.Used) / float64(disk.Total) * 100
 		}
 
-		// DÃ©tecter SSD/HDD via MediaType
+		// Détecter SSD/HDD via MediaType
 		if len(parts) >= 4 && parts[3] != "" {
 			mediaType := strings.ToLower(parts[3])
 			if strings.Contains(mediaType, "ssd") || strings.Contains(mediaType, "solid") {
@@ -123,7 +123,7 @@ func collectDiskInfoWindows(client *ssh.Client) ([]models.DiskInfo, error) {
 	return disks, nil
 }
 
-// isVirtualFS vÃ©rifie si le systÃ¨me de fichiers est virtuel
+// isVirtualFS vérifie si le système de fichiers est virtuel
 func isVirtualFS(fsType string) bool {
 	virtualFS := []string{
 		"tmpfs", "devtmpfs", "sysfs", "proc", "devpts",
@@ -140,14 +140,14 @@ func isVirtualFS(fsType string) bool {
 	return false
 }
 
-// detectDriveType dÃ©termine si le disque est SSD ou HDD
+// detectDriveType détermine si le disque est SSD ou HDD
 func detectDriveType(client *ssh.Client, device string) string {
 	// Extraire le nom du disque sans partition (ex: /dev/sda1 -> sda)
 	baseName := filepath.Base(device)
-	// Enlever les chiffres Ã  la fin pour obtenir le disque de base
+	// Enlever les chiffres à la fin pour obtenir le disque de base
 	diskName := strings.TrimRight(baseName, "0123456789")
 
-	// VÃ©rifier via /sys/block/XXX/queue/rotational
+	// Vérifier via /sys/block/XXX/queue/rotational
 	// 0 = SSD, 1 = HDD
 	cmd := fmt.Sprintf("cat /sys/block/%s/queue/rotational 2>/dev/null", diskName)
 	output, err := client.Execute(cmd)
@@ -160,7 +160,7 @@ func detectDriveType(client *ssh.Client, device string) string {
 		}
 	}
 
-	// VÃ©rifier avec lsblk si disponible
+	// Vérifier avec lsblk si disponible
 	cmd = fmt.Sprintf("lsblk -d -o rota /dev/%s 2>/dev/null | tail -1", diskName)
 	output, err = client.Execute(cmd)
 	if err == nil {
@@ -175,9 +175,9 @@ func detectDriveType(client *ssh.Client, device string) string {
 	return "Unknown"
 }
 
-// BrowseDirectory liste le contenu d'un rÃ©pertoire via SSH
+// BrowseDirectory liste le contenu d'un répertoire via SSH
 func BrowseDirectory(client *ssh.Client, path string) (*models.DirectoryListing, error) {
-	// SÃ‰CURITÃ‰: Valider le chemin pour Ã©viter path traversal et injection de commandes
+	// SÉCURITÉ: Valider le chemin pour éviter path traversal et injection de commandes
 	if err := security.ValidatePath(path); err != nil {
 		return nil, fmt.Errorf("chemin invalide: %w", err)
 	}
@@ -189,16 +189,16 @@ func BrowseDirectory(client *ssh.Client, path string) (*models.DirectoryListing,
 		Parent: filepath.Dir(cleanPath),
 	}
 
-	// Utiliser ls -la pour obtenir les dÃ©tails
+	// Utiliser ls -la pour obtenir les détails
 	cmd := fmt.Sprintf("ls -la %q 2>/dev/null", cleanPath)
 	output, err := client.Execute(cmd)
 	if err != nil {
-		return nil, fmt.Errorf("erreur lecture rÃ©pertoire: %w", err)
+		return nil, fmt.Errorf("erreur lecture répertoire: %w", err)
 	}
 
 	lines := strings.Split(strings.TrimSpace(output), "\n")
 	for i, line := range lines {
-		// Ignorer la premiÃ¨re ligne (total)
+		// Ignorer la première ligne (total)
 		if i == 0 && strings.HasPrefix(line, "total") {
 			continue
 		}
@@ -249,8 +249,8 @@ func parseLsLine(line, basePath string) *models.DirectoryEntry {
 	return entry
 }
 
-// GetDiskDetails retourne les dÃ©tails d'un disque spÃ©cifique
-// osType: "linux", "windows" ou vide (dÃ©faut Linux)
+// GetDiskDetails retourne les détails d'un disque spécifique
+// osType: "linux", "windows" ou vide (défaut Linux)
 func GetDiskDetails(client *ssh.Client, mountPoint string, osType string) (*models.DiskInfo, []models.Partition, error) {
 	// Obtenir les infos du disque
 	disks, err := CollectDiskInfo(client, osType)
@@ -267,7 +267,7 @@ func GetDiskDetails(client *ssh.Client, mountPoint string, osType string) (*mode
 	}
 
 	if targetDisk == nil {
-		return nil, nil, fmt.Errorf("disque non trouvÃ©: %s", mountPoint)
+		return nil, nil, fmt.Errorf("disque non trouvé: %s", mountPoint)
 	}
 
 	// Obtenir les partitions via lsblk
@@ -276,7 +276,7 @@ func GetDiskDetails(client *ssh.Client, mountPoint string, osType string) (*mode
 	return targetDisk, partitions, nil
 }
 
-// getPartitions rÃ©cupÃ¨re les partitions d'un disque
+// getPartitions récupère les partitions d'un disque
 func getPartitions(client *ssh.Client, device string) []models.Partition {
 	var partitions []models.Partition
 
@@ -297,8 +297,8 @@ func getPartitions(client *ssh.Client, device string) []models.Partition {
 			continue
 		}
 
-		// Nettoyer le nom (enlever les caractÃ¨res de dessin)
-		name := strings.Trim(fields[0], "â”œâ”€â””â”‚")
+		// Nettoyer le nom (enlever les caractères de dessin)
+		name := strings.Trim(fields[0], "├─└│")
 
 		partition := models.Partition{
 			Name: name,
@@ -325,7 +325,7 @@ func getPartitions(client *ssh.Client, device string) []models.Partition {
 	return partitions
 }
 
-// getMountOptions rÃ©cupÃ¨re les options de montage d'un point de montage
+// getMountOptions récupère les options de montage d'un point de montage
 func getMountOptions(client *ssh.Client, mountPoint string) []string {
 	cmd := fmt.Sprintf("findmnt -o OPTIONS %q 2>/dev/null | tail -1", mountPoint)
 	output, err := client.Execute(cmd)
@@ -342,7 +342,7 @@ func getMountOptions(client *ssh.Client, mountPoint string) []string {
 }
 
 // CollectDiskIOStats collecte les statistiques d'E/S disque via SSH
-// osType: "linux", "windows" ou vide (dÃ©faut Linux)
+// osType: "linux", "windows" ou vide (défaut Linux)
 func CollectDiskIOStats(client *ssh.Client, osType string) (models.DiskStats, error) {
 	if osType == "windows" {
 		return collectDiskIOStatsWindows(client)

@@ -1,9 +1,9 @@
-﻿// Navigateur de fichiers interactif
+// Navigateur de fichiers interactif
 
 let currentPath = '/';
 let pathHistory = [];
 
-// Fonction appelÃ©e lors du clic sur un disque
+// Fonction appelée lors du clic sur un disque
 function browseDisk(mountPoint) {
     currentPath = mountPoint;
     pathHistory = [mountPoint];
@@ -14,7 +14,7 @@ function browseDisk(mountPoint) {
     document.getElementById('file-browser-section').scrollIntoView({ behavior: 'smooth' });
 }
 
-// Charge et affiche le contenu d'un rÃ©pertoire
+// Charge et affiche le contenu d'un répertoire
 async function loadDirectory(path) {
     const fileList = document.getElementById('file-list');
     const currentPathSpan = document.getElementById('current-path');
@@ -24,7 +24,7 @@ async function loadDirectory(path) {
     fileList.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
     currentPathSpan.textContent = path;
 
-    // Activer/dÃ©sactiver le bouton retour
+    // Activer/désactiver le bouton retour
     btnBack.disabled = pathHistory.length <= 1;
 
     try {
@@ -48,20 +48,20 @@ async function loadDirectory(path) {
     }
 }
 
-// Rend le contenu du rÃ©pertoire
+// Rend le contenu du répertoire
 function renderDirectory(listing) {
     const fileList = document.getElementById('file-list');
 
     if (!listing.Entries || listing.Entries.length === 0) {
         fileList.innerHTML = `
             <div class="file-entry" style="justify-content: center; color: #636e72;">
-                RÃ©pertoire vide
+                Répertoire vide
             </div>
         `;
         return;
     }
 
-    // Trier: dossiers d'abord, puis fichiers, alphabÃ©tiquement
+    // Trier: dossiers d'abord, puis fichiers, alphabétiquement
     const entries = [...listing.Entries].sort((a, b) => {
         if (a.IsDir && !b.IsDir) return -1;
         if (!a.IsDir && b.IsDir) return 1;
@@ -91,13 +91,13 @@ function renderDirectory(listing) {
     fileList.innerHTML = html;
 }
 
-// Navigation vers un sous-rÃ©pertoire
+// Navigation vers un sous-répertoire
 function navigateTo(path) {
     pathHistory.push(path);
     loadDirectory(path);
 }
 
-// Retour au rÃ©pertoire parent
+// Retour au répertoire parent
 function goBack() {
     if (pathHistory.length > 1) {
         pathHistory.pop();
@@ -115,37 +115,37 @@ function formatSize(bytes) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
 }
 
-// Retourne une icÃ´ne basÃ©e sur l'extension du fichier
+// Retourne une icône basée sur l'extension du fichier
 function getFileIcon(filename) {
     const ext = filename.split('.').pop().toLowerCase();
     const icons = {
         // Documents
-        'txt': 'ðŸ“„', 'doc': 'ðŸ“„', 'docx': 'ðŸ“„', 'pdf': 'ðŸ“•',
-        'xls': 'ðŸ“Š', 'xlsx': 'ðŸ“Š', 'csv': 'ðŸ“Š',
-        'ppt': 'ðŸ“™', 'pptx': 'ðŸ“™',
+        'txt': '📄', 'doc': '📄', 'docx': '📄', 'pdf': '📕',
+        'xls': '📊', 'xlsx': '📊', 'csv': '📊',
+        'ppt': '📙', 'pptx': '📙',
         // Code
-        'js': 'ðŸ“œ', 'ts': 'ðŸ“œ', 'py': 'ðŸ', 'go': 'ðŸ”·',
-        'java': 'â˜•', 'c': 'ðŸ“', 'cpp': 'ðŸ“', 'h': 'ðŸ“',
-        'html': 'ðŸŒ', 'css': 'ðŸŽ¨', 'json': 'ðŸ“‹', 'xml': 'ðŸ“‹',
-        'yaml': 'ðŸ“‹', 'yml': 'ðŸ“‹', 'md': 'ðŸ“',
-        'sh': 'âš¡', 'bash': 'âš¡',
+        'js': '📜', 'ts': '📜', 'py': 'ðŸ', 'go': '🔷',
+        'java': '☕', 'c': 'ðŸ“', 'cpp': 'ðŸ“', 'h': 'ðŸ“',
+        'html': 'ðŸŒ', 'css': '🎨', 'json': '📋', 'xml': '📋',
+        'yaml': '📋', 'yml': '📋', 'md': 'ðŸ“',
+        'sh': '⚡', 'bash': '⚡',
         // Images
-        'jpg': 'ðŸ–¼ï¸', 'jpeg': 'ðŸ–¼ï¸', 'png': 'ðŸ–¼ï¸', 'gif': 'ðŸ–¼ï¸',
-        'svg': 'ðŸ–¼ï¸', 'ico': 'ðŸ–¼ï¸', 'bmp': 'ðŸ–¼ï¸',
+        'jpg': '🖼ï¸', 'jpeg': '🖼ï¸', 'png': '🖼ï¸', 'gif': '🖼ï¸',
+        'svg': '🖼ï¸', 'ico': '🖼ï¸', 'bmp': '🖼ï¸',
         // Archives
-        'zip': 'ðŸ“¦', 'tar': 'ðŸ“¦', 'gz': 'ðŸ“¦', 'rar': 'ðŸ“¦', '7z': 'ðŸ“¦',
+        'zip': '📦', 'tar': '📦', 'gz': '📦', 'rar': '📦', '7z': '📦',
         // Audio/Video
-        'mp3': 'ðŸŽµ', 'wav': 'ðŸŽµ', 'flac': 'ðŸŽµ',
-        'mp4': 'ðŸŽ¬', 'avi': 'ðŸŽ¬', 'mkv': 'ðŸŽ¬', 'mov': 'ðŸŽ¬',
+        'mp3': '🎵', 'wav': '🎵', 'flac': '🎵',
+        'mp4': '🎬', 'avi': '🎬', 'mkv': '🎬', 'mov': '🎬',
         // Autres
-        'log': 'ðŸ“‹', 'conf': 'âš™ï¸', 'cfg': 'âš™ï¸', 'ini': 'âš™ï¸',
-        'sql': 'ðŸ—ƒï¸', 'db': 'ðŸ—ƒï¸',
-        'key': 'ðŸ”‘', 'pem': 'ðŸ”‘', 'crt': 'ðŸ“œ',
+        'log': '📋', 'conf': '⚙ï¸', 'cfg': '⚙ï¸', 'ini': '⚙ï¸',
+        'sql': '🗃ï¸', 'db': '🗃ï¸',
+        'key': '🔑', 'pem': '🔑', 'crt': '📜',
     };
-    return icons[ext] || 'ðŸ“„';
+    return icons[ext] || '📄';
 }
 
-// Ã‰chappe les caractÃ¨res HTML
+// Échappe les caractères HTML
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;

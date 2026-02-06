@@ -1,4 +1,4 @@
-﻿package auth
+package auth
 
 import (
 	"errors"
@@ -10,7 +10,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// User reprÃ©sente un utilisateur authentifiÃ© (Business Object)
+// User représente un utilisateur authentifié (Business Object)
 type User struct {
 	Username    string
 	Role        string
@@ -18,13 +18,13 @@ type User struct {
 	LockedUntil time.Time
 }
 
-// UserManager gÃ¨re l'authentification des utilisateurs
+// UserManager gère l'authentification des utilisateurs
 type UserManager struct {
 	db *storage.DB
 }
 
-// NewUserManager crÃ©e un gestionnaire d'utilisateur
-// Il migre les utilisateurs de la config vers la DB si nÃ©cessaire
+// NewUserManager crée un gestionnaire d'utilisateur
+// Il migre les utilisateurs de la config vers la DB si nécessaire
 func NewUserManager(db *storage.DB, cfgUsers []config.UserConfig) *UserManager {
 	um := &UserManager{
 		db: db,
@@ -34,7 +34,7 @@ func NewUserManager(db *storage.DB, cfgUsers []config.UserConfig) *UserManager {
 	for _, u := range cfgUsers {
 		_, err := db.GetUser(u.Username)
 		if err != nil {
-			// User n'existe pas, on le crÃ©e
+			// User n'existe pas, on le crée
 			var hash string
 			if len(u.Password) >= 60 && u.Password[:4] == "$2a$" {
 				hash = u.Password
@@ -50,7 +50,7 @@ func NewUserManager(db *storage.DB, cfgUsers []config.UserConfig) *UserManager {
 
 	// Check if admin exists
 	if _, err := db.GetUser("admin"); err != nil {
-		log.Println("CrÃ©ation du compte admin par dÃ©faut")
+		log.Println("Création du compte admin par défaut")
 		hash, _ := bcrypt.GenerateFromPassword([]byte("admin"), bcrypt.DefaultCost)
 		db.CreateUser("admin", string(hash), "admin")
 	}
@@ -58,7 +58,7 @@ func NewUserManager(db *storage.DB, cfgUsers []config.UserConfig) *UserManager {
 	return um
 }
 
-// Authenticate vÃ©rifie le couple username/password avec gestion de lockout
+// Authenticate vérifie le couple username/password avec gestion de lockout
 func (um *UserManager) Authenticate(username, password string) (*User, error) {
 	userDB, err := um.db.GetUser(username)
 	if err != nil {
@@ -67,13 +67,13 @@ func (um *UserManager) Authenticate(username, password string) (*User, error) {
 
 	// 1. Check Active
 	if !userDB.IsActive {
-		return nil, errors.New("ce compte est dÃ©sactivÃ©")
+		return nil, errors.New("ce compte est désactivé")
 	}
 
 	// 2. Check Lockout
 	if !userDB.LockedUntil.IsZero() && userDB.LockedUntil.After(time.Now()) {
 		wait := time.Until(userDB.LockedUntil).Round(time.Minute)
-		return nil, errors.New("compte verrouillÃ© pour encore " + wait.String())
+		return nil, errors.New("compte verrouillé pour encore " + wait.String())
 	}
 
 	// 3. Verify Password
@@ -86,7 +86,7 @@ func (um *UserManager) Authenticate(username, password string) (*User, error) {
 	}
 
 	if locked {
-		return nil, errors.New("compte verrouillÃ© suite Ã  trop d'Ã©checs")
+		return nil, errors.New("compte verrouillé suite à trop d'échecs")
 	}
 
 	if err != nil {
@@ -105,7 +105,7 @@ func (um *UserManager) Authenticate(username, password string) (*User, error) {
 func (um *UserManager) AddUser(username, password, role string) error {
 	// Check exist
 	if _, err := um.db.GetUser(username); err == nil {
-		return errors.New("cet utilisateur existe dÃ©jÃ ")
+		return errors.New("cet utilisateur existe déjà")
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -116,18 +116,18 @@ func (um *UserManager) AddUser(username, password, role string) error {
 	return um.db.CreateUser(username, string(hash), role)
 }
 
-// UpdateUser met Ã  jour le rÃ´le (NON IMPLEMENTÃ‰ en DB pour l'instant, on n'a pas methods UpdateUserRole)
+// UpdateUser met à jour le rôle (NON IMPLEMENTÉ en DB pour l'instant, on n'a pas methods UpdateUserRole)
 // Pour simplifier on ne change pas le role pour l'instant via UI, on le fera plus tard si besoin.
-// On garde la signature pour compatibilitÃ© si elle Ã©tait utilisÃ©e, mais ici on va la supprimer ou l'adapter.
-// D'aprÃ¨s users_api.go, UpdateUser n'est pas utilisÃ©, seulement Create, Delete, UpdatePassword.
+// On garde la signature pour compatibilité si elle était utilisée, mais ici on va la supprimer ou l'adapter.
+// D'après users_api.go, UpdateUser n'est pas utilisé, seulement Create, Delete, UpdatePassword.
 // Mais on a ToggleUserStatus.
 
-// ToggleUserStatus active/dÃ©sactive
+// ToggleUserStatus active/désactive
 func (um *UserManager) ToggleUserStatus(username string, active bool) error {
 	return um.db.ToggleUserStatus(username, active)
 }
 
-// UnlockUser dÃ©bloque un compte
+// UnlockUser débloque un compte
 func (um *UserManager) UnlockUser(username string) error {
 	return um.db.UnlockUser(username)
 }
@@ -147,7 +147,7 @@ func (um *UserManager) UpdatePassword(username, newPassword string) error {
 	return um.db.UpdatePassword(username, string(hash))
 }
 
-// UpdateUserRole modifie le rÃ´le
+// UpdateUserRole modifie le rôle
 func (um *UserManager) UpdateUserRole(username, role string) error {
 	return um.db.UpdateUserRole(username, role)
 }
@@ -177,7 +177,7 @@ func (um *UserManager) GetAllUsers() []User {
 	return users
 }
 
-// GetUserRole retourne le rÃ´le d'un utilisateur
+// GetUserRole retourne le rôle d'un utilisateur
 func (um *UserManager) GetUserRole(username string) string {
 	u, err := um.db.GetUser(username)
 	if err != nil {
@@ -186,7 +186,7 @@ func (um *UserManager) GetUserRole(username string) string {
 	return u.Role
 }
 
-// IsAdmin vÃ©rifie si admin
+// IsAdmin vérifie si admin
 func (um *UserManager) IsAdmin(username string) bool {
 	role := um.GetUserRole(username)
 	return role == "admin"

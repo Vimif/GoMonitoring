@@ -1,4 +1,4 @@
-﻿// Gestion des machines (ajout/suppression/filtrage) - V2 Dynamic Updates
+// Gestion des machines (ajout/suppression/filtrage) - V2 Dynamic Updates
 
 let machineToDelete = null;
 let searchTimeout = null;
@@ -39,7 +39,7 @@ function filterMachines() {
             }
         });
 
-        // Afficher/masquer l'Ã©tat vide selon les rÃ©sultats
+        // Afficher/masquer l'état vide selon les résultats
         if (emptyNoResults) {
             if (visibleCount === 0 && filter.length > 0) {
                 emptyNoResults.style.display = "flex";
@@ -61,7 +61,7 @@ function clearSearch() {
     }
 }
 
-// === Utilitaire: Ã‰tat de chargement bouton ===
+// === Utilitaire: État de chargement bouton ===
 
 function setButtonLoading(button, loading) {
     if (loading) {
@@ -73,7 +73,7 @@ function setButtonLoading(button, loading) {
     }
 }
 
-// === Fonctions de mise Ã  jour dynamique du DOM ===
+// === Fonctions de mise à jour dynamique du DOM ===
 
 /**
  * Supprime une carte machine du DOM avec animation
@@ -91,7 +91,7 @@ function removeMachineCard(machineId) {
         const section = wrapper.closest('.group-section');
         wrapper.remove();
 
-        // VÃ©rifier si la section est maintenant vide
+        // Vérifier si la section est maintenant vide
         if (section) {
             const remainingCards = section.querySelectorAll('.machine-card-wrapper');
             if (remainingCards.length === 0) {
@@ -101,16 +101,16 @@ function removeMachineCard(machineId) {
             }
         }
 
-        // Mettre Ã  jour le compteur de machines
+        // Mettre à jour le compteur de machines
         updateMachineCount(-1);
 
-        // VÃ©rifier s'il reste des machines
+        // Vérifier s'il reste des machines
         checkEmptyState();
     }, 300);
 }
 
 /**
- * Met Ã  jour le compteur de machines dans la navbar
+ * Met à jour le compteur de machines dans la navbar
  */
 function updateMachineCount(delta) {
     const countBadge = document.querySelector('.machine-count, .nav-badge');
@@ -128,7 +128,7 @@ function updateMachineCount(delta) {
 }
 
 /**
- * VÃ©rifie s'il faut afficher l'Ã©tat vide (aucune machine)
+ * Vérifie s'il faut afficher l'état vide (aucune machine)
  */
 function checkEmptyState() {
     const wrappers = document.querySelectorAll('.machine-card-wrapper');
@@ -141,12 +141,12 @@ function checkEmptyState() {
 }
 
 /**
- * RafraÃ®chit les donnÃ©es des machines depuis le serveur
- * UtilisÃ© aprÃ¨s ajout/modification pour obtenir le HTML mis Ã  jour
+ * Rafraîchit les données des machines depuis le serveur
+ * Utilisé après ajout/modification pour obtenir le HTML mis à jour
  */
 async function refreshMachinesData() {
     try {
-        // RÃ©cupÃ©rer la page actuelle et extraire le contenu des machines
+        // Récupérer la page actuelle et extraire le contenu des machines
         const response = await fetch(window.location.href);
         if (!response.ok) throw new Error('Erreur de chargement');
 
@@ -167,7 +167,7 @@ async function refreshMachinesData() {
                 currentContent.innerHTML = newContent.innerHTML;
                 currentContent.style.opacity = '1';
 
-                // RÃ©-appliquer le filtre de recherche si actif
+                // Ré-appliquer le filtre de recherche si actif
                 const searchInput = document.getElementById('machine-search');
                 if (searchInput && searchInput.value) {
                     filterMachines();
@@ -175,7 +175,7 @@ async function refreshMachinesData() {
             }, 150);
         }
     } catch (error) {
-        console.error('Erreur lors du rafraÃ®chissement:', error);
+        console.error('Erreur lors du rafraîchissement:', error);
         // En cas d'erreur, recharger la page
         location.reload();
     }
@@ -234,14 +234,14 @@ async function addMachine(event) {
         password: form.querySelector('#machine-password').value
     };
 
-    // Validation cÃ´tÃ© client
+    // Validation côté client
     if (!data.id || !data.name || !data.host || !data.user) {
         showNotification('Veuillez remplir tous les champs obligatoires', 'error');
         return;
     }
 
     if (!data.key_path && !data.password) {
-        showNotification('Veuillez fournir une clÃ© SSH ou un mot de passe', 'error');
+        showNotification('Veuillez fournir une clé SSH ou un mot de passe', 'error');
         return;
     }
 
@@ -257,9 +257,9 @@ async function addMachine(event) {
         const result = await response.json();
 
         if (response.ok) {
-            showNotification('Machine ajoutÃ©e avec succÃ¨s', 'success');
+            showNotification('Machine ajoutée avec succès', 'success');
             closeAddModal();
-            // RafraÃ®chir les donnÃ©es sans recharger la page
+            // Rafraîchir les données sans recharger la page
             await refreshMachinesData();
         } else {
             showNotification(result.error || 'Erreur lors de l\'ajout', 'error');
@@ -305,7 +305,7 @@ async function confirmDelete() {
         const result = await response.json();
 
         if (response.ok) {
-            showNotification('Machine supprimÃ©e avec succÃ¨s', 'success');
+            showNotification('Machine supprimée avec succès', 'success');
             closeDeleteModal();
             // Supprimer la carte du DOM directement (pas de reload)
             removeMachineCard(machineId);
@@ -386,12 +386,12 @@ async function updateMachine(event) {
         const result = await response.json();
 
         if (response.ok) {
-            showNotification('Machine mise Ã  jour avec succÃ¨s', 'success');
+            showNotification('Machine mise à jour avec succès', 'success');
             closeEditModal();
-            // RafraÃ®chir les donnÃ©es sans recharger la page
+            // Rafraîchir les données sans recharger la page
             await refreshMachinesData();
         } else {
-            showNotification(result.error || 'Erreur lors de la mise Ã  jour', 'error');
+            showNotification(result.error || 'Erreur lors de la mise à jour', 'error');
         }
     } catch (error) {
         showNotification('Erreur de connexion au serveur', 'error');
@@ -401,7 +401,7 @@ async function updateMachine(event) {
     }
 }
 
-// === Notifications amÃ©liorÃ©es ===
+// === Notifications améliorées ===
 
 const notificationIcons = {
     success: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
@@ -411,7 +411,7 @@ const notificationIcons = {
 };
 
 const notificationTitles = {
-    success: 'SuccÃ¨s',
+    success: 'Succès',
     error: 'Erreur',
     info: 'Information',
     warning: 'Attention'
@@ -439,7 +439,7 @@ function showNotification(message, type = 'info') {
 
     document.body.appendChild(notification);
 
-    // Auto-hide aprÃ¨s 5 secondes
+    // Auto-hide après 5 secondes
     setTimeout(() => {
         if (notification.parentElement) {
             notification.style.animation = 'slideInRight 0.3s ease-out reverse forwards';
@@ -448,7 +448,7 @@ function showNotification(message, type = 'info') {
     }, 5000);
 }
 
-// === Fermer les modals en cliquant Ã  l'extÃ©rieur ===
+// === Fermer les modals en cliquant à l'extérieur ===
 
 document.addEventListener('click', function (event) {
     if (event.target.classList.contains('modal') && event.target.classList.contains('open')) {

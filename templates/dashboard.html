@@ -1,4 +1,4 @@
-﻿{{define "title"}}Dashboard - {{.Title}}{{end}}
+{{define "title"}}Dashboard - {{.Title}}{{end}}
 
 {{define "content"}}
 <!-- Dashboard Header Logic moved to Topbar/Base, but we keep the title and stats here -->
@@ -29,7 +29,7 @@
 </div>
 
 <!-- Machine Groups -->
-<!-- Empty State: Aucune machine configurÃ©e -->
+<!-- Empty State: Aucune machine configurée -->
 {{if not .Groups}}
 <div class="empty-state" id="empty-no-machines">
     <svg class="empty-state-icon" xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -37,7 +37,7 @@
         <line x1="8" y1="21" x2="16" y2="21"></line>
         <line x1="12" y1="17" x2="12" y2="21"></line>
     </svg>
-    <h3 class="empty-state-title">Aucune machine configurÃ©e</h3>
+    <h3 class="empty-state-title">Aucune machine configurée</h3>
     <p class="empty-state-description">Commencez par ajouter une machine pour la surveiller.</p>
     <button class="btn btn-primary" onclick="openAddModal()">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -49,15 +49,15 @@
 </div>
 {{end}}
 
-<!-- Empty State: Aucun rÃ©sultat de recherche (cachÃ© par dÃ©faut, affichÃ© par JS) -->
+<!-- Empty State: Aucun résultat de recherche (caché par défaut, affiché par JS) -->
 <div class="empty-state" id="empty-no-results" style="display: none;">
     <svg class="empty-state-icon" xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="11" cy="11" r="8"></circle>
         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         <line x1="8" y1="11" x2="14" y2="11"></line>
     </svg>
-    <h3 class="empty-state-title">Aucun rÃ©sultat</h3>
-    <p class="empty-state-description">Aucune machine ne correspond Ã  votre recherche.</p>
+    <h3 class="empty-state-title">Aucun résultat</h3>
+    <p class="empty-state-description">Aucune machine ne correspond à votre recherche.</p>
     <button class="btn btn-secondary" onclick="clearSearch()">
         Effacer la recherche
     </button>
