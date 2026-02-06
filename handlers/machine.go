@@ -23,6 +23,7 @@ var templateFuncs = template.FuncMap{
 	"formatPercent": formatPercent,
 	"formatRate":    formatRate,
 	"lower":         strings.ToLower,
+	"upper":         strings.ToUpper,
 }
 
 // MachineDetail gÃ¨re la page de dÃ©tail d'une machine
@@ -67,8 +68,10 @@ func MachineDetail(cfg *config.Config, pool *ssh.Pool, cache *cache.MetricsCache
 		}
 
 		role := ""
+		username := ""
 		if am != nil {
 			role = am.GetUserRole(r)
+			username = am.GetUsername(r)
 		}
 
 		// PrÃ©parer les donnÃ©es
@@ -77,6 +80,7 @@ func MachineDetail(cfg *config.Config, pool *ssh.Pool, cache *cache.MetricsCache
 			Time:      time.Now().Format("15:04:05"),
 			Status:    "OK",
 			Role:      role,
+			Username:  username,
 			CSRFToken: middleware.GetCSRFToken(r),
 		}
 

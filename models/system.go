@@ -125,6 +125,7 @@ type DashboardData struct {
 	TotalMachines   int
 	RefreshInterval int
 	Role            string
+	Username        string
 	CSRFToken       string // Token CSRF pour les formulaires
 }
 
@@ -147,5 +148,6 @@ type MachineDetailData struct {
 	Time      string
 	Status    string
 	Role      string
+	Username  string
 	CSRFToken string // Token CSRF pour les formulaires
 }

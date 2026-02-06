@@ -1,4 +1,4 @@
-﻿package handlers
+package handlers
 
 import (
 	"go-monitoring/auth"
@@ -9,7 +9,7 @@ import (
 )
 
 // RenderPage renders a static page within the base layout
-func RenderPage(pageName string, config *config.Config, role string) http.HandlerFunc {
+func RenderPage(pageName string, config *config.Config, role string, username string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		tmpl, err := template.New("base.html").Funcs(dashboardFuncs).ParseFiles(
 			"templates/layout/base.html",
@@ -24,11 +24,13 @@ func RenderPage(pageName string, config *config.Config, role string) http.Handle
 			Title     string
 			Status    string
 			Role      string
+			Username  string
 			CSRFToken string
 		}{
 			Title:     pageName,
 			Status:    "OK",
 			Role:      role,
+			Username:  username,
 			CSRFToken: middleware.GetCSRFToken(r),
 		}
 
@@ -43,9 +45,11 @@ func RenderPageWithCM(cm *ConfigManager, am *auth.AuthManager, pageName string) 
 	return func(w http.ResponseWriter, r *http.Request) {
 		cfg, _, _ := cm.GetConfigPoolAndCache()
 		role := ""
+		username := ""
 		if am != nil {
 			role = am.GetUserRole(r)
+			username = am.GetUsername(r)
 		}
-		RenderPage(pageName, cfg, role)(w, r)
+		RenderPage(pageName, cfg, role, username)(w, r)
 	}
 }

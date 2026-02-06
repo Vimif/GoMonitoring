@@ -34,15 +34,19 @@ func UsersPage(cfg *config.Config, am *auth.AuthManager) http.HandlerFunc {
 			return
 		}
 
+		username := am.GetUsername(r)
+
 		data := struct {
 			Title     string
 			Status    string
 			Role      string
+			Username  string
 			CSRFToken string
 		}{
 			Title:     "Gestion des Utilisateurs",
 			Status:    "OK",
 			Role:      role,
+			Username:  username,
 			CSRFToken: middleware.GetCSRFToken(r),
 		}
 
