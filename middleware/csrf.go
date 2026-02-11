@@ -44,7 +44,11 @@ func getSessionID(r *http.Request) string {
 
 // GetCSRFToken récupère ou crée un token CSRF pour la session
 func GetCSRFToken(r *http.Request) string {
-	sessionID := getSessionID(r)
+	return GetCSRFTokenForSession(getSessionID(r))
+}
+
+// GetCSRFTokenForSession récupère ou crée un token CSRF pour un ID de session donné
+func GetCSRFTokenForSession(sessionID string) string {
 	if sessionID == "" {
 		return ""
 	}
@@ -136,7 +140,6 @@ func DeleteCSRFToken(sessionID string) {
 func CSRFMiddleware(next http.Handler) http.Handler {
 	// Routes exemptées de la vérification CSRF
 	exemptedPaths := map[string]bool{
-		"/login":  true,
 		"/logout": true,
 	}
 
