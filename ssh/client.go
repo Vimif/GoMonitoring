@@ -85,7 +85,11 @@ func (p *Pool) GetClient(machineID string) (*Client, error) {
 func (c *Client) Connect() error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
+	return c.connectLocked()
+}
 
+// connectLocked établit la connexion SSH en supposant que le lock est déjà acquis
+func (c *Client) connectLocked() error {
 	// Si déjà connecté, vérifier si la connexion est toujours valide
 	if c.client != nil {
 		_, _, err := c.client.SendRequest("keepalive", true, nil)
@@ -142,14 +146,17 @@ func (c *Client) Connect() error {
 
 // Execute exécute une commande SSH et retourne la sortie
 func (c *Client) Execute(cmd string) (string, error) {
-	if err := c.Connect(); err != nil {
+	c.mu.Lock()
+	// S'assurer que nous sommes connectés (sous lock)
+	if err := c.connectLocked(); err != nil {
+		c.mu.Unlock()
 		return "", err
 	}
 
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
+	// Créer la session sous lock pour éviter les race conditions
 	session, err := c.client.NewSession()
+	c.mu.Unlock()
+
 	if err != nil {
 		return "", fmt.Errorf("erreur création session: %w", err)
 	}
@@ -168,12 +175,12 @@ func (c *Client) Execute(cmd string) (string, error) {
 
 // NewSession crée une nouvelle session SSH interactive
 func (c *Client) NewSession() (*ssh.Session, error) {
-	if err := c.Connect(); err != nil {
-		return nil, err
-	}
-
 	c.mu.Lock()
 	defer c.mu.Unlock()
+
+	if err := c.connectLocked(); err != nil {
+		return nil, err
+	}
 
 	return c.client.NewSession()
 }

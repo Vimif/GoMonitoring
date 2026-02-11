@@ -247,7 +247,7 @@ func NewMockClientWithError(errorMsg string) *MockClient {
 	})
 
 	// Définir une erreur de connexion
-	client.SetError("__connect__", fmt.Errorf(errorMsg))
+	client.SetError("__connect__", fmt.Errorf("%s", errorMsg))
 
 	return client
 }
