@@ -123,23 +123,6 @@ func collectDiskInfoWindows(client *ssh.Client) ([]models.DiskInfo, error) {
 	return disks, nil
 }
 
-// isVirtualFS vérifie si le système de fichiers est virtuel
-func isVirtualFS(fsType string) bool {
-	virtualFS := []string{
-		"tmpfs", "devtmpfs", "sysfs", "proc", "devpts",
-		"cgroup", "cgroup2", "pstore", "securityfs",
-		"debugfs", "hugetlbfs", "mqueue", "configfs",
-		"fusectl", "binfmt_misc", "autofs", "overlay",
-	}
-
-	for _, vfs := range virtualFS {
-		if fsType == vfs {
-			return true
-		}
-	}
-	return false
-}
-
 // detectDriveType détermine si le disque est SSD ou HDD
 func detectDriveType(client *ssh.Client, device string) string {
 	// Extraire le nom du disque sans partition (ex: /dev/sda1 -> sda)
