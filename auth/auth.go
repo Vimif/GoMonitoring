@@ -6,6 +6,8 @@ import (
 	"html/template"
 	"net/http"
 	"time"
+
+	"go-monitoring/middleware"
 )
 
 // Session structure pour stocker les sessions actives
@@ -61,12 +63,32 @@ func (am *AuthManager) Middleware(next http.HandlerFunc) http.HandlerFunc {
 // LoginHandler gère la page de connexion
 func (am *AuthManager) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
+		// Vérifier ou créer un cookie de session pour le CSRF
+		cookie, err := r.Cookie("session_token")
+		var sessionID string
+		if err != nil || cookie.Value == "" {
+			sessionID = generateToken()
+			http.SetCookie(w, &http.Cookie{
+				Name:     "session_token",
+				Value:    sessionID,
+				Expires:  time.Now().Add(24 * time.Hour),
+				Path:     "/",
+				HttpOnly: true,
+			})
+		} else {
+			sessionID = cookie.Value
+		}
+
+		csrfToken := middleware.GetCSRFTokenForSession(sessionID)
+
 		tmpl, err := template.ParseFiles("templates/login.html")
 		if err != nil {
 			http.Error(w, "Erreur template login", http.StatusInternalServerError)
 			return
 		}
-		tmpl.Execute(w, nil)
+		tmpl.Execute(w, map[string]interface{}{
+			"CSRFToken": csrfToken,
+		})
 		return
 	}
 
@@ -76,8 +98,17 @@ func (am *AuthManager) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	user, err := am.UserManager.Authenticate(username, password)
 	if err != nil {
+		// Récupérer le token CSRF existant pour le réinjecter dans le formulaire
+		csrfToken := ""
+		if cookie, err := r.Cookie("session_token"); err == nil {
+			csrfToken = middleware.GetCSRFTokenForSession(cookie.Value)
+		}
+
 		tmpl, _ := template.ParseFiles("templates/login.html")
-		tmpl.Execute(w, map[string]string{"Error": "Identifiants incorrects"})
+		tmpl.Execute(w, map[string]interface{}{
+			"Error":     "Identifiants incorrects",
+			"CSRFToken": csrfToken,
+		})
 		return
 	}
 
