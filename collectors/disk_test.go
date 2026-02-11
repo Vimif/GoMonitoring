@@ -30,6 +30,8 @@ func TestIsVirtualFS(t *testing.T) {
 		{"binfmt_misc", "binfmt_misc", true},
 		{"autofs", "autofs", true},
 		{"overlay", "overlay", true},
+		{"squashfs", "squashfs", true},
+		{"devfs", "devfs", true},
 
 		// Real filesystems
 		{"ext4", "ext4", false},
@@ -47,7 +49,7 @@ func TestIsVirtualFS(t *testing.T) {
 		// Edge cases
 		{"", "", false},
 		{"unknown", "unknown", false},
-		{"TMPFS", "TMPFS", false}, // Case sensitive
+		{"TMPFS", "TMPFS", true}, // Case insensitive
 	}
 
 	for _, tt := range tests {

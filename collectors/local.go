@@ -116,7 +116,7 @@ func CollectLocalDiskInfo() ([]models.DiskInfo, error) {
 
 	for _, partition := range partitions {
 		// Ignorer certains types de systèmes de fichiers virtuels
-		if isLocalVirtualFS(partition.Fstype) {
+		if isVirtualFS(partition.Fstype) {
 			continue
 		}
 
@@ -140,25 +140,6 @@ func CollectLocalDiskInfo() ([]models.DiskInfo, error) {
 	}
 
 	return disks, nil
-}
-
-// isLocalVirtualFS vérifie si le système de fichiers est virtuel (local)
-func isLocalVirtualFS(fsType string) bool {
-	virtualFS := []string{
-		"tmpfs", "devtmpfs", "sysfs", "proc", "devpts",
-		"cgroup", "cgroup2", "pstore", "securityfs",
-		"debugfs", "hugetlbfs", "mqueue", "configfs",
-		"fusectl", "binfmt_misc", "autofs", "overlay",
-		"squashfs", "devfs",
-	}
-
-	fsLower := strings.ToLower(fsType)
-	for _, vfs := range virtualFS {
-		if fsLower == vfs {
-			return true
-		}
-	}
-	return false
 }
 
 // detectLocalDriveType détermine si le disque est SSD ou HDD (simplifié pour local)
