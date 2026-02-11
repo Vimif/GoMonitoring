@@ -544,6 +544,7 @@ h3 {
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
     color: white;
     box-shadow: var(--shadow-sm);
+    --btn-spinner-color: white;
 }
 
 .btn-primary:hover {
@@ -556,6 +557,7 @@ h3 {
     background: var(--card-bg);
     color: var(--text-color);
     border: 1px solid var(--border-color);
+    --btn-spinner-color: var(--text-color);
 }
 
 .btn-secondary:hover {
@@ -567,6 +569,7 @@ h3 {
     background: linear-gradient(135deg, var(--danger-color) 0%, #dc2626 100%);
     color: white;
     box-shadow: var(--shadow-sm);
+    --btn-spinner-color: white;
 }
 
 .btn-danger:hover {
@@ -756,7 +759,7 @@ h3 {
     top: 50%;
     left: 50%;
     margin: -8px 0 0 -8px;
-    border: 2px solid currentColor;
+    border: 2px solid var(--btn-spinner-color, currentColor);
     border-right-color: transparent;
     border-radius: 50%;
     animation: spin 0.6s linear infinite;
