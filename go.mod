@@ -1,4 +1,4 @@
-﻿module go-monitoring
+module go-monitoring
 
 go 1.25.6
 
