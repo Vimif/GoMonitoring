@@ -17,7 +17,7 @@ func TestCollectCPUInfo_Linux_Integration(t *testing.T) {
 	mockClient := ssh.NewMockClientLinux()
 
 	// Tester la collecte CPU
-	cpuInfo, err := CollectCPUInfo((*ssh.Client)(mockClient), "linux")
+	cpuInfo, err := CollectCPUInfo(mockClient, "linux")
 
 	require.NoError(t, err, "CollectCPUInfo should not return error")
 	assert.NotEmpty(t, cpuInfo.Model, "CPU model should not be empty")
@@ -37,7 +37,7 @@ func TestCollectCPUInfo_Windows_Integration(t *testing.T) {
 	mockClient := ssh.NewMockClientWindows()
 
 	// Tester la collecte CPU
-	cpuInfo, err := CollectCPUInfo((*ssh.Client)(mockClient), "windows")
+	cpuInfo, err := CollectCPUInfo(mockClient, "windows")
 
 	require.NoError(t, err, "CollectCPUInfo should not return error")
 	assert.NotEmpty(t, cpuInfo.Model, "CPU model should not be empty")
@@ -53,14 +53,15 @@ func TestCollectMemoryInfo_Linux_Integration(t *testing.T) {
 	mockClient := ssh.NewMockClientLinux()
 
 	// Tester la collecte mémoire
-	memInfo, err := CollectMemoryInfo((*ssh.Client)(mockClient), "linux")
+	memInfo, err := CollectMemoryInfo(mockClient, "linux")
 
 	require.NoError(t, err, "CollectMemoryInfo should not return error")
 	assert.Greater(t, memInfo.Total, uint64(0), "Total memory should be greater than 0")
 	assert.Greater(t, memInfo.Used, uint64(0), "Used memory should be greater than 0")
 	assert.Greater(t, memInfo.Free, uint64(0), "Free memory should be greater than 0")
 	assert.Greater(t, memInfo.Available, uint64(0), "Available memory should be greater than 0")
-	assert.InRange(t, memInfo.UsedPercent, 0.0, 100.0, "Used percent should be between 0 and 100")
+	assert.GreaterOrEqual(t, memInfo.UsedPercent, 0.0, "Used percent should be >= 0")
+	assert.LessOrEqual(t, memInfo.UsedPercent, 100.0, "Used percent should be <= 100")
 
 	// Vérifier les valeurs approximatives
 	expectedTotal := uint64(16777216000) // ~16 GB
@@ -72,13 +73,14 @@ func TestCollectMemoryInfo_Windows_Integration(t *testing.T) {
 	mockClient := ssh.NewMockClientWindows()
 
 	// Tester la collecte mémoire
-	memInfo, err := CollectMemoryInfo((*ssh.Client)(mockClient), "windows")
+	memInfo, err := CollectMemoryInfo(mockClient, "windows")
 
 	require.NoError(t, err, "CollectMemoryInfo should not return error")
 	assert.Greater(t, memInfo.Total, uint64(0), "Total memory should be greater than 0")
 	assert.Greater(t, memInfo.Used, uint64(0), "Used memory should be greater than 0")
 	assert.Greater(t, memInfo.Free, uint64(0), "Free memory should be greater than 0")
-	assert.InRange(t, memInfo.UsedPercent, 0.0, 100.0, "Used percent should be between 0 and 100")
+	assert.GreaterOrEqual(t, memInfo.UsedPercent, 0.0, "Used percent should be >= 0")
+	assert.LessOrEqual(t, memInfo.UsedPercent, 100.0, "Used percent should be <= 100")
 
 	// Vérifier que Used = Total - Free
 	assert.Equal(t, memInfo.Total-memInfo.Free, memInfo.Used, "Used should equal Total - Free")
@@ -89,7 +91,7 @@ func TestCollectDiskInfo_Linux_Integration(t *testing.T) {
 	mockClient := ssh.NewMockClientLinux()
 
 	// Tester la collecte disque
-	disks, err := CollectDiskInfo((*ssh.Client)(mockClient), "linux")
+	disks, err := CollectDiskInfo(mockClient, "linux")
 
 	require.NoError(t, err, "CollectDiskInfo should not return error")
 	assert.NotEmpty(t, disks, "Should have at least one disk")
@@ -101,7 +103,8 @@ func TestCollectDiskInfo_Linux_Integration(t *testing.T) {
 		assert.NotEmpty(t, disk.MountPoint, "Mount point should not be empty")
 		assert.Greater(t, disk.Total, uint64(0), "Total size should be greater than 0")
 		assert.Greater(t, disk.Free, uint64(0), "Free space should be greater than 0")
-		assert.InRange(t, disk.UsedPercent, 0.0, 100.0, "Used percent should be between 0 and 100")
+		assert.GreaterOrEqual(t, disk.UsedPercent, 0.0, "Used percent should be >= 0")
+		assert.LessOrEqual(t, disk.UsedPercent, 100.0, "Used percent should be <= 100")
 	}
 }
 
@@ -110,7 +113,7 @@ func TestCollectDiskInfo_Windows_Integration(t *testing.T) {
 	mockClient := ssh.NewMockClientWindows()
 
 	// Tester la collecte disque
-	disks, err := CollectDiskInfo((*ssh.Client)(mockClient), "windows")
+	disks, err := CollectDiskInfo(mockClient, "windows")
 
 	require.NoError(t, err, "CollectDiskInfo should not return error")
 	assert.NotEmpty(t, disks, "Should have at least one disk")
@@ -129,7 +132,7 @@ func TestCollectServices_Linux_Integration(t *testing.T) {
 
 	// Tester la collecte de services
 	services := []string{"nginx", "apache2", "mysql"}
-	statuses, err := CollectServices((*ssh.Client)(mockClient), services, "linux")
+	statuses, err := CollectServices(mockClient, services, "linux")
 
 	require.NoError(t, err, "CollectServices should not return error")
 	assert.Len(t, statuses, 3, "Should return status for 3 services")
@@ -149,7 +152,7 @@ func TestCollectServices_EmptyList(t *testing.T) {
 	mockClient := ssh.NewMockClientLinux()
 
 	// Tester avec une liste vide
-	statuses, err := CollectServices((*ssh.Client)(mockClient), []string{}, "linux")
+	statuses, err := CollectServices(mockClient, []string{}, "linux")
 
 	require.NoError(t, err, "Should not return error for empty service list")
 	assert.Empty(t, statuses, "Should return empty array")
@@ -162,7 +165,7 @@ func TestCollectCPUInfo_ConnectionError(t *testing.T) {
 	mockClient := ssh.NewMockClientOffline()
 
 	// La collecte devrait échouer
-	_, err := CollectCPUInfo((*ssh.Client)(mockClient), "linux")
+	_, err := CollectCPUInfo(mockClient, "linux")
 	assert.Error(t, err, "Should return error when connection fails")
 	assert.Contains(t, err.Error(), "offline", "Error should mention offline")
 }
@@ -173,7 +176,7 @@ func TestCollectMemoryInfo_CommandError(t *testing.T) {
 	mockClient.SetError("free -b | grep Mem", fmt.Errorf("command not found"))
 
 	// La collecte devrait échouer
-	_, err := CollectMemoryInfo((*ssh.Client)(mockClient), "linux")
+	_, err := CollectMemoryInfo(mockClient, "linux")
 	assert.Error(t, err, "Should return error when command fails")
 }
 
@@ -183,7 +186,7 @@ func TestCollectDiskInfo_MalformedOutput(t *testing.T) {
 	mockClient.SetResponse("df -B1 -T | tail -n +2", "invalid output")
 
 	// La collecte ne devrait pas échouer mais retourner un tableau vide
-	disks, err := CollectDiskInfo((*ssh.Client)(mockClient), "linux")
+	disks, err := CollectDiskInfo(mockClient, "linux")
 	require.NoError(t, err, "Should not return error for malformed output")
 	assert.Empty(t, disks, "Should return empty array for malformed output")
 }
@@ -194,9 +197,9 @@ func TestCollectMultipleMetrics_Performance(t *testing.T) {
 	mockClient := ssh.NewMockClientLinux()
 
 	// Collecter plusieurs métriques séquentiellement
-	_, err1 := CollectCPUInfo((*ssh.Client)(mockClient), "linux")
-	_, err2 := CollectMemoryInfo((*ssh.Client)(mockClient), "linux")
-	_, err3 := CollectDiskInfo((*ssh.Client)(mockClient), "linux")
+	_, err1 := CollectCPUInfo(mockClient, "linux")
+	_, err2 := CollectMemoryInfo(mockClient, "linux")
+	_, err3 := CollectDiskInfo(mockClient, "linux")
 
 	assert.NoError(t, err1, "CPU collection should succeed")
 	assert.NoError(t, err2, "Memory collection should succeed")
@@ -213,7 +216,7 @@ func TestMockClient_Reset(t *testing.T) {
 	mockClient := ssh.NewMockClientLinux()
 
 	// Exécuter quelques commandes
-	_, _ = CollectCPUInfo((*ssh.Client)(mockClient), "linux")
+	_, _ = CollectCPUInfo(mockClient, "linux")
 	assert.NotEmpty(t, mockClient.GetExecutedCommands(), "Should have executed commands")
 
 	// Réinitialiser
@@ -231,7 +234,7 @@ func BenchmarkCollectCPUInfo_Mock(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		CollectCPUInfo((*ssh.Client)(mockClient), "linux")
+		CollectCPUInfo(mockClient, "linux")
 	}
 }
 
@@ -240,7 +243,7 @@ func BenchmarkCollectMemoryInfo_Mock(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		CollectMemoryInfo((*ssh.Client)(mockClient), "linux")
+		CollectMemoryInfo(mockClient, "linux")
 	}
 }
 
@@ -249,7 +252,7 @@ func BenchmarkCollectDiskInfo_Mock(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		CollectDiskInfo((*ssh.Client)(mockClient), "linux")
+		CollectDiskInfo(mockClient, "linux")
 	}
 }
 
@@ -258,8 +261,8 @@ func BenchmarkCollectAllMetrics_Mock(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		CollectCPUInfo((*ssh.Client)(mockClient), "linux")
-		CollectMemoryInfo((*ssh.Client)(mockClient), "linux")
-		CollectDiskInfo((*ssh.Client)(mockClient), "linux")
+		CollectCPUInfo(mockClient, "linux")
+		CollectMemoryInfo(mockClient, "linux")
+		CollectDiskInfo(mockClient, "linux")
 	}
 }

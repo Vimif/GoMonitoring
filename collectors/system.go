@@ -9,7 +9,7 @@ import (
 )
 
 // DetectOS détecte le type d'OS de la machine (linux ou windows)
-func DetectOS(client *ssh.Client) string {
+func DetectOS(client ssh.SSHExecutor) string {
 	// Essayer une commande Linux d'abord
 	output, err := client.Execute("uname -s 2>/dev/null || echo NOTLINUX")
 	if err == nil {
@@ -36,7 +36,7 @@ func DetectOS(client *ssh.Client) string {
 
 // CollectSystemInfo collecte les informations système via SSH
 // osType peut être "linux", "windows" ou vide (auto-détection)
-func CollectSystemInfo(client *ssh.Client, osType string) (models.SystemInfo, string, error) {
+func CollectSystemInfo(client ssh.SSHExecutor, osType string) (models.SystemInfo, string, error) {
 	// Auto-détection si osType n'est pas spécifié
 	if osType == "" || osType == "unknown" {
 		osType = DetectOS(client)
@@ -51,7 +51,7 @@ func CollectSystemInfo(client *ssh.Client, osType string) (models.SystemInfo, st
 }
 
 // collectSystemInfoLinux collecte les infos système sur Linux
-func collectSystemInfoLinux(client *ssh.Client) (models.SystemInfo, error) {
+func collectSystemInfoLinux(client ssh.SSHExecutor) (models.SystemInfo, error) {
 	var info models.SystemInfo
 
 	// Hostname
@@ -121,7 +121,7 @@ func collectSystemInfoLinux(client *ssh.Client) (models.SystemInfo, error) {
 }
 
 // collectSystemInfoWindows collecte les infos système sur Windows via PowerShell
-func collectSystemInfoWindows(client *ssh.Client) (models.SystemInfo, error) {
+func collectSystemInfoWindows(client ssh.SSHExecutor) (models.SystemInfo, error) {
 	var info models.SystemInfo
 
 	// Hostname

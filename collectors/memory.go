@@ -10,7 +10,7 @@ import (
 
 // CollectMemoryInfo collecte les informations mémoire via SSH
 // osType: "linux", "windows" ou vide (défaut Linux)
-func CollectMemoryInfo(client *ssh.Client, osType string) (models.MemoryInfo, error) {
+func CollectMemoryInfo(client ssh.SSHExecutor, osType string) (models.MemoryInfo, error) {
 	if osType == "windows" {
 		return collectMemoryInfoWindows(client)
 	}
@@ -18,7 +18,7 @@ func CollectMemoryInfo(client *ssh.Client, osType string) (models.MemoryInfo, er
 }
 
 // collectMemoryInfoLinux collecte les infos mémoire sur Linux
-func collectMemoryInfoLinux(client *ssh.Client) (models.MemoryInfo, error) {
+func collectMemoryInfoLinux(client ssh.SSHExecutor) (models.MemoryInfo, error) {
 	var info models.MemoryInfo
 
 	// Utiliser free -b pour obtenir les valeurs en bytes
@@ -50,7 +50,7 @@ func collectMemoryInfoLinux(client *ssh.Client) (models.MemoryInfo, error) {
 }
 
 // collectMemoryInfoWindows collecte les infos mémoire sur Windows via PowerShell
-func collectMemoryInfoWindows(client *ssh.Client) (models.MemoryInfo, error) {
+func collectMemoryInfoWindows(client ssh.SSHExecutor) (models.MemoryInfo, error) {
 	var info models.MemoryInfo
 
 	// Récupérer Total et Free en une seule commande

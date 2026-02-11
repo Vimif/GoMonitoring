@@ -8,7 +8,7 @@ import (
 
 // CollectServices checks status of given services
 // osType: "linux", "windows" ou vide (défaut Linux)
-func CollectServices(client *ssh.Client, services []string, osType string) ([]models.ServiceStatus, error) {
+func CollectServices(client ssh.SSHExecutor, services []string, osType string) ([]models.ServiceStatus, error) {
 	if len(services) == 0 {
 		return []models.ServiceStatus{}, nil
 	}
@@ -20,7 +20,7 @@ func CollectServices(client *ssh.Client, services []string, osType string) ([]mo
 }
 
 // collectServicesLinux vérifie le status des services sur Linux via systemctl
-func collectServicesLinux(client *ssh.Client, services []string) ([]models.ServiceStatus, error) {
+func collectServicesLinux(client ssh.SSHExecutor, services []string) ([]models.ServiceStatus, error) {
 	var results []models.ServiceStatus
 
 	// Use || true to prevent exit code 1 if a service is inactive
@@ -47,7 +47,7 @@ func collectServicesLinux(client *ssh.Client, services []string) ([]models.Servi
 }
 
 // collectServicesWindows vérifie le status des services sur Windows via PowerShell
-func collectServicesWindows(client *ssh.Client, services []string) ([]models.ServiceStatus, error) {
+func collectServicesWindows(client ssh.SSHExecutor, services []string) ([]models.ServiceStatus, error) {
 	var results []models.ServiceStatus
 
 	// Construire la liste des services pour PowerShell

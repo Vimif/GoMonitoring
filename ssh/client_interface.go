@@ -12,8 +12,17 @@ type SSHExecutor interface {
 	NewSession() (*ssh.Session, error)
 }
 
+// ClientPool définit l'interface pour un pool de clients SSH
+type ClientPool interface {
+	GetClient(machineID string) (*Client, error)
+	CloseAll()
+}
+
 // Vérifier que Client implémente SSHExecutor
 var _ SSHExecutor = (*Client)(nil)
 
 // Vérifier que MockClient implémente SSHExecutor
 var _ SSHExecutor = (*MockClient)(nil)
+
+// Vérifier que Pool implémente ClientPool
+var _ ClientPool = (*Pool)(nil)

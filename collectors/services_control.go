@@ -9,7 +9,7 @@ import (
 )
 
 // ServiceAction exécute une action sur un service (start, stop, restart)
-func ServiceAction(client *ssh.Client, serviceName, action, osType string) error {
+func ServiceAction(client ssh.SSHExecutor, serviceName, action, osType string) error {
 	var cmd string
 
 	// Validation de l'action pour éviter l'injection de commandes

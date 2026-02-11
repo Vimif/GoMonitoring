@@ -1,6 +1,7 @@
 package collectors
 
 import (
+	"strings"
 	"testing"
 
 	"go-monitoring/models"
@@ -220,7 +221,14 @@ func TestServiceStatusSecurity(t *testing.T) {
 			t.Run(name, func(t *testing.T) {
 				// Ces noms devraient être rejetés avant même d'atteindre CollectServices
 				// La validation se fait dans collectors/services_control.go via security.ValidateServiceName
-				assert.Contains(t, name, []string{";", "&&", "|", "`", "$"}, "Malicious name should contain shell metacharacters")
+				found := false
+				for _, char := range []string{";", "&&", "|", "`", "$"} {
+					if strings.Contains(name, char) {
+						found = true
+						break
+					}
+				}
+				assert.True(t, found, "Malicious name should contain shell metacharacters")
 			})
 		}
 	})
