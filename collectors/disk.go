@@ -14,7 +14,7 @@ import (
 
 // CollectDiskInfo collecte les informations des disques via SSH
 // osType: "linux", "windows" ou vide (défaut Linux)
-func CollectDiskInfo(client *ssh.Client, osType string) ([]models.DiskInfo, error) {
+func CollectDiskInfo(client ssh.SSHExecutor, osType string) ([]models.DiskInfo, error) {
 	if osType == "windows" {
 		return collectDiskInfoWindows(client)
 	}
@@ -22,7 +22,7 @@ func CollectDiskInfo(client *ssh.Client, osType string) ([]models.DiskInfo, erro
 }
 
 // collectDiskInfoLinux collecte les infos disque sur Linux
-func collectDiskInfoLinux(client *ssh.Client) ([]models.DiskInfo, error) {
+func collectDiskInfoLinux(client ssh.SSHExecutor) ([]models.DiskInfo, error) {
 	var disks []models.DiskInfo
 
 	// Utiliser df pour obtenir l'espace disque
@@ -70,7 +70,7 @@ func collectDiskInfoLinux(client *ssh.Client) ([]models.DiskInfo, error) {
 }
 
 // collectDiskInfoWindows collecte les infos disque sur Windows via PowerShell
-func collectDiskInfoWindows(client *ssh.Client) ([]models.DiskInfo, error) {
+func collectDiskInfoWindows(client ssh.SSHExecutor) ([]models.DiskInfo, error) {
 	var disks []models.DiskInfo
 
 	// DriveType: 2=Removable, 3=Fixed, 4=Network, 5=CD-ROM
@@ -124,7 +124,7 @@ func collectDiskInfoWindows(client *ssh.Client) ([]models.DiskInfo, error) {
 }
 
 // detectDriveType détermine si le disque est SSD ou HDD
-func detectDriveType(client *ssh.Client, device string) string {
+func detectDriveType(client ssh.SSHExecutor, device string) string {
 	// Extraire le nom du disque sans partition (ex: /dev/sda1 -> sda)
 	baseName := filepath.Base(device)
 	// Enlever les chiffres à la fin pour obtenir le disque de base
@@ -159,7 +159,7 @@ func detectDriveType(client *ssh.Client, device string) string {
 }
 
 // BrowseDirectory liste le contenu d'un répertoire via SSH
-func BrowseDirectory(client *ssh.Client, path string) (*models.DirectoryListing, error) {
+func BrowseDirectory(client ssh.SSHExecutor, path string) (*models.DirectoryListing, error) {
 	// SÉCURITÉ: Valider le chemin pour éviter path traversal et injection de commandes
 	if err := security.ValidatePath(path); err != nil {
 		return nil, fmt.Errorf("chemin invalide: %w", err)
@@ -210,23 +210,51 @@ func parseLsLine(line, basePath string) *models.DirectoryEntry {
 		IsDir:       strings.HasPrefix(fields[0], "d"),
 	}
 
-	// Taille
-	size, _ := strconv.ParseInt(fields[4], 10, 64)
-	entry.Size = size
+	// Détecter si c'est un fichier périphérique (block ou char)
+	// Ils ont major, minor au lieu de size
+	// brw-rw---- 1 root disk 8, 0 Jan 15 10:30 sda
+	isDevice := strings.HasPrefix(fields[0], "b") || strings.HasPrefix(fields[0], "c")
 
-	// Nom (peut contenir des espaces)
-	entry.Name = strings.Join(fields[8:], " ")
-	entry.Path = filepath.Join(basePath, entry.Name)
+	if isDevice {
+		// Pour les périphériques, ls affiche major, minor
+		// Cela décale les champs suivants de 1
+		if len(fields) < 10 {
+			return nil
+		}
 
-	// Date de modification (format variable selon les locales)
-	// Essayer de parser la date
-	dateStr := strings.Join(fields[5:8], " ")
-	t, err := time.Parse("Jan 2 15:04", dateStr)
-	if err != nil {
-		t, _ = time.Parse("Jan 2 2006", dateStr)
-	}
-	if !t.IsZero() {
-		entry.ModTime = t
+		entry.Size = 0 // Taille non applicable ou 0
+
+		// Nom commence après la date
+		entry.Name = strings.Join(fields[9:], " ")
+		entry.Path = filepath.Join(basePath, entry.Name)
+
+		// Date de modification (indices 6, 7, 8)
+		dateStr := strings.Join(fields[6:9], " ")
+		t, err := time.Parse("Jan 2 15:04", dateStr)
+		if err != nil {
+			t, _ = time.Parse("Jan 2 2006", dateStr)
+		}
+		if !t.IsZero() {
+			entry.ModTime = t
+		}
+	} else {
+		// Fichier normal
+		size, _ := strconv.ParseInt(fields[4], 10, 64)
+		entry.Size = size
+
+		// Nom (peut contenir des espaces)
+		entry.Name = strings.Join(fields[8:], " ")
+		entry.Path = filepath.Join(basePath, entry.Name)
+
+		// Date de modification (indices 5, 6, 7)
+		dateStr := strings.Join(fields[5:8], " ")
+		t, err := time.Parse("Jan 2 15:04", dateStr)
+		if err != nil {
+			t, _ = time.Parse("Jan 2 2006", dateStr)
+		}
+		if !t.IsZero() {
+			entry.ModTime = t
+		}
 	}
 
 	return entry
@@ -234,7 +262,7 @@ func parseLsLine(line, basePath string) *models.DirectoryEntry {
 
 // GetDiskDetails retourne les détails d'un disque spécifique
 // osType: "linux", "windows" ou vide (défaut Linux)
-func GetDiskDetails(client *ssh.Client, mountPoint string, osType string) (*models.DiskInfo, []models.Partition, error) {
+func GetDiskDetails(client ssh.SSHExecutor, mountPoint string, osType string) (*models.DiskInfo, []models.Partition, error) {
 	// Obtenir les infos du disque
 	disks, err := CollectDiskInfo(client, osType)
 	if err != nil {
@@ -260,7 +288,7 @@ func GetDiskDetails(client *ssh.Client, mountPoint string, osType string) (*mode
 }
 
 // getPartitions récupère les partitions d'un disque
-func getPartitions(client *ssh.Client, device string) []models.Partition {
+func getPartitions(client ssh.SSHExecutor, device string) []models.Partition {
 	var partitions []models.Partition
 
 	// Utiliser lsblk pour obtenir les partitions
@@ -309,7 +337,7 @@ func getPartitions(client *ssh.Client, device string) []models.Partition {
 }
 
 // getMountOptions récupère les options de montage d'un point de montage
-func getMountOptions(client *ssh.Client, mountPoint string) []string {
+func getMountOptions(client ssh.SSHExecutor, mountPoint string) []string {
 	cmd := fmt.Sprintf("findmnt -o OPTIONS %q 2>/dev/null | tail -1", mountPoint)
 	output, err := client.Execute(cmd)
 	if err != nil {
@@ -326,7 +354,7 @@ func getMountOptions(client *ssh.Client, mountPoint string) []string {
 
 // CollectDiskIOStats collecte les statistiques d'E/S disque via SSH
 // osType: "linux", "windows" ou vide (défaut Linux)
-func CollectDiskIOStats(client *ssh.Client, osType string) (models.DiskStats, error) {
+func CollectDiskIOStats(client ssh.SSHExecutor, osType string) (models.DiskStats, error) {
 	if osType == "windows" {
 		return collectDiskIOStatsWindows(client)
 	}
@@ -334,7 +362,7 @@ func CollectDiskIOStats(client *ssh.Client, osType string) (models.DiskStats, er
 }
 
 // collectDiskIOStatsLinux collecte les stats I/O sur Linux
-func collectDiskIOStatsLinux(client *ssh.Client) (models.DiskStats, error) {
+func collectDiskIOStatsLinux(client ssh.SSHExecutor) (models.DiskStats, error) {
 	var stats models.DiskStats
 
 	// Lire /proc/diskstats
@@ -368,7 +396,7 @@ func collectDiskIOStatsLinux(client *ssh.Client) (models.DiskStats, error) {
 }
 
 // collectDiskIOStatsWindows collecte les stats I/O sur Windows via PowerShell
-func collectDiskIOStatsWindows(client *ssh.Client) (models.DiskStats, error) {
+func collectDiskIOStatsWindows(client ssh.SSHExecutor) (models.DiskStats, error) {
 	var stats models.DiskStats
 
 	// Utiliser Get-Counter pour les performances disque

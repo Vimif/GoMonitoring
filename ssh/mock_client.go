@@ -75,6 +75,16 @@ func (p *MockPool) GetClient(machineID string) (*Client, error) {
 	}, nil
 }
 
+// CloseAll ferme toutes les connexions du pool simulé
+func (p *MockPool) CloseAll() {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	for _, client := range p.clients {
+		client.Close()
+	}
+}
+
 // SetResponse enregistre une réponse pour une commande
 func (m *MockClient) SetResponse(cmd, output string) {
 	m.mu.Lock()
@@ -114,6 +124,11 @@ func (m *MockClient) Connect() error {
 
 // Execute simule l'exécution d'une commande SSH
 func (m *MockClient) Execute(cmd string) (string, error) {
+	// Simuler le comportement du vrai client qui tente de se connecter
+	if err := m.Connect(); err != nil {
+		return "", err
+	}
+
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -266,3 +281,6 @@ func NewMockClientTimeout() *MockClient {
 func NewMockClientAuthFailed() *MockClient {
 	return NewMockClientWithError("ssh: unable to authenticate: authentication failed")
 }
+
+// Vérifier que MockPool implémente ClientPool
+var _ ClientPool = (*MockPool)(nil)

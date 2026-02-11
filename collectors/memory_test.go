@@ -64,9 +64,6 @@ func TestMemoryInfoLinux_Parsing(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Parser manuellement comme le fait collectMemoryInfoLinux
-			fields := []string{"Mem:", "16777216000", "8388608000", "2097152000", "104857600", "6291456000", "7340032000"}
-
 			// Simuler le parsing avec les bonnes valeurs du test
 			parts := splitMemoryOutput(tt.freeOutput)
 			if len(parts) < 7 {

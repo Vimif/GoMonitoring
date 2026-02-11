@@ -11,7 +11,7 @@ import (
 
 // CollectCPUInfo collecte les informations CPU via SSH
 // osType: "linux", "windows" ou vide (défaut Linux)
-func CollectCPUInfo(client *ssh.Client, osType string) (models.CPUInfo, error) {
+func CollectCPUInfo(client ssh.SSHExecutor, osType string) (models.CPUInfo, error) {
 	if osType == "windows" {
 		return collectCPUInfoWindows(client)
 	}
@@ -19,14 +19,15 @@ func CollectCPUInfo(client *ssh.Client, osType string) (models.CPUInfo, error) {
 }
 
 // collectCPUInfoLinux collecte les infos CPU sur Linux
-func collectCPUInfoLinux(client *ssh.Client) (models.CPUInfo, error) {
+func collectCPUInfoLinux(client ssh.SSHExecutor) (models.CPUInfo, error) {
 	var info models.CPUInfo
 
 	// Modèle du CPU
 	model, err := client.Execute("cat /proc/cpuinfo | grep 'model name' | head -1 | cut -d':' -f2")
-	if err == nil {
-		info.Model = strings.TrimSpace(model)
+	if err != nil {
+		return info, err
 	}
+	info.Model = strings.TrimSpace(model)
 
 	// Nombre de cores physiques
 	cores, err := client.Execute("grep -c ^processor /proc/cpuinfo")
@@ -62,14 +63,15 @@ func collectCPUInfoLinux(client *ssh.Client) (models.CPUInfo, error) {
 }
 
 // collectCPUInfoWindows collecte les infos CPU sur Windows via PowerShell
-func collectCPUInfoWindows(client *ssh.Client) (models.CPUInfo, error) {
+func collectCPUInfoWindows(client ssh.SSHExecutor) (models.CPUInfo, error) {
 	var info models.CPUInfo
 
 	// Modèle du CPU
 	model, err := client.Execute(`powershell -Command "(Get-CimInstance Win32_Processor).Name"`)
-	if err == nil {
-		info.Model = strings.TrimSpace(model)
+	if err != nil {
+		return info, err
 	}
+	info.Model = strings.TrimSpace(model)
 
 	// Nombre de cores physiques
 	cores, err := client.Execute(`powershell -Command "(Get-CimInstance Win32_Processor).NumberOfCores"`)
@@ -111,33 +113,45 @@ func parseCPUUsage(topOutput string) float64 {
 	// L'utilisation = 100 - idle (id)
 
 	// Regex pour extraire le pourcentage idle
-	re := regexp.MustCompile(`(\d+\.?\d*)\s*id`)
+	// Supporte point ou virgule, et % optionnel
+	re := regexp.MustCompile(`(\d+[\.,]?\d*)\s*%?id`)
 	matches := re.FindStringSubmatch(topOutput)
 	if len(matches) >= 2 {
-		idle, err := strconv.ParseFloat(matches[1], 64)
+		valStr := strings.Replace(matches[1], ",", ".", 1)
+		idle, err := strconv.ParseFloat(valStr, 64)
 		if err == nil {
-			return 100.0 - idle
+			usage := 100.0 - idle
+			if usage < 0 {
+				return 0.0
+			}
+			if usage > 100 {
+				return 100.0
+			}
+			return usage
 		}
 	}
 
 	// Alternative: additionner us + sy + ni
-	reUs := regexp.MustCompile(`(\d+\.?\d*)\s*us`)
-	reSy := regexp.MustCompile(`(\d+\.?\d*)\s*sy`)
-	reNi := regexp.MustCompile(`(\d+\.?\d*)\s*ni`)
+	reUs := regexp.MustCompile(`(\d+[\.,]?\d*)\s*%?us`)
+	reSy := regexp.MustCompile(`(\d+[\.,]?\d*)\s*%?sy`)
+	reNi := regexp.MustCompile(`(\d+[\.,]?\d*)\s*%?ni`)
 
 	var total float64
-	if m := reUs.FindStringSubmatch(topOutput); len(m) >= 2 {
-		v, _ := strconv.ParseFloat(m[1], 64)
-		total += v
-	}
-	if m := reSy.FindStringSubmatch(topOutput); len(m) >= 2 {
-		v, _ := strconv.ParseFloat(m[1], 64)
-		total += v
-	}
-	if m := reNi.FindStringSubmatch(topOutput); len(m) >= 2 {
-		v, _ := strconv.ParseFloat(m[1], 64)
-		total += v
+	parse := func(re *regexp.Regexp) float64 {
+		if m := re.FindStringSubmatch(topOutput); len(m) >= 2 {
+			valStr := strings.Replace(m[1], ",", ".", 1)
+			v, _ := strconv.ParseFloat(valStr, 64)
+			return v
+		}
+		return 0
 	}
 
+	total += parse(reUs)
+	total += parse(reSy)
+	total += parse(reNi)
+
+	if total > 100 {
+		return 100.0
+	}
 	return total
 }

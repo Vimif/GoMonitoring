@@ -13,13 +13,13 @@ import (
 
 // ConcurrentCollector permet de collecter les métriques de plusieurs machines en parallèle
 type ConcurrentCollector struct {
-	pool          *ssh.Pool
+	pool          ssh.ClientPool
 	maxConcurrent int
 	semaphore     chan struct{}
 }
 
 // NewConcurrentCollector crée un nouveau collecteur concurrent
-func NewConcurrentCollector(pool *ssh.Pool, maxConcurrent int) *ConcurrentCollector {
+func NewConcurrentCollector(pool ssh.ClientPool, maxConcurrent int) *ConcurrentCollector {
 	if maxConcurrent <= 0 {
 		maxConcurrent = 5 // Valeur par défaut
 	}

