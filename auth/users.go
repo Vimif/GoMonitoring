@@ -20,14 +20,19 @@ type User struct {
 
 // UserManager gère l'authentification des utilisateurs
 type UserManager struct {
-	db *storage.DB
+	db        *storage.DB
+	dummyHash string
 }
 
 // NewUserManager crée un gestionnaire d'utilisateur
 // Il migre les utilisateurs de la config vers la DB si nécessaire
 func NewUserManager(db *storage.DB, cfgUsers []config.UserConfig) *UserManager {
+	// Generate dummy hash for timing attack mitigation
+	dummyHash, _ := bcrypt.GenerateFromPassword([]byte("dummy_password_for_timing_mitigation"), bcrypt.DefaultCost)
+
 	um := &UserManager{
-		db: db,
+		db:        db,
+		dummyHash: string(dummyHash),
 	}
 
 	// Migration initiale : Si DB vide ou user manquant, on ajoute ceux de la config
@@ -61,13 +66,35 @@ func NewUserManager(db *storage.DB, cfgUsers []config.UserConfig) *UserManager {
 // Authenticate vérifie le couple username/password avec gestion de lockout
 func (um *UserManager) Authenticate(username, password string) (*User, error) {
 	userDB, err := um.db.GetUser(username)
-	if err != nil {
+	userFound := (err == nil)
+
+	if !userFound {
+		// Dummy user to burn time and prevent timing attacks
+		userDB = &storage.UserDB{
+			Username:     username,
+			PasswordHash: um.dummyHash,
+			IsActive:     true,
+		}
+	}
+
+	// Always verify password to consume time (Timing Attack Mitigation)
+	passwordErr := bcrypt.CompareHashAndPassword([]byte(userDB.PasswordHash), []byte(password))
+
+	if !userFound {
 		return nil, errors.New("utilisateur ou mot de passe incorrect")
 	}
 
+	if passwordErr != nil {
+		// Wrong password for existing user
+		um.db.RecordLoginAttempt(username, false)
+		return nil, errors.New("utilisateur ou mot de passe incorrect")
+	}
+
+	// User found AND Password correct
+
 	// 1. Check Active
 	if !userDB.IsActive {
-		return nil, errors.New("ce compte est désactivé")
+		return nil, errors.New("utilisateur ou mot de passe incorrect")
 	}
 
 	// 2. Check Lockout
@@ -76,21 +103,10 @@ func (um *UserManager) Authenticate(username, password string) (*User, error) {
 		return nil, errors.New("compte verrouillé pour encore " + wait.String())
 	}
 
-	// 3. Verify Password
-	err = bcrypt.CompareHashAndPassword([]byte(userDB.PasswordHash), []byte(password))
-
-	// 4. Record Attempt
-	locked, recordErr := um.db.RecordLoginAttempt(username, err == nil)
+	// 4. Record Attempt (Success)
+	_, recordErr := um.db.RecordLoginAttempt(username, true)
 	if recordErr != nil {
 		log.Printf("Erreur recording login attempt: %v", recordErr)
-	}
-
-	if locked {
-		return nil, errors.New("compte verrouillé suite à trop d'échecs")
-	}
-
-	if err != nil {
-		return nil, errors.New("utilisateur ou mot de passe incorrect")
 	}
 
 	return &User{
