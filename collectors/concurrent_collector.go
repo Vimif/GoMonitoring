@@ -120,7 +120,7 @@ func (c *ConcurrentCollector) collectOne(ctx context.Context, machine *models.Ma
 }
 
 // collectMetrics effectue la collection des métriques
-func (c *ConcurrentCollector) collectMetrics(client *ssh.Client, machine *models.Machine) error {
+func (c *ConcurrentCollector) collectMetrics(client ssh.SSHExecutor, machine *models.Machine) error {
 	// Tenter de se connecter
 	if err := client.Connect(); err != nil {
 		machine.Status = "offline"
@@ -130,41 +130,64 @@ func (c *ConcurrentCollector) collectMetrics(client *ssh.Client, machine *models
 	machine.Status = "online"
 	machine.LastCheck = time.Now()
 
+	var wg sync.WaitGroup
+
 	// Collecter les métriques système
-	if system, _, err := CollectSystemInfo(client, machine.OSType); err == nil {
-		machine.System = system
-	} else {
-		log.Printf("Warning: Failed to collect system info for %s: %v", machine.ID, err)
-	}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if system, _, err := CollectSystemInfo(client, machine.OSType); err == nil {
+			machine.System = system
+		} else {
+			log.Printf("Warning: Failed to collect system info for %s: %v", machine.ID, err)
+		}
+	}()
 
 	// Collecter CPU
-	if cpu, err := CollectCPUInfo(client, machine.OSType); err == nil {
-		machine.CPU = cpu
-	} else {
-		log.Printf("Warning: Failed to collect CPU info for %s: %v", machine.ID, err)
-	}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if cpu, err := CollectCPUInfo(client, machine.OSType); err == nil {
+			machine.CPU = cpu
+		} else {
+			log.Printf("Warning: Failed to collect CPU info for %s: %v", machine.ID, err)
+		}
+	}()
 
 	// Collecter mémoire
-	if memory, err := CollectMemoryInfo(client, machine.OSType); err == nil {
-		machine.Memory = memory
-	} else {
-		log.Printf("Warning: Failed to collect memory info for %s: %v", machine.ID, err)
-	}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if memory, err := CollectMemoryInfo(client, machine.OSType); err == nil {
+			machine.Memory = memory
+		} else {
+			log.Printf("Warning: Failed to collect memory info for %s: %v", machine.ID, err)
+		}
+	}()
 
 	// Collecter disques
-	if disks, err := CollectDiskInfo(client, machine.OSType); err == nil {
-		machine.Disks = disks
-	} else {
-		log.Printf("Warning: Failed to collect disk info for %s: %v", machine.ID, err)
-	}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if disks, err := CollectDiskInfo(client, machine.OSType); err == nil {
+			machine.Disks = disks
+		} else {
+			log.Printf("Warning: Failed to collect disk info for %s: %v", machine.ID, err)
+		}
+	}()
 
 	// Collecter statistiques disque I/O
-	if diskIO, err := CollectDiskIOStats(client, machine.OSType); err == nil {
-		machine.DiskIO = diskIO
-	} else {
-		log.Printf("Warning: Failed to collect disk I/O for %s: %v", machine.ID, err)
-	}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if diskIO, err := CollectDiskIOStats(client, machine.OSType); err == nil {
+			machine.DiskIO = diskIO
+		} else {
+			log.Printf("Warning: Failed to collect disk I/O for %s: %v", machine.ID, err)
+		}
+	}()
 
+	wg.Wait()
 	return nil
 }
 
