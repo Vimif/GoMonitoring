@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -301,63 +302,37 @@ func collectLocalMachineDetailInfo(machine models.Machine) models.Machine {
 func formatBytes(bytes uint64) string {
 	const unit = 1024
 	if bytes < unit {
-		return formatInt(int64(bytes)) + " B"
+		return strconv.FormatUint(bytes, 10) + " B"
 	}
 	div, exp := uint64(unit), 0
 	for n := bytes / unit; n >= unit; n /= unit {
 		div *= unit
 		exp++
 	}
-	return formatFloat(float64(bytes)/float64(div)) + " " + string("KMGTPE"[exp]) + "iB"
+	f := float64(bytes) / float64(div)
+	return formatFloat(f) + " " + string("KMGTPE"[exp]) + "iB"
 }
 
 func formatFloat(f float64) string {
 	if f == float64(int64(f)) {
-		return formatInt(int64(f))
+		return strconv.FormatInt(int64(f), 10)
 	}
 	return floatToString(f, 2)
 }
 
 func formatInt(i int64) string {
-	s := ""
-	if i < 0 {
-		s = "-"
-		i = -i
-	}
-	str := intToString(i)
-	return s + str
+	return strconv.FormatInt(i, 10)
 }
 
 func intToString(i int64) string {
-	if i == 0 {
-		return "0"
-	}
-	result := ""
-	for i > 0 {
-		result = string(rune('0'+i%10)) + result
-		i /= 10
-	}
-	return result
+	return strconv.FormatInt(i, 10)
 }
 
 func floatToString(f float64, decimals int) string {
-	intPart := int64(f)
-	fracPart := f - float64(intPart)
-	if fracPart < 0 {
-		fracPart = -fracPart
+	if decimals <= 0 {
+		return strconv.FormatInt(int64(f), 10)
 	}
-
-	result := intToString(intPart)
-	if decimals > 0 {
-		result += "."
-		for i := 0; i < decimals; i++ {
-			fracPart *= 10
-			digit := int(fracPart)
-			result += string(rune('0' + digit))
-			fracPart -= float64(digit)
-		}
-	}
-	return result
+	return strconv.FormatFloat(f, 'f', decimals, 64)
 }
 
 func formatPercent(p float64) string {
