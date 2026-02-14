@@ -109,6 +109,14 @@ func CollectAllMachines(cfg *config.Config, pool *ssh.Pool, cache *cache.Metrics
 	var wg sync.WaitGroup
 
 	for i, machineConfig := range cfg.Machines {
+		// Optimization: Check cache first to avoid spawning goroutine if data is fresh
+		if !forceRefresh {
+			if cached, found := cache.Get(machineConfig.ID); found {
+				machines[i] = cached
+				continue
+			}
+		}
+
 		wg.Add(1)
 		go func(index int, mc config.MachineConfig) {
 			defer wg.Done()
