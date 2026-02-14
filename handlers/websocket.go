@@ -3,6 +3,8 @@ package handlers
 import (
 	"log"
 	"net/http"
+	"net/url"
+	"strings"
 	"sync"
 	"time"
 
@@ -26,28 +28,27 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		origin := r.Header.Get("Origin")
 
-		// Si pas d'origin (requête directe), accepter
+		// Si pas d'origin (requête directe ou outil CLI), accepter
 		if origin == "" {
 			return true
 		}
 
-		// Liste blanche des origines autorisées
-		allowedOrigins := []string{
-			"http://localhost:8080",
-			"http://127.0.0.1:8080",
-			"https://localhost:8080",
-			"https://127.0.0.1:8080",
+		// Parser l'origine pour extraire l'hôte
+		u, err := url.Parse(origin)
+		if err != nil {
+			log.Printf("WebSocket: origine invalide: %s", origin)
+			return false
 		}
 
-		// Vérifier si l'origine est dans la liste blanche
-		for _, allowed := range allowedOrigins {
-			if origin == allowed {
-				return true
-			}
+		// Vérifier si l'hôte de l'origine correspond à l'hôte de la requête
+		// Cela permet de supporter n'importe quel domaine de déploiement (y compris custom)
+		// tout en empêchant CSWSH (Cross-Site WebSocket Hijacking) depuis des sites tiers.
+		if strings.EqualFold(u.Host, r.Host) {
+			return true
 		}
 
 		// Log des tentatives d'accès non autorisées
-		log.Printf("WebSocket: origine non autorisée refusée: %s", origin)
+		log.Printf("WebSocket: origine non autorisée refusée: %s (Attendu: %s)", origin, r.Host)
 		return false
 	},
 }
