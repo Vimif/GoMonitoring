@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"go-monitoring/cache"
 	"go-monitoring/config"
@@ -26,7 +27,7 @@ func newTestConfigManager() *ConfigManager {
 	}
 
 	pool := ssh.NewPool([]config.MachineConfig{}, 10)
-	metricsCache := cache.NewMetricsCache()
+	metricsCache := cache.NewMetricsCache(10 * time.Minute)
 
 	return NewConfigManager(cfg, pool, metricsCache, "test_config.yaml")
 }
@@ -35,11 +36,12 @@ func TestAddMachine_Success(t *testing.T) {
 	cm := newTestConfigManager()
 
 	newMachine := config.MachineConfig{
-		ID:   "test-machine-1",
-		Name: "Test Machine",
-		Host: "192.168.1.100",
-		Port: 22,
-		User: "testuser",
+		ID:       "test-machine-1",
+		Name:     "Test Machine",
+		Host:     "192.168.1.100",
+		Port:     22,
+		User:     "testuser",
+		Password: "dummy",
 	}
 
 	body, err := json.Marshal(newMachine)
@@ -52,7 +54,7 @@ func TestAddMachine_Success(t *testing.T) {
 	handler := AddMachine(cm)
 	handler(w, req)
 
-	assert.Equal(t, http.StatusOK, w.Code, "Expected status OK")
+	assert.Equal(t, http.StatusCreated, w.Code, "Expected status Created")
 
 	// Vérifier la réponse JSON
 	var response map[string]interface{}
@@ -146,11 +148,12 @@ func TestAddMachine_DuplicateID(t *testing.T) {
 
 	// Ajouter une première machine
 	existingMachine := config.MachineConfig{
-		ID:   "duplicate-id",
-		Name: "Existing Machine",
-		Host: "192.168.1.10",
-		Port: 22,
-		User: "user1",
+		ID:       "duplicate-id",
+		Name:     "Existing Machine",
+		Host:     "192.168.1.10",
+		Port:     22,
+		User:     "user1",
+		Password: "dummy",
 	}
 
 	// Ajouter manuellement la machine existante
@@ -159,11 +162,12 @@ func TestAddMachine_DuplicateID(t *testing.T) {
 
 	// Tenter d'ajouter une machine avec le même ID
 	newMachine := config.MachineConfig{
-		ID:   "duplicate-id",
-		Name: "New Machine",
-		Host: "192.168.1.20",
-		Port: 22,
-		User: "user2",
+		ID:       "duplicate-id",
+		Name:     "New Machine",
+		Host:     "192.168.1.20",
+		Port:     22,
+		User:     "user2",
+		Password: "dummy",
 	}
 
 	body, err := json.Marshal(newMachine)
@@ -185,11 +189,12 @@ func TestUpdateMachine_Success(t *testing.T) {
 
 	// Ajouter une machine existante
 	existingMachine := config.MachineConfig{
-		ID:   "update-test",
-		Name: "Old Name",
-		Host: "192.168.1.10",
-		Port: 22,
-		User: "olduser",
+		ID:       "update-test",
+		Name:     "Old Name",
+		Host:     "192.168.1.10",
+		Port:     22,
+		User:     "olduser",
+		Password: "dummy",
 	}
 
 	cfg := cm.GetConfig()
@@ -197,11 +202,12 @@ func TestUpdateMachine_Success(t *testing.T) {
 
 	// Mettre à jour la machine
 	updatedMachine := config.MachineConfig{
-		ID:   "update-test",
-		Name: "New Name",
-		Host: "192.168.1.20",
-		Port: 2222,
-		User: "newuser",
+		ID:       "update-test",
+		Name:     "New Name",
+		Host:     "192.168.1.20",
+		Port:     2222,
+		User:     "newuser",
+		Password: "dummy",
 	}
 
 	body, err := json.Marshal(updatedMachine)
@@ -210,6 +216,8 @@ func TestUpdateMachine_Success(t *testing.T) {
 	req := httptest.NewRequest("PUT", "/api/machines/update-test", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
+	// Set PathValue manually since we are using httptest with older Go version logic or just need to simulate router
+	req.SetPathValue("id", "update-test")
 
 	handler := UpdateMachine(cm)
 	handler(w, req)
@@ -222,20 +230,22 @@ func TestDeleteMachine_Success(t *testing.T) {
 
 	// Ajouter une machine existante
 	existingMachine := config.MachineConfig{
-		ID:   "delete-test",
-		Name: "To Delete",
-		Host: "192.168.1.10",
-		Port: 22,
-		User: "user",
+		ID:       "delete-test",
+		Name:     "To Delete",
+		Host:     "192.168.1.10",
+		Port:     22,
+		User:     "user",
+		Password: "dummy",
 	}
 
 	cfg := cm.GetConfig()
 	cfg.Machines = append(cfg.Machines, existingMachine)
 
 	req := httptest.NewRequest("DELETE", "/api/machines/delete-test", nil)
+	req.SetPathValue("id", "delete-test")
 	w := httptest.NewRecorder()
 
-	handler := DeleteMachine(cm)
+	handler := RemoveMachine(cm)
 	handler(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code, "Expected status OK")
@@ -249,9 +259,10 @@ func TestDeleteMachine_NotFound(t *testing.T) {
 	cm := newTestConfigManager()
 
 	req := httptest.NewRequest("DELETE", "/api/machines/nonexistent", nil)
+	req.SetPathValue("id", "nonexistent")
 	w := httptest.NewRecorder()
 
-	handler := DeleteMachine(cm)
+	handler := RemoveMachine(cm)
 	handler(w, req)
 
 	// Devrait retourner une erreur NotFound ou BadRequest
@@ -263,11 +274,12 @@ func TestConfigManager_ThreadSafety(t *testing.T) {
 
 	// Ajouter une machine
 	machine := config.MachineConfig{
-		ID:   "thread-test",
-		Name: "Thread Test",
-		Host: "192.168.1.10",
-		Port: 22,
-		User: "user",
+		ID:       "thread-test",
+		Name:     "Thread Test",
+		Host:     "192.168.1.10",
+		Port:     22,
+		User:     "user",
+		Password: "dummy",
 	}
 
 	cfg := cm.GetConfig()
@@ -307,6 +319,14 @@ func TestJSONError(t *testing.T) {
 	assert.Equal(t, "Test error message", response["error"])
 }
 
+func jsonSuccess(w http.ResponseWriter, message string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"message": message,
+	})
+}
+
 func TestJSONSuccess(t *testing.T) {
 	w := httptest.NewRecorder()
 
@@ -327,11 +347,12 @@ func BenchmarkAddMachine(b *testing.B) {
 	cm := newTestConfigManager()
 
 	machine := config.MachineConfig{
-		ID:   "bench-test",
-		Name: "Bench Machine",
-		Host: "192.168.1.10",
-		Port: 22,
-		User: "user",
+		ID:       "bench-test",
+		Name:     "Bench Machine",
+		Host:     "192.168.1.10",
+		Port:     22,
+		User:     "user",
+		Password: "dummy",
 	}
 
 	body, _ := json.Marshal(machine)
