@@ -116,7 +116,24 @@ func (c *Config) GetMachine(id string) *MachineConfig {
 
 // SaveConfig sauvegarde la configuration dans un fichier YAML
 func SaveConfig(path string, cfg *Config) error {
-	data, err := yaml.Marshal(cfg)
+	// Créer une copie de la configuration pour la sauvegarde
+	// Cela évite de modifier la configuration en mémoire qui doit rester déchiffrée
+	cfgToSave := *cfg
+	cfgToSave.Machines = make([]MachineConfig, len(cfg.Machines))
+	copy(cfgToSave.Machines, cfg.Machines)
+
+	// Chiffrer les mots de passe dans la copie
+	for i := range cfgToSave.Machines {
+		if cfgToSave.Machines[i].Password != "" && !crypto.IsEncrypted(cfgToSave.Machines[i].Password) {
+			encrypted, err := crypto.Encrypt(cfgToSave.Machines[i].Password)
+			if err != nil {
+				return fmt.Errorf("erreur chiffrement password pour %s: %w", cfgToSave.Machines[i].ID, err)
+			}
+			cfgToSave.Machines[i].Password = encrypted
+		}
+	}
+
+	data, err := yaml.Marshal(&cfgToSave)
 	if err != nil {
 		return fmt.Errorf("erreur sérialisation YAML: %w", err)
 	}
@@ -140,16 +157,9 @@ func (c *Config) AddMachine(machine MachineConfig) error {
 		machine.Port = 22
 	}
 
-	// Chiffrer le password s'il est en clair
-	if machine.Password != "" && !crypto.IsEncrypted(machine.Password) {
-		encrypted, err := crypto.Encrypt(machine.Password)
-		if err != nil {
-			log.Printf("AVERTISSEMENT: Impossible de chiffrer le password pour %s: %v", machine.ID, err)
-			// On continue avec le password en clair (pas idéal mais fonctionnel)
-		} else {
-			machine.Password = encrypted
-		}
-	}
+	// Note: On ne chiffre PAS le mot de passe ici.
+	// La configuration en mémoire doit garder le mot de passe en clair pour les connexions SSH.
+	// Le chiffrement se fera uniquement lors de la sauvegarde via SaveConfig.
 
 	c.Machines = append(c.Machines, machine)
 	return nil
@@ -164,15 +174,9 @@ func (c *Config) UpdateMachine(machine MachineConfig) error {
 				machine.Port = 22
 			}
 
-			// Chiffrer le password s'il est en clair (nouveau password)
-			if machine.Password != "" && !crypto.IsEncrypted(machine.Password) {
-				encrypted, err := crypto.Encrypt(machine.Password)
-				if err != nil {
-					log.Printf("AVERTISSEMENT: Impossible de chiffrer le password pour %s: %v", machine.ID, err)
-				} else {
-					machine.Password = encrypted
-				}
-			}
+			// Note: On ne chiffre PAS le mot de passe ici.
+			// La configuration en mémoire doit garder le mot de passe en clair pour les connexions SSH.
+			// Le chiffrement se fera uniquement lors de la sauvegarde via SaveConfig.
 
 			c.Machines[i] = machine
 			return nil
