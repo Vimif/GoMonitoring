@@ -4,6 +4,8 @@ import (
 	"strings"
 	"testing"
 
+	"go-monitoring/ssh"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -186,4 +188,52 @@ func TestParseCPUUsage_ValidRange(t *testing.T) {
 			assert.LessOrEqual(t, result, 100.0, "CPU usage should be <= 100")
 		})
 	}
+}
+
+func TestCollectCPUInfoLinux_Optimized(t *testing.T) {
+	// Setup mock client
+	client := ssh.NewMockClientLinux()
+
+	// The command we expect to be executed (combined command)
+	cmd := `cat /proc/cpuinfo | grep 'model name' | head -1 | cut -d':' -f2 || echo "UNKNOWN"; echo "::::::"; grep -c ^processor /proc/cpuinfo || echo "0"; echo "::::::"; lscpu 2>/dev/null | grep '^CPU(s):' | awk '{print $2}' || echo "0"; echo "::::::"; cat /proc/cpuinfo | grep 'cpu MHz' | head -1 | cut -d':' -f2 || echo "0"; echo "::::::"; top -bn1 2>/dev/null | grep 'Cpu(s)' | head -1 || echo ""`
+
+	// The expected output
+	output := "Intel(R) Core(TM) i7-9700K CPU @ 3.60GHz\n::::::\n8\n::::::\n8\n::::::\n3600.000\n::::::\nCpu(s):  5.2 us,  2.1 sy,  0.0 ni, 92.7 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st\n"
+
+	client.SetResponse(cmd, output)
+
+	// Execute
+	info, err := CollectCPUInfo(client, "linux")
+
+	// Verify
+	assert.NoError(t, err)
+	assert.Equal(t, "Intel(R) Core(TM) i7-9700K CPU @ 3.60GHz", info.Model)
+	assert.Equal(t, 8, info.Cores)
+	assert.Equal(t, 8, info.Threads)
+	assert.Equal(t, 3600.0, info.MHz)
+	assert.InDelta(t, 7.3, info.UsagePercent, 0.1)
+}
+
+func TestCollectCPUInfoLinux_Optimized_PartialFailure(t *testing.T) {
+	// Setup mock client
+	client := ssh.NewMockClientLinux()
+
+	cmd := `cat /proc/cpuinfo | grep 'model name' | head -1 | cut -d':' -f2 || echo "UNKNOWN"; echo "::::::"; grep -c ^processor /proc/cpuinfo || echo "0"; echo "::::::"; lscpu 2>/dev/null | grep '^CPU(s):' | awk '{print $2}' || echo "0"; echo "::::::"; cat /proc/cpuinfo | grep 'cpu MHz' | head -1 | cut -d':' -f2 || echo "0"; echo "::::::"; top -bn1 2>/dev/null | grep 'Cpu(s)' | head -1 || echo ""`
+
+	// Simulate failures in some parts (empty or error messages caught by || echo)
+	// Model ok, Cores ok, Threads fail (0), MHz fail (0), Usage ok
+	output := "Intel(R) Core(TM) i7-9700K CPU @ 3.60GHz\n::::::\n4\n::::::\n0\n::::::\n0\n::::::\nCpu(s):  10.0 us,  5.0 sy,  0.0 ni, 85.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st\n"
+
+	client.SetResponse(cmd, output)
+
+	// Execute
+	info, err := CollectCPUInfo(client, "linux")
+
+	// Verify
+	assert.NoError(t, err)
+	assert.Equal(t, "Intel(R) Core(TM) i7-9700K CPU @ 3.60GHz", info.Model)
+	assert.Equal(t, 4, info.Cores)
+	assert.Equal(t, 4, info.Threads) // Fallback to cores
+	assert.Equal(t, 0.0, info.MHz)
+	assert.InDelta(t, 15.0, info.UsagePercent, 0.1)
 }

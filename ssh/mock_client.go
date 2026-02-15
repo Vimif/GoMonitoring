@@ -218,6 +218,7 @@ func NewMockClientLinux() *MockClient {
 		"lscpu | grep '^CPU(s):' | awk '{print $2}'":                       "8",
 		"cat /proc/cpuinfo | grep 'cpu MHz' | head -1 | cut -d':' -f2":     "3600.000",
 		"top -bn1 | grep 'Cpu(s)' | head -1":                               "Cpu(s):  5.2 us,  2.1 sy,  0.0 ni, 92.7 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st",
+		`cat /proc/cpuinfo | grep 'model name' | head -1 | cut -d':' -f2 || echo "UNKNOWN"; echo "::::::"; grep -c ^processor /proc/cpuinfo || echo "0"; echo "::::::"; lscpu 2>/dev/null | grep '^CPU(s):' | awk '{print $2}' || echo "0"; echo "::::::"; cat /proc/cpuinfo | grep 'cpu MHz' | head -1 | cut -d':' -f2 || echo "0"; echo "::::::"; top -bn1 2>/dev/null | grep 'Cpu(s)' | head -1 || echo ""`: "Intel(R) Core(TM) i7-9700K CPU @ 3.60GHz\n::::::\n8\n::::::\n8\n::::::\n3600.000\n::::::\nCpu(s):  5.2 us,  2.1 sy,  0.0 ni, 92.7 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st",
 		"free -b | grep Mem":                                               "Mem:   16777216000   8388608000   2097152000   104857600   6291456000   7340032000",
 		"df -B1 -T | tail -n +2":                                           "/dev/sda1      ext4  107374182400  53687091200  48339148800   53% /",
 		"systemctl is-active nginx apache2 mysql || true":                  "active\ninactive\nactive",

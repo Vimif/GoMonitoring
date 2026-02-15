@@ -205,9 +205,9 @@ func TestCollectMultipleMetrics_Performance(t *testing.T) {
 	assert.NoError(t, err2, "Memory collection should succeed")
 	assert.NoError(t, err3, "Disk collection should succeed")
 
-	// Vérifier qu'au moins 7 commandes ont été exécutées
+	// Vérifier qu'au moins 3 commandes ont été exécutées (CPU optimized from 5 to 1)
 	executedCmds := mockClient.GetExecutedCommands()
-	assert.GreaterOrEqual(t, len(executedCmds), 7, "Should have executed multiple commands")
+	assert.GreaterOrEqual(t, len(executedCmds), 3, "Should have executed multiple commands")
 }
 
 // Tests de réinitialisation du mock
