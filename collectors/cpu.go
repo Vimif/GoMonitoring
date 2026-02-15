@@ -22,41 +22,50 @@ func CollectCPUInfo(client ssh.SSHExecutor, osType string) (models.CPUInfo, erro
 func collectCPUInfoLinux(client ssh.SSHExecutor) (models.CPUInfo, error) {
 	var info models.CPUInfo
 
-	// Modèle du CPU
-	model, err := client.Execute("cat /proc/cpuinfo | grep 'model name' | head -1 | cut -d':' -f2")
+	// Combined command to reduce SSH round-trips from 5 to 1
+	// We use "::::::" as a separator between command outputs
+	cmd := `cat /proc/cpuinfo | grep 'model name' | head -1 | cut -d':' -f2 || echo "UNKNOWN"; echo "::::::"; grep -c ^processor /proc/cpuinfo || echo "0"; echo "::::::"; lscpu 2>/dev/null | grep '^CPU(s):' | awk '{print $2}' || echo "0"; echo "::::::"; cat /proc/cpuinfo | grep 'cpu MHz' | head -1 | cut -d':' -f2 || echo "0"; echo "::::::"; top -bn1 2>/dev/null | grep 'Cpu(s)' | head -1 || echo ""`
+
+	output, err := client.Execute(cmd)
 	if err != nil {
 		return info, err
 	}
-	info.Model = strings.TrimSpace(model)
 
-	// Nombre de cores physiques
-	cores, err := client.Execute("grep -c ^processor /proc/cpuinfo")
-	if err == nil {
-		n, _ := strconv.Atoi(strings.TrimSpace(cores))
+	parts := strings.Split(output, "::::::")
+	for i := range parts {
+		parts[i] = strings.TrimSpace(parts[i])
+	}
+
+	// 1. Modèle du CPU
+	if len(parts) > 0 {
+		info.Model = parts[0]
+	}
+
+	// 2. Nombre de cores physiques
+	if len(parts) > 1 {
+		n, _ := strconv.Atoi(parts[1])
 		info.Cores = n
 	}
 
-	// Nombre de threads (avec lscpu si disponible)
-	threads, err := client.Execute("lscpu | grep '^CPU(s):' | awk '{print $2}'")
-	if err == nil {
-		n, _ := strconv.Atoi(strings.TrimSpace(threads))
+	// 3. Nombre de threads
+	if len(parts) > 2 {
+		n, _ := strconv.Atoi(parts[2])
 		info.Threads = n
 	}
+	// Fallback to cores if threads not found or 0
 	if info.Threads == 0 {
 		info.Threads = info.Cores
 	}
 
-	// Fréquence MHz
-	mhz, err := client.Execute("cat /proc/cpuinfo | grep 'cpu MHz' | head -1 | cut -d':' -f2")
-	if err == nil {
-		f, _ := strconv.ParseFloat(strings.TrimSpace(mhz), 64)
+	// 4. Fréquence MHz
+	if len(parts) > 3 {
+		f, _ := strconv.ParseFloat(parts[3], 64)
 		info.MHz = f
 	}
 
-	// Usage CPU (via top en mode batch)
-	usage, err := client.Execute("top -bn1 | grep 'Cpu(s)' | head -1")
-	if err == nil {
-		info.UsagePercent = parseCPUUsage(usage)
+	// 5. Usage CPU
+	if len(parts) > 4 {
+		info.UsagePercent = parseCPUUsage(parts[4])
 	}
 
 	return info, nil
