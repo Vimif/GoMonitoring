@@ -1,0 +1,5 @@
+machines: []
+settings:
+    refresh_interval: 30
+    ssh_timeout: 10
+users: []

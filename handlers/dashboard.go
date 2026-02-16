@@ -24,14 +24,27 @@ var dashboardFuncs = template.FuncMap{
 	"upper": strings.ToUpper,
 }
 
+var (
+	dashboardTmpl *template.Template
+	dashboardErr  error
+	dashboardOnce sync.Once
+)
+
+func getDashboardTemplate() (*template.Template, error) {
+	dashboardOnce.Do(func() {
+		dashboardTmpl, dashboardErr = template.New("base.html").Funcs(dashboardFuncs).ParseFiles(
+			"templates/layout/base.html",
+			"templates/dashboard.html",
+		)
+	})
+	return dashboardTmpl, dashboardErr
+}
+
 // Dashboard gère la page d'accueil avec la liste des machines
 func Dashboard(cfg *config.Config, pool *ssh.Pool, cache *cache.MetricsCache, am *auth.AuthManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Charger les templates avec les fonctions personnalisées
-		tmpl, err := template.New("base.html").Funcs(dashboardFuncs).ParseFiles(
-			"templates/layout/base.html",
-			"templates/dashboard.html",
-		)
+		tmpl, err := getDashboardTemplate()
 		if err != nil {
 			http.Error(w, "Erreur chargement templates: "+err.Error(), http.StatusInternalServerError)
 			return

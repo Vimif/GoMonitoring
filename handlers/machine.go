@@ -26,6 +26,23 @@ var templateFuncs = template.FuncMap{
 	"upper":         strings.ToUpper,
 }
 
+var (
+	machineTmpl *template.Template
+	machineErr  error
+	machineOnce sync.Once
+)
+
+func getMachineTemplate() (*template.Template, error) {
+	machineOnce.Do(func() {
+		machineTmpl, machineErr = template.New("base.html").Funcs(templateFuncs).ParseFiles(
+			"templates/layout/base.html",
+			"templates/machine.html",
+			"templates/partials/disk_card.html",
+		)
+	})
+	return machineTmpl, machineErr
+}
+
 // MachineDetail gère la page de détail d'une machine
 func MachineDetail(cfg *config.Config, pool *ssh.Pool, cache *cache.MetricsCache, am *auth.AuthManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -57,11 +74,7 @@ func MachineDetail(cfg *config.Config, pool *ssh.Pool, cache *cache.MetricsCache
 		machine = collectMachineDetailWithTimeout(machine, machineConfig, cfg, pool, cache, 1*time.Second)
 
 		// Charger les templates avec les fonctions personnalisées
-		tmpl, err := template.New("base.html").Funcs(templateFuncs).ParseFiles(
-			"templates/layout/base.html",
-			"templates/machine.html",
-			"templates/partials/disk_card.html",
-		)
+		tmpl, err := getMachineTemplate()
 		if err != nil {
 			http.Error(w, "Erreur chargement templates: "+err.Error(), http.StatusInternalServerError)
 			return
